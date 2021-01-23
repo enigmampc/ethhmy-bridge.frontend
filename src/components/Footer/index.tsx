@@ -217,7 +217,7 @@ export const Footer: typeof Box = props => (
   /*        <a*/
 }
 {
-  /*          href="https://puzzle.report/"*/
+  /*          href="https://secretnodes.com/"*/
 }
 {
   /*          style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}*/
@@ -229,7 +229,7 @@ export const Footer: typeof Box = props => (
   /*        >*/
 }
 {
-  /*          <Text>Puzzle</Text>*/
+  /*          <Text>Secretnodes.com</Text>*/
 }
 {
   /*        </a>*/
