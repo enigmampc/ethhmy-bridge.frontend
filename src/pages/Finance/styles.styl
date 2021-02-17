@@ -10,8 +10,17 @@
   @media screen and (max-width: 800px) {
     gap: 16px;
   }
+  #disabled {
+    opacity: 0.5;
+    cursor: arrow;
+    box-shadow: none;
+    &:hover {
+      background: #ffffff;  
+    }
+  }
   .defiProduct {
     /* Auto Layout */
+    height: 586px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -27,14 +36,21 @@
     flex-grow: 1;
     margin: 0px 16px;
     transition: ease 2s;
+    justify-content: center;
     @media screen and (max-width: 800px) {
       flex: 1 1 100%;
+      height: auto;
     }
     &:hover {
       background: #E1FEF2;  
     }
     .defiTitle {
       color: #30303D;  
+      font-size: 2rem;
+    }
+    .imgFluid {
+      width: 120px;
+      height: 120px;
     }
     .defiDescription {
       color: #748695;

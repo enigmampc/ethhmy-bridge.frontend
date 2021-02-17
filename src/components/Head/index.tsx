@@ -90,7 +90,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           </Box>
 
           <Box direction="row" align="center" gap="15px">
-            <Box
+            {/* <Box
               className={cn(
                 styles.itemToken,
                 !isInfo &&
@@ -106,7 +106,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               onClick={goToBridge}
             >
               <Text>Bridge</Text>
-            </Box>
+            </Box> */}
 
             {/*<Box*/}
             {/*  className={cn(styles.itemToken, isSwap ? styles.selected : '')}*/}
@@ -117,7 +117,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             {/*  <Text>Swap</Text>*/}
             {/*</Box>*/}
 
-            <Box
+            {/* <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
               onClick={() => {
                 routing.push(`/tokens`);
@@ -136,7 +136,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               }}
             >
               <Text>Transactions</Text>
-            </Box>
+            </Box> */}
             {/*
             <Box
               className={cn(styles.itemToken, isInfo ? styles.selected : '')}
@@ -145,7 +145,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Info</Text>
             </Box> */}
 
-            <Box
+            {/* <Box
               className={cn(styles.itemToken, isEarn ? styles.selected : '')}
               onClick={() => routing.push('/earn')}
             >
@@ -157,7 +157,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               onClick={() => routing.push('/faq')}
             >
               <Text>FAQ</Text>
-            </Box>
+            </Box> */}
 
             {/*<Box*/}
             {/*  direction="column"*/}
