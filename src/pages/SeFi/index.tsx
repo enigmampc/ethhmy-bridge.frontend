@@ -273,13 +273,7 @@ export const SeFiPage = observer(() => {
 
                 return 0;
               })
-              .filter(rewardToken => {
-                console.log("HEYAAAAAAAAAAAAAAAAAAAAAa");
-                console.log(rewardToken.reward.inc_token.symbol);
-                console.log(rewardToken.reward.hidden);
-
-                return (process.env.TEST_COINS ? true : !rewardToken.reward.hidden);
-              })
+              .filter(rewardToken => (process.env.TEST_COINS ? true : !rewardToken.reward.hidden))
               .map(rewardToken => {
                 if (Number(rewardToken.reward.deadline) < 2_000_000) {
                   return null;
