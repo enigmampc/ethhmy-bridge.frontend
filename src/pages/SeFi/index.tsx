@@ -266,12 +266,19 @@ export const SeFiPage = observer(() => {
             {rewardsData
               .slice()
               .sort((a, b) => {
-                /* ETH first */
+                /* SEFI first */
                 if (a.reward.inc_token.symbol === 'SEFI') {
                   return -1;
                 }
 
                 return 0;
+              })
+              .filter(rewardToken => {
+                console.log("HEYAAAAAAAAAAAAAAAAAAAAAa");
+                console.log(rewardToken.reward.inc_token.symbol);
+                console.log(rewardToken.reward.hidden);
+
+                return (process.env.TEST_COINS ? true : !rewardToken.reward.hidden);
               })
               .map(rewardToken => {
                 if (Number(rewardToken.reward.deadline) < 2_000_000) {
