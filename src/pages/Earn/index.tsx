@@ -184,7 +184,13 @@ export const EarnRewards = observer((props: any) => {
 
                 return 0;
               })
-              .filter(rewardToken => (process.env.TEST_COINS ? true : !rewardToken.hidden))
+              .filter(rewardToken => {
+                console.log("HEYAAAAAAAAAAAAAAAAAAAAAa");
+                console.log(rewardToken.inc_token.symbol);
+                console.log(process.env.TEST_COINS ? true : !rewardToken.hidden);
+
+                (process.env.TEST_COINS ? true : !rewardToken.hidden)
+              })
               .map(rewardToken => {
                 if (Number(rewardToken.deadline) < 2_000_000) {
                   return null;
