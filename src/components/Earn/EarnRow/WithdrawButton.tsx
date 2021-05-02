@@ -7,7 +7,7 @@ import { Button } from 'semantic-ui-react';
 
 const WithdrawButton = ({ props, value, changeValue }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const amount = Number(value).toFixed(6)
+  const amount = Number(value).toFixed(6);
 
   return (
     <Button
@@ -17,7 +17,7 @@ const WithdrawButton = ({ props, value, changeValue }) => {
       onClick={async () => {
         setLoading(true);
         await Redeem({
-          secretjs: props.userStore.secretjs,
+          secretjs: props.userStore.secretjsSend,
           address: props.token.rewardsContract,
           amount: valueToDecimals(amount, props.token.decimals),
         })
@@ -27,12 +27,16 @@ const WithdrawButton = ({ props, value, changeValue }) => {
               target: {
                 value: '0.0',
               },
-            })
+            });
           })
           .catch(reason => {
             props.notify('error', `Failed to withdraw: ${reason}`);
-            console.log(`Failed to withdraw: ${reason}`)
+            console.log(`Failed to withdraw: ${reason}`);
           });
+        await Promise.all([
+          props.userStore.refreshRewardsBalances(props.token.display_props.symbol),
+          props.userStore.refreshTokenBalance(props.token.display_props.symbol),
+        ]);
         setLoading(false);
       }}
     >

@@ -141,7 +141,7 @@ export const Tokens = observer((props: any) => {
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.data
+  const filteredData = tokens.tokensUsageSync('BRIDGE')
     .filter(token => {
       if (search) {
         // todo: check dst_network

@@ -78,7 +78,7 @@ const IconOption = props => (
       {props.data.image ? (
         <img src={props.data.image} style={{ width: 20, marginRight: 20 }} alt={props.data.label} />
       ) : null}
-      <Text>{props.data.label}</Text>
+      <Text bold>{props.data.label}</Text>
     </Box>
   </Option>
 );
@@ -127,5 +127,6 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
 
 export const Select: React.ComponentType<ISelectProps> = withTheme(SelectClass);
 
-const injectValueProp = (value: any, options: ISelectOption[]) =>
-  typeof value === 'undefined' ? {} : { value: mapOptions(options).find(option => option.value === value) };
+const injectValueProp = (value: any, options: ISelectOption[]) => {
+  return !value ? { value: '' } : { value: mapOptions(options).find(option => option.value === value) };
+}

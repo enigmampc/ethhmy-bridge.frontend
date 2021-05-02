@@ -102,7 +102,7 @@ export const baseTheme: any = {
   appBorderRadius: 4,
 
   // Typography
-  fontBase: 'Nunito',
+  fontBase: 'Hind,sans-serif',
   fontCode: 'monospace',
 
   // Text colors
@@ -221,7 +221,7 @@ export const baseTheme: any = {
   },
 
   fonts: {
-    title: 'Nunito',
+    title: 'Hind,sans-serif',
   },
 
   container: {

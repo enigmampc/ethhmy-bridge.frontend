@@ -39,6 +39,8 @@ export const TokenMapfromITokenInfo = (tokens: ITokenInfo[]): SwapTokenMap => {
       symbol = 'SCRT';
     } else if (t.display_props.symbol.toLowerCase() === 'sscrt') {
       symbol = 'sSCRT';
+    } else if (t.display_props.symbol.toLowerCase() === 'sefi') {
+      symbol = 'SEFI';
     } else {
       symbol = 's' + t.display_props.symbol;
     }

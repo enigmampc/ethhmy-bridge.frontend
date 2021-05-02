@@ -1,6 +1,7 @@
-import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
+import { CosmWasmClient, ExecuteResult, SigningCosmWasmClient } from 'secretjs';
 import { JsonObject } from 'secretjs/types/types';
 import { Snip20Send } from './snip20';
+import { AsyncSender } from './asyncSender';
 
 interface IQueryRewards {
   rewards: {
@@ -21,27 +22,32 @@ interface IQueryRewardPoolBalance {
 }
 
 export const QueryRewards = async (params: {
-  cosmJS: SigningCosmWasmClient;
+  cosmJS: CosmWasmClient;
   contract: string;
   address: string;
-  height: string;
+  height?: string;
   key: string;
 }): Promise<JsonObject> => {
   const { cosmJS, contract, address, height, key } = params;
 
-  const result: IQueryRewards = await cosmJS.queryContractSmart(contract, {
+  let queryMsg = {
     rewards: {
       address,
-      height: Number(height),
       key,
     },
-  });
+  };
+
+  if (height) {
+    queryMsg.rewards['height'] = Number(height);
+  }
+
+  const result: IQueryRewards = await cosmJS.queryContractSmart(contract, queryMsg);
 
   return result.rewards.rewards;
 };
 
 export const QueryDeposit = async (params: {
-  cosmJS: SigningCosmWasmClient;
+  cosmJS: CosmWasmClient;
   contract: string;
   address: string;
   key: string;
@@ -70,13 +76,13 @@ export const QueryRewardPoolBalance = async (params: {
 };
 
 export const DepositRewards = async (params: {
-  secretjs: SigningCosmWasmClient;
+  secretjs: AsyncSender;
   recipient: string;
   address: string;
   amount: string;
 }): Promise<string> => {
   const tx = await Snip20Send({
-    msg: 'eyJkZXBvc2l0Ijp7fX0K', // '{"lock_tokens":{}}' -> base64
+    msg: 'eyJkZXBvc2l0Ijp7fX0K', // '{"deposit":{}}' -> base64
     ...params,
   });
 
@@ -84,13 +90,13 @@ export const DepositRewards = async (params: {
 };
 
 export const Redeem = async (params: {
-  secretjs: SigningCosmWasmClient;
+  secretjs: AsyncSender;
   address: string;
   amount: string;
 }): Promise<ExecuteResult> => {
   const { secretjs, address, amount } = params;
 
-  let result = await secretjs.execute(address, {
+  let result = await secretjs.asyncExecute(address, {
     redeem: {
       amount,
     },
@@ -99,10 +105,10 @@ export const Redeem = async (params: {
   return result;
 };
 
-export const Claim = async (params: { secretjs: SigningCosmWasmClient; address: string }): Promise<ExecuteResult> => {
+export const Claim = async (params: { secretjs: AsyncSender; address: string }): Promise<ExecuteResult> => {
   const { secretjs, address } = params;
 
-  let result = await secretjs.execute(address, {
+  let result = await secretjs.asyncExecute(address, {
     claim_reward_pool: {},
   });
 

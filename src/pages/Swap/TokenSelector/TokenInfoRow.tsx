@@ -8,6 +8,7 @@ import { CopyWithFeedback } from '../../../components/Swap/CopyWithFeedback';
 import { FlexRowSpace } from '../../../components/Swap/FlexRowSpace';
 import { SwapToken } from '../types/SwapToken';
 
+
 export const TokenInfoRow = (props: { token: SwapToken; balance?: number; onClick?: any }) => {
   return (
     <div style={{ display: 'flex' }}>

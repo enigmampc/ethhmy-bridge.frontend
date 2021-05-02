@@ -24,6 +24,7 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable public isMetaMask = false;
   private provider: any;
 
+  @observable public chainName: string;
   @observable public ethAddress: string;
   @observable public ethBalance: string = '';
   @observable public ethBalanceMin: string = '';
@@ -64,6 +65,21 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   }
 
+  getNetworkName(id: string) {
+    switch (id) {
+      case "0x1":
+        return "mainnet"
+      case "0x2a":
+        return "kovan"
+      case "0x3":
+        return "ropsten"
+      case "0x4":
+        return "rinkeby"
+      default:
+        return ""
+    }
+  }
+
   @action.bound
   setError(error: string) {
     this.error = error;
@@ -92,6 +108,16 @@ export class UserStoreMetamask extends StoreConstructor {
       if (provider !== window.ethereum) {
         console.error('Do you have multiple wallets installed?');
       }
+
+      // @ts-ignore
+      const chainId = await provider.request({ method: 'eth_chainId' });
+      this.chainName = this.getNetworkName(chainId)
+
+      // @ts-ignore
+      provider.on('chainChanged', (chainId) => {
+        this.chainName = this.getNetworkName(chainId)
+
+      })
 
       if (!provider) {
         return this.setError('Metamask not found');
@@ -124,7 +150,7 @@ export class UserStoreMetamask extends StoreConstructor {
                   },
                 ],
               },
-              err => (err ? reject(err) : accept()),
+              err => (err ? reject(err) : accept("success")),
             ),
           );
         }
@@ -167,7 +193,8 @@ export class UserStoreMetamask extends StoreConstructor {
           continue;
         }
         getErc20Balance(this.ethAddress, token.src_address).then(b => {
-          this.balanceToken[token.src_coin] = formatWithSixDecimals(divDecimals(b, token.decimals));
+          this.balanceToken[token.src_coin] = divDecimals(b, token.decimals);
+          // console.log(`hello from ${token.display_props.symbol} - ${JSON.stringify(this.balanceToken[token.src_coin])}`)
         });
         this.balanceTokenMin[token.src_coin] = token.display_props.min_to_scrt;
       }
@@ -201,6 +228,7 @@ export class UserStoreMetamask extends StoreConstructor {
     if (tokens) {
       const token = tokens.allData.find(t => t.src_address === this.erc20Address);
       if (token.dst_address) {
+        await this.stores.user.updateBalanceForSymbol(token.display_props.symbol)
         this.stores.user.snip20Address = token.dst_address;
         this.stores.user.snip20Balance = this.stores.user.balanceToken[token.src_coin];
         this.stores.user.snip20BalanceMin = this.stores.user.balanceTokenMin[token.src_coin];

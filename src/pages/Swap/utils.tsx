@@ -3,11 +3,11 @@ import { UserStoreEx } from 'stores/UserStore';
 import React from 'react';
 import Style from 'style-it';
 import { humanizeBalance } from '../../utils';
-import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
+import { CosmWasmClient, ExecuteResult, SigningCosmWasmClient } from 'secretjs';
 
 export const ERROR_WRONG_VIEWING_KEY = 'Viewing Key Error';
 
-export async function getNativeBalance(walletAddress: string, secretjs: SigningCosmWasmClient) {
+export async function getNativeBalance(walletAddress: string, secretjs: CosmWasmClient) {
   return secretjs.getAccount(walletAddress).then(account => {
     try {
       return new BigNumber(account.balance[0].amount);

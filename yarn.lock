@@ -1627,6 +1627,11 @@
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.8.2.tgz"
   integrity sha512-7PRna6st1As9DBTXO3Lf1lYw7bi+b/6kE2OPjvvdWHLfBxTI01FW1HSqt4akYzKe1Cta3bmhuwct4OAF2EVemA==
 
+"@ramonak/react-progress-bar@^2.1.3":
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/@ramonak/react-progress-bar/-/react-progress-bar-2.1.8.tgz#a87c093e8ae5a91cf2d9d8a84f50aafbb846a379"
+  integrity sha512-D+HZY+sk1Jt02dGriGSXpdPy0YuuL6wnEzW7sFweHbNQQ8bmfJ1OPuO/k8slBB2JNIpzH/6pIcHK8GlPKZXSuQ==
+
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.1"
   resolved "https://registry.npmjs.org/@samverschueren/stream-to-observable/-/stream-to-observable-0.3.1.tgz"
@@ -2678,6 +2683,11 @@ astral-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/astral-regex/-/astral-regex-1.0.0.tgz"
   integrity sha512-+Ryf6g3BKoRc7jfp7ad8tM4TtMiaWvbF/1/sQcZPkkS7ag3D5nMBCe2UfOTONtAkaG0tO0ij3C5Lwmf1EiyjHg==
+
+async-await-retry@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/async-await-retry/-/async-await-retry-1.2.1.tgz#3c0b458d3303d97c070b7826e6529c8cc0fbe5bf"
+  integrity sha512-fPyKJOlnBeUoo0Ak2gEoVODFo8dh3Vf6OTMlEIIc0YCglWx/k4jJum69L4jZsQaQMECzrl2LpsAe2mKdXqrZfw==
 
 async-each@^1.0.1:
   version "1.0.3"
@@ -6855,10 +6865,10 @@ ignore@^5.1.1, ignore@^5.1.4:
   resolved "https://registry.npmjs.org/ignore/-/ignore-5.1.8.tgz"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
 
-immer@7.0.9:
-  version "7.0.9"
-  resolved "https://registry.npmjs.org/immer/-/immer-7.0.9.tgz"
-  integrity sha512-Vs/gxoM4DqNAYR7pugIxi0Xc8XAun/uy7AQu4fLLqaTBHxjOP9pJ266Q9MWA/ly4z6rAFZbvViOtihxUZ7O28A==
+immer@8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-8.0.1.tgz#9c73db683e2b3975c424fb0572af5889877ae656"
+  integrity sha512-aqXhGP7//Gui2+UrEtvxZxSquQVXTpZ7KDxfCcKAF3Vysvw0CViVaW9RZ1j1xlIYqaaaipBoqdqeibkc18PNvA==
 
 import-fresh@^2.0.0:
   version "2.0.0"
@@ -9143,9 +9153,9 @@ node-addon-api@^2.0.0:
   resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-2.0.2.tgz"
   integrity sha512-Ntyt4AIXyaLIuMHF6IOoTakB3K+RWxwtsHNRxllEoA6vPwP9o4866g6YWDLUdnucilZhmkxiHwHr11gAENw+QA==
 
-node-dijkstra@2.5.0:
+node-dijkstra@^2.5.0:
   version "2.5.0"
-  resolved "https://registry.npmjs.org/node-dijkstra/-/node-dijkstra-2.5.0.tgz"
+  resolved "https://registry.yarnpkg.com/node-dijkstra/-/node-dijkstra-2.5.0.tgz#0feb76c5a05f35b56e786de6df4d3364af28d4e8"
   integrity sha1-D+t2xaBfNbVueG3m300zZK8o1Og=
 
 node-forge@^0.10.0:
@@ -10425,7 +10435,7 @@ prop-types-exact@^1.2.0:
     object.assign "^4.1.0"
     reflect.ownkeys "^0.2.0"
 
-prop-types@^15.5.4, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.7.2.tgz"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10706,10 +10716,10 @@ react-desc@^4.1.2:
   resolved "https://registry.npmjs.org/react-desc/-/react-desc-4.1.2.tgz"
   integrity sha512-JAVe89uaLr0HZ0IKodnpTPNgNyJ/SPDQnl3VJPVwI+SpebmHvJiBNZEOwX201QmSbsVGqRY8ql/VFPlAx85WzA==
 
-react-dev-utils@^11.0.2:
-  version "11.0.2"
-  resolved "https://registry.npmjs.org/react-dev-utils/-/react-dev-utils-11.0.2.tgz"
-  integrity sha512-xG7GlMoYkrgc2M1kDCHKRywXMDbFnjOB+/VzpytQyYBusEzR8NlGTMmUbvN86k94yyKu5XReHB8eZC2JZrNchQ==
+react-dev-utils@^11.0.4:
+  version "11.0.4"
+  resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.4.tgz#a7ccb60257a1ca2e0efe7a83e38e6700d17aa37a"
+  integrity sha512-dx0LvIGHcOPtKbeiSUM4jqpBl3TcY7CDjZdfOIcKeznE7BWr9dg0iPG90G5yfVQ+p/rGNMXdbfStvzQZEVEi4A==
   dependencies:
     "@babel/code-frame" "7.10.4"
     address "1.1.2"
@@ -10724,7 +10734,7 @@ react-dev-utils@^11.0.2:
     global-modules "2.0.0"
     globby "11.0.1"
     gzip-size "5.1.1"
-    immer "7.0.9"
+    immer "8.0.1"
     is-root "2.1.0"
     loader-utils "2.0.0"
     open "^7.0.2"
@@ -10852,6 +10862,13 @@ react-reel@^1.2.3:
   integrity sha512-kbrHjf7Ba/y5RqyIwI2NKbYetzmHu72l0jFTc8o3zbXf/qdYB0NftRbvBegUdCEnn8AWLfOkQ3Eov2sJZUsVfw==
   dependencies:
     react-themeable "^1.1.0"
+
+react-reveal@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/react-reveal/-/react-reveal-1.2.2.tgz#f47fbc44debc4c185ae2163a215a9e822c7adfef"
+  integrity sha512-JCv3fAoU6Z+Lcd8U48bwzm4pMZ79qsedSXYwpwt6lJNtj/v5nKJYZZbw3yhaQPPgYePo3Y0NOCoYOq/jcsisuw==
+  dependencies:
+    prop-types "^15.5.10"
 
 react-router-dom@5.1.2:
   version "5.1.2"

@@ -4,13 +4,100 @@
     color #47b8eb
 }
 
+.fill {
+    width: 100%;
+}
+
 .exchangeContainer {
     background: #FFFFFF;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
     border-radius: 4px;
+}
 
-    max-width 560px
-    min-width 560px
+.input{
+    font-size: 16px;
+    overflow-y: hidden; 
+    overflow-x: hidden;
+}
+
+.warningSign{
+    position: relative;
+    cursor: pointer;
+
+}
+
+.image_warning {
+    animation: warning-animation 2s infinite;
+}
+
+.follow_transaction {
+    cursor: pointer;
+    animation: fade 1s infinite;
+}
+
+@keyframes warning-animation {
+    0% {
+        transform: rotate(25deg);
+    }
+    25% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-25deg);
+    }
+    75% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(25deg);
+    }
+}
+
+.networktemplatetoken{
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.28);
+    background-color: #E1FEF2;
+    border-radius: 5px;
+}
+
+.reverseButton{
+    border-radius: 50%;
+    animation: pulse-animation 3s infinite ;
+    box-sizing: border-box;
+}
+
+.progressNumber{
+    width: 20px;
+    display: flex;
+    align-items:center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin: 6px;
+    border-radius: 100%;
+    font-size: 10px;
+}
+
+@keyframes pulse-animation {
+  50% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+}
+
+.warningSign:hover .warning_message{
+    opacity: 1;
+    display: block;
+}
+
+.maxAmountInput{
+    max-width: 80px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
 }
 
 .itemToken {

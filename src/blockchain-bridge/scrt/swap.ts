@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js';
 import { storeTxResultLocally } from 'pages/Swap/utils';
-import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
+import { CosmWasmClient, ExecuteResult, SigningCosmWasmClient } from 'secretjs';
 import { Asset, Currency, NativeToken, Token, Trade, TradeType } from '../../pages/Swap/types/trade';
 import { GetContractCodeHash } from './snip20';
 import { extractValueFromLogs, getFeeForExecute, validateBech32Address } from './utils';
+import { AsyncSender } from './asyncSender';
 
 export const buildAssetInfo = (currency: Currency) => {
   if (currency.token.info.type === 'native_token') {
@@ -74,17 +75,6 @@ export const ReverseSimulateResult = async (params: {
   });
 };
 
-export const GetPairLiquidity = async (params: {
-  secretjs: SigningCosmWasmClient;
-  pair: string;
-}): Promise<PoolResponse> => {
-  const { secretjs, pair } = params;
-
-  return await secretjs.queryContractSmart(pair, {
-    pool: {},
-  });
-};
-
 interface GenericSimulationResult {
   returned_asset: string;
   commission_amount: string;
@@ -93,7 +83,7 @@ interface GenericSimulationResult {
 
 export const handleSimulation = async (
   trade: Trade,
-  secretjs: SigningCosmWasmClient,
+  secretjs: AsyncSender,
   pair: string,
   swapDirection: TradeType,
 ): Promise<GenericSimulationResult> => {
@@ -233,10 +223,12 @@ interface CreatePairResponse {
 
 export const CreateNewPair = async ({
   secretjs,
+  secretjsSender,
   tokenA,
   tokenB,
 }: {
-  secretjs: SigningCosmWasmClient;
+  secretjs: CosmWasmClient;
+  secretjsSender: AsyncSender;
   tokenA: Asset;
   tokenB: Asset;
 }): Promise<CreatePairResponse> => {
@@ -262,14 +254,14 @@ export const CreateNewPair = async ({
 
   const factoryAddress = process.env.AMM_FACTORY_CONTRACT;
   const pairCodeId = Number(process.env.AMM_PAIR_CODE_ID);
-  const response: ExecuteResult = await secretjs.execute(
+  const response: ExecuteResult = await secretjsSender.asyncExecute(
     factoryAddress,
     {
       create_pair: { asset_infos },
     },
     '',
     [],
-    getFeeForExecute(1_000_000),
+    getFeeForExecute(1_500_000),
   );
   storeTxResultLocally(response);
 
@@ -301,7 +293,11 @@ export type Pair = {
   token_code_hash: string;
 };
 
-export const getSymbolsFromPair = (pair: Pair): string[] => {
+export type AssetInfos = {
+  asset_infos: Array<NativeToken | Token>;
+};
+
+export const getSymbolsFromPair = (pair: { asset_infos: any }): string[] => {
   const symbols = [];
 
   if ('native_token' in pair.asset_infos[0]) {

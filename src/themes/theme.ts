@@ -83,7 +83,7 @@ export const Theme: any = {
   },
   heading: {
     font: {
-      family: 'system-ui, sans-serif',
+      family: 'Montserrat',
     },
     weight: 300,
 
@@ -109,7 +109,7 @@ export const Theme: any = {
   },
   text: {
     font: {
-      family: 'system-ui, sans-serif',
+      family: 'Montserrat',
     },
     small: {
       size: '14px',

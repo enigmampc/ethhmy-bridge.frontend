@@ -54,6 +54,7 @@ const DepositContainer = props => {
             <ScrtTokenBalanceSingleLine
               value={props.balance}
               currency={props.currency}
+              price={props.price}
               selected={false}
               balanceText={props.balanceText}
               popupText={props.unlockPopupText}

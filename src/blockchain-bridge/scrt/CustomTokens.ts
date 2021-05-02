@@ -17,7 +17,11 @@ class LocalStorageTokens {
 
   static get(): SwapToken[] {
     try {
-      return getLocalStorage() || [];
+      const result = getLocalStorage();
+      if (Object.keys(result).length === 0) {
+        return []
+      } else
+      return result;
     } catch {
       return [];
     }

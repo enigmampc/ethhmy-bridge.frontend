@@ -48,6 +48,7 @@ export interface IAction {
 }
 
 export interface IOperation {
+  transactionHash: string;
   id: string;
   type: EXCHANGE_MODE;
   token: TOKEN;
@@ -59,6 +60,9 @@ export interface IOperation {
   actions: Array<IAction>;
   timestamp: number;
   erc20Address?: string;
+  swap?: ISwap;
+  symbol?: string;
+  image?: string;
 }
 
 export interface ISwap {
@@ -99,8 +103,55 @@ export interface ITokenInfo {
     proxy?: string;
     proxy_symbol?: string;
     proxy_address?: string;
+    is_secret_only?: boolean;
+    usage: TOKEN_USAGE[];
   };
 }
+
+export type TOKEN_USAGE = 'BRIDGE' | 'REWARDS' | 'LPSTAKING' | 'SWAP';
+
+export interface ISecretToken {
+  name: string;
+  address: string;
+  decimals: number;
+  price: string;
+  usage: TOKEN_USAGE[];
+  id: string;
+  hidden: boolean;
+  display_props: {
+    image: string;
+    label: string;
+    symbol: string;
+  };
+}
+
+export const tokenFromSecretToken = (sToken: ISecretToken): ITokenInfo => {
+  const { name, price, decimals, display_props } = sToken;
+
+  return {
+    src_coin: sToken.id,
+    name,
+    price,
+    decimals: decimals.toString(),
+    display_props: {
+      ...display_props,
+      hidden: sToken.hidden,
+      min_from_scrt: '',
+      min_to_scrt: '',
+      is_secret_only: true,
+      usage: sToken.usage,
+    },
+    dst_address: sToken.address,
+    dst_coin: undefined,
+    dst_network: '',
+    src_address: '',
+    src_network: '',
+    symbol: sToken.id,
+    totalLocked: '',
+    totalLockedNormal: '',
+    totalLockedUSD: '',
+  };
+};
 
 export interface IRewardPool {
   pool_address: string;
@@ -108,6 +159,7 @@ export interface IRewardPool {
     symbol: string;
     address: string;
     decimals: number;
+    price: number;
   };
   rewards_token: {
     symbol: string;
@@ -133,10 +185,41 @@ export interface ISecretSwapPair {
   };
 }
 
+export interface TokenPool {
+  info: {
+    token: {
+      contract_addr: string;
+      token_code_hash: string;
+      viewing_key: string;
+    };
+  };
+  amount: string;
+}
+
+export interface NativeTokenPool {
+  info: {
+    native_token: {
+      denom: string;
+    };
+  };
+  amount: string;
+}
+export interface ISecretSwapPool {
+  assets: Array<TokenPool | NativeTokenPool>;
+  total_share: string;
+}
+
 export interface ISignerHealth {
   signer: string;
   health: boolean;
   updated_on: Date;
   to_scrt: boolean;
   from_scrt: boolean;
+}
+
+export interface IClaimProofDocument {
+  user: string;
+  index: number;
+  amount: string;
+  proof: [String];
 }

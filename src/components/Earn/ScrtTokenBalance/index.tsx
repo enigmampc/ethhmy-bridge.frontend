@@ -33,10 +33,7 @@ const ScrtTokenBalance = (props: {
   onUnlock?: Function;
 }) => {
   const { user } = useStores();
-  const [value, setValue] = useState<string>(props.value);
-  useEffect(() => {
-    setValue(props.value);
-  }, [props.value]);
+  const { value } = props;
 
   const text = props.subtitle ? props.subtitle : 'Available Balance';
 
@@ -52,18 +49,16 @@ const ScrtTokenBalance = (props: {
   } else if (value === unlockToken) {
     return (
       <Transition animation="pulse" duration={500} visible={props.pulse}>
-        <div style={{ margin: 0, display: 'flex', flex: 1 }}>
-          <UnlockToken
-            userStore={props.userStore}
-            tokenAddress={props.tokenAddress}
-            selected={props.selected}
-            subtitle={props.subtitle.includes('Rewards') ? props.subtitle : props.currency}
-            showSubTitle={true}
-            pulseInterval={props.pulseInterval}
-            title={props.unlockTitle}
-            onUnlock={props.onUnlock}
-          />
-        </div>
+        <UnlockToken
+          userStore={props.userStore}
+          tokenAddress={props.tokenAddress}
+          selected={props.selected}
+          subtitle={props.subtitle.includes('Rewards') ? props.subtitle : props.currency}
+          showSubTitle={true}
+          pulseInterval={props.pulseInterval}
+          title={props.unlockTitle}
+          onUnlock={props.onUnlock}
+        />
       </Transition>
     );
   } else {

@@ -23,6 +23,7 @@ export const WalletOverview: React.FC<{
     <>
       {tokenAddresses
         .sort(a => (a.toLowerCase().includes('scrt') ? -1 : 1))
+        .sort(a => (a.toLowerCase().includes('sefi') ? -1 : 1))
         .filter(address => balances[address])
         .map(address => {
           const token = tokens.get(address);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styled, { withTheme } from 'styled-components';
+import { withTheme } from 'styled-components';
 import { Box, BoxProps, Text } from 'grommet';
 import { useHistory } from 'react-router';
 import { observer } from 'mobx-react-lite';
@@ -9,21 +9,11 @@ import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { TOKEN } from '../../stores/interfaces';
-import { KeplrButton } from '../Secret/KeplrButton';
-// import { formatWithTwoDecimals } from '../../utils';
-
-const MainLogo = styled.img`
-  width: auto;
-  height: 32px;
-  margin-bottom: 4px;
-`;
-
-const getTokenServiceEnable = false; //process.env.GET_TOKENS_SERVICE === 'true';
 
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   observer(({ theme, ...props }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
-    const { routing, user, exchange, actionModals } = useStores();
+    const { routing, exchange } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
 
@@ -34,13 +24,10 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';
     const isEarn = history.location.pathname === '/earn';
+    const isSeFi = history.location.pathname === '/sefi';
 
     const goToBridge = () => {
-      if (exchange.operation && exchange.operation.id) {
-        routing.push(`/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`);
-      } else {
-        routing.push(`/${exchange.token || TOKEN.ETH}`);
-      }
+      routing.push(`/`);
     };
 
     return (
@@ -91,7 +78,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens && !isSwap && !isEarn
+                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens && !isSwap && !isEarn && !isSeFi
                   ? styles.selected
                   : '',
               )}
@@ -117,16 +104,18 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Transactions</Text>
             </Box>
-            {/*
-            <Box
-              className={cn(styles.itemToken, isInfo ? styles.selected : '')}
-              onClick={() => routing.push('/info')}
-            >
-              <Text>Info</Text>
-            </Box> */}
 
             <Box className={cn(styles.itemToken, isEarn ? styles.selected : '')} onClick={() => routing.push('/earn')}>
               <Text>Earn</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isSeFi ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/sefi`);
+              }}
+            >
+              <Text>SeFi</Text>
             </Box>
 
             <Box

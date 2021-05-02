@@ -154,10 +154,10 @@ export class HistoryPanel extends React.Component<
 
                   if (this.props.balances[tokenA] instanceof BigNumber) {
                     const history = await this.getSwapsHistoryForToken(tokenA, selectedPair);
-                    console.log(history);
+                    //console.log(history);
                   }
                   if (this.props.balances[tokenB] instanceof BigNumber) {
-                    console.log('here');
+                    //console.log('here');
                   }
 
                   this.setState({ isLoadingBalance: false });

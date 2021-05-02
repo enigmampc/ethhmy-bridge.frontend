@@ -29,17 +29,23 @@ export function extractValueFromLogs(txResult: ExecuteResult, key: string, lastV
   return wasmLogs?.find(a => a.key === key)?.value;
 }
 
-// getAddress(address).bech32;
+const gasPriceUscrt = 0.25;
 export function getFeeForExecute(gas: number): StdFee {
   return {
-    amount: [{ amount: String(gas), denom: 'uscrt' }],
+    amount: [{ amount: String(Math.floor(gas * gasPriceUscrt) + 1), denom: 'uscrt' }],
     gas: String(gas),
   };
 }
 
+// todo: fix this up - proxy token
 export const secretTokenName = (mode: EXCHANGE_MODE, token: TOKEN, label: string): string => {
-  if (label === 'WSCRT') {
+  if (label === 'SEFI') {
+    return 'SEFI';
+  } else if (label === 'WSCRT') {
     return mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'SSCRT' : 'WSCRT';
+  } else if (label === 'WSIENNA') {
+    return mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'SIENNA' : 'WSIENNA';
+  } else {
+    return (mode === EXCHANGE_MODE.SCRT_TO_ETH && token === TOKEN.ERC20 ? 'secret' : '') + label;
   }
-  return (mode === EXCHANGE_MODE.SCRT_TO_ETH && token === TOKEN.ERC20 ? 'secret' : '') + label;
 };

@@ -67,8 +67,12 @@ function getClientEnvironment(publicUrl) {
         CHAIN_NAME: process.env.CHAIN_NAME,
         SECRET_RPC: process.env.SECRET_RPC,
         SECRET_LCD: process.env.SECRET_LCD,
+        SECRET_POST_ADDRESS: process.env.SECRET_POST_ADDRESS,
         SECRET_WS: process.env.SECRET_WS,
         SSCRT_CONTRACT: process.env.SSCRT_CONTRACT,
+        SIENNA_CONTRACT: process.env.SIENNA_CONTRACT,
+
+        SIENNA_PROXY_CONTRACT: process.env.SIENNA_PROXY_CONTRACT,
         WSCRT_PROXY_CONTRACT: process.env.WSCRT_PROXY_CONTRACT,
 
         AMM_FACTORY_CONTRACT: process.env.AMM_FACTORY_CONTRACT,
@@ -85,6 +89,12 @@ function getClientEnvironment(publicUrl) {
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
+
+        ETH_GOV_TOKEN_ADDRESS: process.env.ETH_GOV_TOKEN_ADDRESS,
+        ETH_DIST_TOKEN_ADDRESS: process.env.ETH_DIST_TOKEN_ADDRESS,
+
+        SCRT_GOV_TOKEN_ADDRESS: process.env.SCRT_GOV_TOKEN_ADDRESS,
+        SCRT_DIST_TOKEN_ADDRESS: process.env.SCRT_DIST_TOKEN_ADDRESS,
 
         SWAP_FEE: process.env.SWAP_FEE,
 

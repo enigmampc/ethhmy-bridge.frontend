@@ -5,8 +5,9 @@ import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals, fixUnlockToken, formatWithSixDecimals, sleep, unlockToken } from '../utils';
-import { SigningCosmWasmClient } from 'secretjs';
+import { BroadcastMode, CosmWasmClient, SigningCosmWasmClient } from 'secretjs';
 import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge';
+import { AsyncSender } from '../blockchain-bridge/scrt/asyncSender';
 
 export const rewardsDepositKey = key => `${key}RewardsDeposit`;
 
@@ -20,7 +21,8 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public keplrWallet: any;
   @observable public keplrOfflineSigner: any;
-  @observable public secretjs: SigningCosmWasmClient;
+  @observable public secretjs: CosmWasmClient;
+  @observable public secretjsSend: AsyncSender;
   @observable public isKeplrWallet = false;
   @observable public error: string;
 
@@ -91,7 +93,7 @@ export class UserStoreEx extends StoreConstructor {
 
         this.getBalances();
 
-        this.websocketInit();
+        //this.websocketInit();
       });
     }
   }
@@ -156,7 +158,7 @@ export class UserStoreEx extends StoreConstructor {
           return;
         }
         symbolUpdateHeightCache[symbol] = height;
-        await this.updateBalanceForSymbol(symbol);
+        //await this.updateBalanceForSymbol(symbol);
       } catch (error) {
         console.log(`Error parsing websocket event: ${error}`);
       }
@@ -251,91 +253,105 @@ export class UserStoreEx extends StoreConstructor {
     while (wait && !this.keplrWallet) {
       await sleep(100);
     }
-    console.log('Found Keplr');
+    console.log('Found Keplr', process.env.CHAIN_ID);
 
     this.chainId = process.env.CHAIN_ID;
-    try {
-      // Setup Secret Testnet (not needed on mainnet)
-      if (process.env.ENV !== 'MAINNET') {
-        await this.keplrWallet.experimentalSuggestChain({
-          chainId: this.chainId,
-          chainName: process.env.CHAIN_NAME,
-          rpc: process.env.SECRET_RPC,
-          rest: process.env.SECRET_LCD,
-          bip44: {
-            coinType: 529,
-          },
+
+    // Setup Secret Testnet (not needed on mainnet)
+    if (process.env.ENV !== 'MAINNET') {
+      await this.keplrWallet.experimentalSuggestChain({
+        chainId: this.chainId,
+        chainName: process.env.CHAIN_NAME,
+        rpc: process.env.SECRET_RPC,
+        rest: process.env.SECRET_LCD,
+        bip44: {
           coinType: 529,
-          stakeCurrency: {
+        },
+        coinType: 529,
+        stakeCurrency: {
+          coinDenom: 'SCRT',
+          coinMinimalDenom: 'uscrt',
+          coinDecimals: 6,
+        },
+        bech32Config: {
+          bech32PrefixAccAddr: 'secret',
+          bech32PrefixAccPub: 'secretpub',
+          bech32PrefixValAddr: 'secretvaloper',
+          bech32PrefixValPub: 'secretvaloperpub',
+          bech32PrefixConsAddr: 'secretvalcons',
+          bech32PrefixConsPub: 'secretvalconspub',
+        },
+        currencies: [
+          {
             coinDenom: 'SCRT',
             coinMinimalDenom: 'uscrt',
             coinDecimals: 6,
           },
-          bech32Config: {
-            bech32PrefixAccAddr: 'secret',
-            bech32PrefixAccPub: 'secretpub',
-            bech32PrefixValAddr: 'secretvaloper',
-            bech32PrefixValPub: 'secretvaloperpub',
-            bech32PrefixConsAddr: 'secretvalcons',
-            bech32PrefixConsPub: 'secretvalconspub',
+        ],
+        feeCurrencies: [
+          {
+            coinDenom: 'SCRT',
+            coinMinimalDenom: 'uscrt',
+            coinDecimals: 6,
           },
-          currencies: [
-            {
-              coinDenom: 'SCRT',
-              coinMinimalDenom: 'uscrt',
-              coinDecimals: 6,
-            },
-          ],
-          feeCurrencies: [
-            {
-              coinDenom: 'SCRT',
-              coinMinimalDenom: 'uscrt',
-              coinDecimals: 6,
-            },
-          ],
-          gasPriceStep: {
-            low: 0.1,
-            average: 0.25,
-            high: 0.4,
-          },
-          features: ['secretwasm'],
-        });
-      }
-
-      // Ask the user for permission
-      await this.keplrWallet.enable(this.chainId);
-
-      // @ts-ignore
-      this.keplrOfflineSigner = window.getOfflineSigner(this.chainId);
-      const accounts = await this.keplrOfflineSigner.getAccounts();
-      this.address = accounts[0].address;
-      this.isAuthorized = true;
-
-      this.secretjs = new SigningCosmWasmClient(
-        process.env.SECRET_LCD,
-        this.address,
-        this.keplrOfflineSigner,
-        // @ts-ignore
-        window.getEnigmaUtils(this.chainId),
-        {
-          init: {
-            amount: [{ amount: '300000', denom: 'uscrt' }],
-            gas: '300000',
-          },
-          exec: {
-            amount: [{ amount: '350000', denom: 'uscrt' }],
-            gas: '350000',
-          },
+        ],
+        gasPriceStep: {
+          low: 0.1,
+          average: 0.25,
+          high: 0.4,
         },
-      );
+        features: ['secretwasm'],
+      });
+    }
 
+    // Ask the user for permission
+    await this.keplrWallet.enable(this.chainId);
+
+    // @ts-ignore
+    this.keplrOfflineSigner = window.getOfflineSigner(this.chainId);
+    const accounts = await this.keplrOfflineSigner.getAccounts();
+    this.address = accounts[0].address;
+    this.isAuthorized = true;
+    // @ts-ignore
+    this.secretjsSend = this.initSecretJS(process.env.SECRET_POST_ADDRESS, true);
+    this.secretjs = this.initSecretJS(process.env.SECRET_LCD, false);
+  }
+
+  initSecretJS = (address: string, isSigner: boolean) => {
+    try {
+      const client = isSigner
+        ? new AsyncSender(
+          address,
+          this.address,
+          this.keplrOfflineSigner,
+          // @ts-ignore
+          window.getEnigmaUtils(this.chainId),
+          {
+            init: {
+              amount: [{ amount: '300000', denom: 'uscrt' }],
+              gas: '300000',
+            },
+            exec: {
+              amount: [{ amount: '500000', denom: 'uscrt' }],
+              gas: '500000',
+            },
+          },
+          BroadcastMode.Async,
+        )
+        : new CosmWasmClient(
+          address,
+          // @ts-ignore
+        );
       this.syncLocalStorage();
+      this.getBalances();
+      return client;
     } catch (error) {
       this.error = error.message;
       this.isAuthorized = false;
       console.error('keplr login error', error);
+      return undefined;
     }
-  }
+  };
 
   @action public getSnip20Balance = async (snip20Address: string, decimals?: string | number): Promise<string> => {
     if (!this.secretjs) {
@@ -371,26 +387,45 @@ export class UserStoreEx extends StoreConstructor {
     return rawBalance;
   };
 
-  @action public getBridgeRewardsBalance = async (snip20Address: string): Promise<string> => {
+  @action public getBridgeRewardsBalance = async (snip20Address: string, noheight): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
 
-    const height = await this.secretjs.getHeight();
+    let height = noheight ? undefined : String(await this.secretjs.getHeight());
 
     const viewingKey = await getViewingKey({
       keplr: this.keplrWallet,
       chainId: this.chainId,
       address: snip20Address,
     });
+    if (!viewingKey) {
+      throw new Error('Failed to get viewing key');
+    }
 
-    return await QueryRewards({
-      cosmJS: this.secretjs,
-      contract: snip20Address,
-      address: this.address,
-      key: viewingKey,
-      height: String(height),
-    });
+    try {
+      return await QueryRewards({
+        cosmJS: this.secretjs,
+        contract: snip20Address,
+        address: this.address,
+        key: viewingKey,
+        height: height,
+      });
+    } catch (e) {
+      try {
+        height = String(await this.secretjs.getHeight());
+        return await QueryRewards({
+          cosmJS: this.secretjs,
+          contract: snip20Address,
+          address: this.address,
+          key: viewingKey,
+          height: height,
+        });
+      } catch (e) {
+        console.error(`failed to query rewards: ${e}`);
+        throw new Error('failed to query rewards');
+      }
+    }
   };
 
   @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
@@ -403,13 +438,25 @@ export class UserStoreEx extends StoreConstructor {
       chainId: this.chainId,
       address: snip20Address,
     });
+    if (!viewingKey) {
+      throw new Error('Failed to get viewing key');
+    }
 
-    return await QueryDeposit({
-      cosmJS: this.secretjs,
-      contract: snip20Address,
-      address: this.address,
-      key: viewingKey,
-    });
+    try {
+      return await QueryDeposit({
+        cosmJS: this.secretjs,
+        contract: snip20Address,
+        address: this.address,
+        key: viewingKey,
+      });
+    } catch (e) {
+      return await Snip20GetBalance({
+        secretjs: this.secretjs,
+        address: this.address,
+        token: snip20Address,
+        key: viewingKey,
+      });
+    }
   };
 
   @action public getBalances = async () => {
@@ -468,6 +515,8 @@ export class UserStoreEx extends StoreConstructor {
       await this.updateSScrtBalance();
     }
 
+    //console.log(symbol)
+
     await this.refreshTokenBalance(symbol);
 
     //await this.refreshRewardsBalances(symbol);
@@ -495,14 +544,23 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   async refreshRewardsBalances(symbol: string) {
-    const rewardsToken = this.stores.rewards.allData.find(t => t.inc_token.symbol === `s${symbol}`);
+    let rewardsToken = this.stores.rewards.allData.find(t => {
+      return t.inc_token.symbol.toLowerCase() === symbol.toLowerCase();
+    });
     if (!rewardsToken) {
-      console.log('No rewards token for', symbol);
-      return;
+      // old style rewards token (earn page)
+      rewardsToken = this.stores.rewards.allData.find(t => {
+        return t.inc_token.symbol.toLowerCase().includes(symbol.toLowerCase());
+      });
+
+      if (!rewardsToken) {
+        console.log('No rewards token for', symbol);
+        throw new Error(`No rewards token for ${symbol}`);
+      }
     }
 
     try {
-      const balance = await this.getBridgeRewardsBalance(rewardsToken.pool_address);
+      const balance = await this.getBridgeRewardsBalance(rewardsToken.pool_address, false);
 
       if (balance.includes(unlockToken)) {
         this.balanceRewards[rewardsKey(rewardsToken.inc_token.symbol)] = balance;

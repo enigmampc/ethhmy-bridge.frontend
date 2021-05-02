@@ -13,12 +13,12 @@ import { divDecimals, sleep } from '../../utils';
 import { InfoModalEarn } from '../../components/InfoModalEarn';
 import { Icon } from 'components/Base/components/Icons';
 import cogoToast from 'cogo-toast';
+import { ITokenInfo } from '../../stores/interfaces';
 import * as services from 'services';
 import Loader from 'react-loader-spinner';
 import { Text } from 'components/Base';
 
-
-const notify = (type: 'success' | 'error', msg: string, hideAfterSec: number = 120) => {
+export const notify = (type: 'success' | 'error', msg: string, hideAfterSec: number = 120) => {
   if (type === 'error') {
     msg = msg.replaceAll('Failed to decrypt the following error message: ', '');
     msg = msg.replace(/\. Decryption error of the error message:.+?/, '');
@@ -32,37 +32,49 @@ const notify = (type: 'success' | 'error', msg: string, hideAfterSec: number = 1
     },
   });
   // NotificationManager[type](undefined, msg, closesAfterMs);
-}
+};
 
 export const EarnRewards = observer((props: any) => {
   const { user, tokens, rewards } = useStores();
   const [sushiAPY, setSushiAPY] = useState<Number>(-1);
 
+  const [filteredTokens, setFilteredTokens] = useState<ITokenInfo[]>([]);
+
   useEffect(() => {
-    const refreshAllTokens = async () => {
-      while (!user.secretjs || tokens.isPending) {
+    const asyncWrapper = async () => {
+      while (tokens.isPending) {
         await sleep(100);
       }
-      await Promise.all([...tokens.allData.map(token => user.updateBalanceForSymbol(token.display_props.symbol))]);
+      setFilteredTokens(await tokens.tokensUsage('REWARDS'));
     };
+    asyncWrapper().then(() => {});
+  }, [tokens, tokens.data]);
+
+  useEffect(() => {
+    // const refreshAllTokens = async () => {
+    //   while (!user.secretjs || tokens.isPending) {
+    //     await sleep(100);
+    //   }
+    //   await Promise.all([...filteredTokens.map(token => user.updateBalanceForSymbol(token.display_props.symbol))]);
+    // };
     const resolveSushiAPY = async () => {
       while (!user.secretjs || !user.scrtRate) {
         await sleep(100);
       }
 
       try {
-        const sushipool = await services.getSushiPool("0x9c86bc3c72ab97c2234cba8c6c7069009465ae86")
-        const liquidity = sushipool.entryUSD - sushipool.exitUSD
-        const apy = ((10000 * user.scrtRate) / liquidity) * 52
-        setSushiAPY(Number((apy * 100).toFixed(2)))
+        const sushipool = await services.getSushiPool('0x9c86bc3c72ab97c2234cba8c6c7069009465ae86');
+        const liquidity = sushipool.entryUSD - sushipool.exitUSD;
+        const apy = ((3000 * user.scrtRate) / liquidity) * 52;
+        setSushiAPY(Number((apy * 100).toFixed(2)));
       } catch (error) {
-        setSushiAPY(0)
+        setSushiAPY(0);
       }
-    }
+    };
 
-    resolveSushiAPY()
-    refreshAllTokens();
-  }, [user, tokens]);
+    resolveSushiAPY().then(() => {});
+    //refreshAllTokens().then(() => {});
+  }, [filteredTokens]);
 
   useEffect(() => {
     rewards.init({
@@ -140,22 +152,27 @@ export const EarnRewards = observer((props: any) => {
               minWidth: '550px',
               maxWidth: '1047px',
               display: 'flex',
-              flexDirection: 'row'
+              flexDirection: 'row',
             }}
           >
             SushiSwap incentives for LPs on the WSCRT/WETH pair are now live with a
             <Box direction="row" margin={{ left: 'xxsmall', right: 'xxsmall' }} align="center">
-              <Text bold margin={{ right: 'xxsmall' }}>APY of</Text>
-              {sushiAPY === -1 ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Text bold>{`${sushiAPY}%!`}</Text>}
-            </Box>
-            {' '}
+              <Text bold margin={{ right: 'xxsmall' }}>
+                APY of
+              </Text>
+              {sushiAPY === -1 ? (
+                <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+              ) : (
+                <Text bold>{`${sushiAPY}%!`}</Text>
+              )}
+            </Box>{' '}
             <a href="https://twitter.com/SecretNetwork/status/1369349930247192582" target="_blank">
               Earn more on SushiSwap Onsen
             </a>
             . 🍣
           </p>
         </div>
-        <Box direction="row" wrap={true} fill={true} justify="between" align="start">
+        <Box direction="row" wrap={true} fill={true} justify="center" align="start">
           <Box direction="column" align="center" justify="center" className={styles.base}>
             {rewards.allData
               .slice()
@@ -171,8 +188,7 @@ export const EarnRewards = observer((props: any) => {
                 if (Number(rewardToken.deadline) < 2_000_000) {
                   return null;
                 }
-
-                let token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address);
+                let token = filteredTokens.find(element => element.dst_address === rewardToken.inc_token.address);
                 if (!token) {
                   return null;
                 }
@@ -198,7 +214,15 @@ export const EarnRewards = observer((props: any) => {
                   deadline: Number(rewardToken.deadline),
                 };
 
-                return <EarnRow notify={notify} key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
+                return (
+                  <EarnRow
+                    notify={notify}
+                    key={rewardToken.inc_token.symbol}
+                    userStore={user}
+                    token={rewardsToken}
+                    callToAction="Earn sSCRT"
+                  />
+                );
               })}
           </Box>
         </Box>

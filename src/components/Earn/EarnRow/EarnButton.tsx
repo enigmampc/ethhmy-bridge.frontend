@@ -9,7 +9,7 @@ import { unlockToken } from '../../../utils';
 // todo: add failed toast or something
 const EarnButton = ({ props, value, changeValue, togglePulse, setPulseInterval }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const amount = Number(value).toFixed(6)
+  const amount = Number(value).toFixed(6);
 
   return (
     <Button
@@ -19,7 +19,7 @@ const EarnButton = ({ props, value, changeValue, togglePulse, setPulseInterval }
       onClick={async () => {
         setLoading(true);
         await DepositRewards({
-          secretjs: props.userStore.secretjs,
+          secretjs: props.userStore.secretjsSend,
           recipient: props.token.rewardsContract,
           address: props.token.lockedAssetAddress,
           // maximum precision for the contract is 6 decimals
@@ -41,8 +41,12 @@ const EarnButton = ({ props, value, changeValue, togglePulse, setPulseInterval }
           })
           .catch(reason => {
             props.notify('error', `Failed to deposit: ${reason}`);
-            console.log(`Failed to deposit: ${reason}`)
+            console.log(`Failed to deposit: ${reason}`);
           });
+        await Promise.all([
+          props.userStore.refreshRewardsBalances(props.token.display_props.symbol),
+          props.userStore.refreshTokenBalance(props.token.display_props.symbol),
+        ]);
         setLoading(false);
       }}
     >
