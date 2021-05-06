@@ -19,7 +19,7 @@ export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) =
         </li>
         <li>
           <a href="https://discord.com/channels/360051864110235648/805840792303960155" target="_blank" rel="noreferrer">
-            #🔀secret-swap
+            #🔀secret-swap-general
           </a>{' '}
           on{' '}
           <a href="https://chat.scrt.network" target="_blank" rel="noreferrer">
@@ -27,7 +27,7 @@ export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) =
           </a>
         </li>
         <li>
-          Tag @assafmo on{' '}
+          Tag @toml01 on{' '}
           <a href="https://t.me/SCRTCommunity" target="_blank" rel="noreferrer">
             Telegram
           </a>
