@@ -88,6 +88,12 @@ export const EthBridge = observer((props: any) => {
                 <p>You will not be able to directly withdraw BSC assets to Ethereum, or vice-versa</p>
                 <p>Assets can be converted using SecretSwap</p>
               </Message.Content>
+              <p></p>
+              <Message.Header>Known Issues</Message.Header>
+              <Message.Content>
+                <p>After creating your viewing key, you may need to refresh the page or change tokens for it to show</p>
+                <p>Some users may experience issues with viewing keys when using Brave</p>
+              </Message.Content>
             </Message>
             {/*<Message success>*/}
             {/*  <p>No current issues </p>*/}
