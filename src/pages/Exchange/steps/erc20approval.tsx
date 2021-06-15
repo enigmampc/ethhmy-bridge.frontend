@@ -12,6 +12,7 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Price } from '../../Explorer/Components';
 import HeadShake from 'react-reveal/HeadShake';
 import { useStores } from '../../../stores';
+import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
 
 export const ERC20ApprovalModal = observer(() => {
   const { exchange } = useStores();
@@ -56,7 +57,7 @@ export const ERC20ApprovalModal = observer(() => {
               ) : (
                 <Price
                   value={exchange.networkFee}
-                  isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
+                  isEth={exchange.mode === EXCHANGE_MODE.TO_SCRT}
                   boxProps={{ pad: {} }}
                 />
               )}
@@ -66,14 +67,14 @@ export const ERC20ApprovalModal = observer(() => {
               {exchange.txHash && (
                 <HeadShake bottom>
                   <Text>
-                    View on{' '}
+                    View in{' '}
                     <a
-                      href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`}
+                      href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${exchange.txHash}`}
                       style={{ textDecoration: 'none' }}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Etherscan
+                      Explorer
                     </a>
                   </Text>
                 </HeadShake>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { Icon, Text } from 'components/Base';
@@ -6,10 +7,10 @@ import { useStores } from 'stores';
 import { formatWithSixDecimals, truncateAddressString } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
-import { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { chainProps, chainPropToString } from '../../blockchain-bridge/eth/chainProps';
 
 const AssetRow = observer(
   (props: { label?: string; link?: string; address?: boolean; value?: string; children?: any; after?: any }) => {
@@ -59,25 +60,34 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(({ show
   const { exchange, userMetamask } = useStores();
   const [isShowDetail, setShowDetails] = useState(false);
 
-  const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT;
+  const isETH = exchange.mode === EXCHANGE_MODE.TO_SCRT;
 
   return (
     <Box direction="column">
-      <AssetRow label="ETH Address" value={exchange.transaction.ethAddress} address={true} />
+      <AssetRow
+        label={`${chainPropToString(chainProps.currency_symbol, userMetamask.network)} Address`}
+        value={exchange.transaction.ethAddress}
+        address={true}
+      />
       <AssetRow label="Secret Address" value={exchange.transaction.scrtAddress} address={true} />
-      {exchange.token === TOKEN.ERC20 ? (
-        <AssetRow
-          label={`${String(
-            userMetamask.erc20TokenDetails && userMetamask.erc20TokenDetails.symbol,
-          ).toUpperCase()} amount`}
-          value={formatWithSixDecimals(exchange.transaction.amount)}
-        />
-      ) : (
-        <AssetRow
-          label={`${String(exchange.token).toUpperCase()} amount`}
-          value={formatWithSixDecimals(exchange.transaction.amount)}
-        />
-      )}
+      <AssetRow
+        label={`${String(
+          exchange.token === TOKEN.NATIVE
+            ? chainPropToString(chainProps.currency_symbol, userMetamask.network)
+            : userMetamask.erc20TokenDetails.symbol,
+        ).toUpperCase()} amount`}
+        value={formatWithSixDecimals(exchange.transaction.amount)}
+      />
+      {/*{exchange.token === TOKEN.ERC20 ? (*/}
+      {/*  <AssetRow*/}
+      {/*    label={`${String(*/}
+      {/*      userMetamask.erc20TokenDetails && userMetamask.erc20TokenDetails.symbol,*/}
+      {/*    ).toUpperCase()} amount`}*/}
+      {/*    value={formatWithSixDecimals(exchange.transaction.amount)}*/}
+      {/*  />*/}
+      {/*) : (*/}
+
+      {/*)}*/}
 
       {/*<DataItem*/}
       {/*  icon="User"*/}
@@ -100,14 +110,14 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(({ show
             {!exchange.isFeeLoading ? (
               <Price
                 value={exchange.networkFee}
-                isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
+                isEth={exchange.mode === EXCHANGE_MODE.TO_SCRT}
                 boxProps={{ pad: {} }}
               />
             ) : (
               <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
             )}
           </AssetRow>
-          {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? (
+          {exchange.mode === EXCHANGE_MODE.FROM_SCRT ? (
             <AssetRow label="Swap Fee (estimated)" value="">
               {!exchange.isFeeLoading ? (
                 <Price
@@ -134,21 +144,21 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(({ show
             </Box>
           ) : null}
 
-          {!exchange.isFeeLoading && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && isShowDetail ? (
+          {!exchange.isFeeLoading && exchange.mode === EXCHANGE_MODE.TO_SCRT && isShowDetail ? (
             <div style={{ opacity: 1 }}>
-              {exchange.token !== TOKEN.ETH ? (
+              {exchange.token !== TOKEN.NATIVE ? (
                 <AssetRow label="Approve (~50000 gas)" value="">
                   <Price
                     value={exchange.networkFee / 2}
-                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
+                    isEth={exchange.mode === EXCHANGE_MODE.TO_SCRT}
                     boxProps={{ pad: {} }}
                   />
                 </AssetRow>
               ) : null}
               <AssetRow label="Lock token (~50000 gas)" value="">
                 <Price
-                  value={exchange.token === TOKEN.ETH ? exchange.networkFee : exchange.networkFee / 2}
-                  isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
+                  value={exchange.token === TOKEN.NATIVE ? exchange.networkFee : exchange.networkFee / 2}
+                  isEth={exchange.mode === EXCHANGE_MODE.TO_SCRT}
                   boxProps={{ pad: {} }}
                 />
               </AssetRow>
@@ -167,7 +177,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(({ show
       {exchange.txHash ? (
         <Box direction="column" margin={{ top: 'large' }}>
           <a
-            href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`}
+            href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${exchange.txHash}`}
             style={{ textDecoration: 'none' }}
             target="_blank"
             rel="noreferrer"
@@ -187,7 +197,7 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(({
     return null;
   }
 
-  if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && !user.snip20Address) {
+  if (exchange.mode === EXCHANGE_MODE.FROM_SCRT && !user.snip20Address) {
     return <Text color="red">Token not found</Text>;
   }
 
@@ -195,11 +205,11 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(({
     <Box direction="column">
       <AssetRow label="Token name" value={userMetamask.erc20TokenDetails.name} />
       <AssetRow label="Token Symbol" value={userMetamask.erc20TokenDetails.symbol} />
-      {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && userMetamask.ethAddress ? (
+      {exchange.mode === EXCHANGE_MODE.TO_SCRT && userMetamask.ethAddress ? (
         <AssetRow label="User Ethereum Balance" value={formatWithSixDecimals(userMetamask.erc20Balance)} />
       ) : null}
 
-      {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && user.address ? (
+      {exchange.mode === EXCHANGE_MODE.FROM_SCRT && user.address ? (
         <AssetRow label="User Harmony Balance" value={formatWithSixDecimals(user.snip20Balance)} />
       ) : null}
     </Box>

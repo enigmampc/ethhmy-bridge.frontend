@@ -230,7 +230,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
 
     const [index, direction] = sorter.split(',');
     const dir = direction === 'asc' ? 1 : -1;
-    return this.filteredData.sort((a, b) => {
+    return this.filteredData.slice().sort((a, b) => {
       return Number(a[index]) < Number(b[index]) ? dir : -dir;
     });
   }

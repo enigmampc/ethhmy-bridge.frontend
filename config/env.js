@@ -72,8 +72,10 @@ function getClientEnvironment(publicUrl) {
         SSCRT_CONTRACT: process.env.SSCRT_CONTRACT,
         SIENNA_CONTRACT: process.env.SIENNA_CONTRACT,
 
-        SIENNA_PROXY_CONTRACT: process.env.SIENNA_PROXY_CONTRACT,
-        WSCRT_PROXY_CONTRACT: process.env.WSCRT_PROXY_CONTRACT,
+        SIENNA_PROXY_CONTRACT_ETH: process.env.SIENNA_PROXY_CONTRACT_ETH,
+        WSCRT_PROXY_CONTRACT_ETH: process.env.WSCRT_PROXY_CONTRACT_ETH,
+        SIENNA_PROXY_CONTRACT_BSC: process.env.SIENNA_PROXY_CONTRACT_BSC,
+        WSCRT_PROXY_CONTRACT_BSC: process.env.WSCRT_PROXY_CONTRACT_BSC,
 
         AMM_FACTORY_CONTRACT: process.env.AMM_FACTORY_CONTRACT,
         AMM_ROUTER_CONTRACT: process.env.AMM_ROUTER_CONTRACT,
@@ -81,9 +83,15 @@ function getClientEnvironment(publicUrl) {
         AMM_PAIRS: process.env.AMM_PAIRS,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
+        BSC_MANAGER_CONTRACT: process.env.BSC_MANAGER_CONTRACT,
+        PLSM_MANAGER_CONTRACT: process.env.PLSM_MANAGER_CONTRACT,
+
         SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,
+        BSC_SCRT_SWAP_CONTRACT: process.env.BSC_SCRT_SWAP_CONTRACT,
+        PLSM_SWAP_CONTRACT: process.env.PLSM_SWAP_CONTRACT,
 
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
+        BSC_EXPLORER_URL: process.env.BSC_EXPLORER_URL,
         SCRT_EXPLORER_URL: process.env.SCRT_EXPLORER_URL,
 
         ETH_NODE_URL: process.env.ETH_NODE_URL,
@@ -102,12 +110,16 @@ function getClientEnvironment(publicUrl) {
         GAS_PRICE: process.env.GAS_PRICE,
 
         BACKEND_URL: process.env.BACKEND_URL,
+        PLSM_BACKEND_URL: process.env.PLSM_BACKEND_URL,
+        BSC_BACKEND_URL: process.env.BSC_BACKEND_URL,
+
         SUSHI_API: process.env.SUSHI_API,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
 
         TEST_COINS: !!process.env.TEST_COINS,
         SIG_THRESHOLD: process.env.SIG_THRESHOLD,
-        LEADER_ACCOUNT: process.env.LEADER_ACCOUNT,
+        LEADER_ACCOUNT_ETH: process.env.LEADER_ACCOUNT_ETH,
+        LEADER_ACCOUNT_BSC: process.env.LEADER_ACCOUNT_BSC,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin

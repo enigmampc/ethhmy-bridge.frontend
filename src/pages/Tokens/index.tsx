@@ -10,15 +10,35 @@ import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import { Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
-import { getScrtAddress } from '../../blockchain-bridge';
+import { getScrtAddress, networkFromToken, NETWORKS } from '../../blockchain-bridge';
 import { isMobile } from 'react-device-detect';
+import { chainProps, chainPropToString } from '../../blockchain-bridge/eth/chainProps';
 
-const ethAddress = (value, num = 10) => (
+const nativeWithLogo = (network?: NETWORKS) => {
+  return (
+    <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
+      <img
+        className={styles.imgToken}
+        style={{ height: 20 }}
+        src={chainPropToString(chainProps.image_logo, network || NETWORKS.ETH)}
+        alt={'scrt'}
+      />
+      native
+    </Box>
+  );
+};
+
+const ethAddress = (value, num = 10, network?: NETWORKS) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/static/eth.svg" alt={'scrt'} />
+    <img
+      className={styles.imgToken}
+      style={{ height: 20 }}
+      src={chainPropToString(chainProps.image_logo, network || NETWORKS.ETH)}
+      alt={'scrt'}
+    />
     <a
       className={styles.addressLink}
-      href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
+      href={`${chainPropToString(chainProps.explorerUrl, network)}/token/${value}`}
       target="_blank"
       rel={'noreferrer'}
     >
@@ -64,11 +84,12 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
     width: 160,
   },
   {
-    title: 'Ethereum Address',
+    title: 'Asset Address',
     key: 'src_address',
     dataIndex: 'src_address',
     width: 220,
-    render: value => (value === 'native' ? 'native' : ethAddress(value, 8)),
+    render: (value, data) =>
+      value === 'native' ? nativeWithLogo(networkFromToken(data)) : ethAddress(value, 8, networkFromToken(data)),
   },
   {
     title: 'Secret Network Address',
@@ -113,7 +134,7 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
 export const Tokens = observer((props: any) => {
   const { tokens } = useStores();
   const [search, setSearch] = useState<string>('');
-
+  const [tvl, setTVL] = useState<number>(tokens.totalLockedUSD);
   const [allColumns, setColumns] = useState<Array<any>>(getColumns());
 
   let columns = allColumns;
@@ -135,13 +156,28 @@ export const Tokens = observer((props: any) => {
     //tokens.fetch();
   }, []);
 
+  useEffect(() => {
+    if (tokens.allData.length > 0) {
+      setTVL(tokens.totalLockedUSD);
+    }
+  }, [tokens.allData.length]);
+
   const onChangeDataFlow = (props: any) => {
     tokens.onChangeDataFlow(props);
   };
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.tokensUsageSync('BRIDGE')
+  //const filteredData = tokens.tokensUsageSync('BRIDGE')
+  //const filteredData = ;
+  // .filter((value) => {
+  //   return !(value.dst_network !== userMetamask.getNetworkFullName() &&
+  //     value.src_network !== userMetamask.getNetworkFullName());
+  //
+  // });
+
+  const filteredData = tokens
+    .tokensUsageSync('BRIDGE')
     .filter(token => {
       if (search) {
         // todo: check dst_network
@@ -172,6 +208,7 @@ export const Tokens = observer((props: any) => {
       (token as any).key = token.symbol; // make react not sad
       return token;
     })
+    .slice()
     .sort((t1, t2) => (Number(t1.totalLockedUSD) > Number(t2.totalLockedUSD) ? -1 : 1))
     .map(token => {
       try {
@@ -206,7 +243,7 @@ export const Tokens = observer((props: any) => {
                   letterSpacing: 0.2,
                 }}
               >
-                ${formatWithTwoDecimals(tokens.totalLockedUSD)}
+                ${formatWithTwoDecimals(tvl)}
               </span>
             </span>
           </div>

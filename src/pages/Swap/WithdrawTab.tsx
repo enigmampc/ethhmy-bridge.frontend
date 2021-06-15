@@ -71,6 +71,7 @@ export class WithdrawTab extends React.Component<
               .toLowerCase()
               .includes(this.state.searchText);
           })
+          .slice()
           .sort((p1, p2) => {
             let [p1SymbolA, p1SymbolB] = [p1.asset_infos[0].symbol, p1.asset_infos[1].symbol];
             p1SymbolA = p1SymbolA.replace(/^s/, '');

@@ -2,8 +2,20 @@ import { decode } from 'bech32';
 import { ExecuteResult } from 'secretjs';
 import { StdFee } from 'secretjs/types/types';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
+import { NETWORKS } from '../eth/networks';
 
 const HRP = 'secret';
+
+export const swapContractAddress = (network: NETWORKS): string => {
+  switch (network) {
+    case NETWORKS.ETH:
+      return process.env.SCRT_SWAP_CONTRACT;
+    case NETWORKS.BSC:
+      return process.env.BSC_SCRT_SWAP_CONTRACT;
+    case NETWORKS.PLSM:
+      return process.env.PLSM_SWAP_CONTRACT;
+  }
+};
 
 export const getScrtAddress = (address: string): string => {
   try {
@@ -42,10 +54,10 @@ export const secretTokenName = (mode: EXCHANGE_MODE, token: TOKEN, label: string
   if (label === 'SEFI') {
     return 'SEFI';
   } else if (label === 'WSCRT') {
-    return mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'SSCRT' : 'WSCRT';
+    return mode === EXCHANGE_MODE.FROM_SCRT ? 'SSCRT' : 'WSCRT';
   } else if (label === 'WSIENNA') {
-    return mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'SIENNA' : 'WSIENNA';
+    return mode === EXCHANGE_MODE.FROM_SCRT ? 'SIENNA' : 'WSIENNA';
   } else {
-    return (mode === EXCHANGE_MODE.SCRT_TO_ETH && token === TOKEN.ERC20 ? 'secret' : '') + label;
+    return (mode === EXCHANGE_MODE.FROM_SCRT && token === TOKEN.ERC20 ? 'secret' : '') + label;
   }
 };

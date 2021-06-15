@@ -209,6 +209,7 @@ export const EarnRewards = observer((props: any) => {
               }).filter(function (el) {
                 return el != null;
               })
+              .slice()
               .sort((a, b) => {
                 const rewards_a = zeroDecimalsFormatter.format(Number(calculateAPY(a, Number(a.rewardsPrice), Number(a.price))));
                 const rewards_b = zeroDecimalsFormatter.format(Number(calculateAPY(b, Number(b.rewardsPrice), Number(b.price))));

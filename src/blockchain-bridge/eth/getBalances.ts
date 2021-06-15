@@ -1,4 +1,4 @@
-import { web3 } from './eth';
+import { web3 } from './index';
 
 export const getEthBalance = (ethAddress): Promise<string> => {
   return new Promise((resolve, reject) => {

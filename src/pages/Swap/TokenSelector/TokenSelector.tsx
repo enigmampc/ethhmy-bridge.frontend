@@ -90,6 +90,7 @@ export const TokenSelector = (props: {
             </div>
           ) : (
             filteredTokens
+              .slice()
               .sort((a, b) => {
                 /* sSCRT first */
                 if (a.symbol === 'sSCRT') {

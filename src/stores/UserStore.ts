@@ -6,7 +6,14 @@ import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals, fixUnlockToken, formatWithSixDecimals, sleep, unlockToken } from '../utils';
 import { BroadcastMode, CosmWasmClient, SigningCosmWasmClient } from 'secretjs';
-import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge';
+import {
+  getViewingKey,
+  networkFromToken,
+  NETWORKS,
+  QueryDeposit,
+  QueryRewards,
+  Snip20GetBalance,
+} from '../blockchain-bridge';
 import { AsyncSender } from '../blockchain-bridge/scrt/asyncSender';
 
 export const rewardsDepositKey = key => `${key}RewardsDeposit`;
@@ -36,7 +43,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balanceRewards: { [key: string]: string } = {};
 
   @observable public scrtRate = 0;
-  @observable public ethRate = 0;
+  // @observable public ethRate = 0;
 
   @observable public snip20Address = '';
   @observable public snip20Balance = '';
@@ -53,10 +60,9 @@ export class UserStoreEx extends StoreConstructor {
 
     // setInterval(() => this.getBalances(), 15000);
 
-    this.getRates();
-
     // Load tokens from DB
     this.stores.tokens.init();
+    this.stores.tokens.filters = {};
     this.stores.tokens.fetch();
 
     const keplrCheckPromise = new Promise<void>((accept, _reject) => {
@@ -91,6 +97,7 @@ export class UserStoreEx extends StoreConstructor {
       keplrCheckPromise.then(async () => {
         await this.signIn();
 
+        this.getRates();
         this.getBalances();
 
         //this.websocketInit();
@@ -321,27 +328,27 @@ export class UserStoreEx extends StoreConstructor {
     try {
       const client = isSigner
         ? new AsyncSender(
-          address,
-          this.address,
-          this.keplrOfflineSigner,
-          // @ts-ignore
-          window.getEnigmaUtils(this.chainId),
-          {
-            init: {
-              amount: [{ amount: '300000', denom: 'uscrt' }],
-              gas: '300000',
+            address,
+            this.address,
+            this.keplrOfflineSigner,
+            // @ts-ignore
+            window.getEnigmaUtils(this.chainId),
+            {
+              init: {
+                amount: [{ amount: '300000', denom: 'uscrt' }],
+                gas: '300000',
+              },
+              exec: {
+                amount: [{ amount: '500000', denom: 'uscrt' }],
+                gas: '500000',
+              },
             },
-            exec: {
-              amount: [{ amount: '500000', denom: 'uscrt' }],
-              gas: '500000',
-            },
-          },
-          BroadcastMode.Async,
-        )
+            BroadcastMode.Async,
+          )
         : new CosmWasmClient(
-          address,
-          // @ts-ignore
-        );
+            address,
+            // @ts-ignore
+          );
       this.syncLocalStorage();
       this.getBalances();
       return client;
@@ -639,13 +646,48 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async getRates() {
-    const scrtbtc = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC');
-    const btcusdt = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT');
+    // this.rates = Object.assign(
+    //   {},
+    //   ...this.stores.tokens.allData
+    //     .filter(token => token.src_address === 'native')
+    //     .map(token => {
+    //       let network = networkFromToken(token);
+    //       return {
+    //         [network]: token.price,
+    //       };
+    //     }),
+    // );
 
-    this.scrtRate = scrtbtc.body.lastPrice * btcusdt.body.lastPrice;
+    this.scrtRate = Number(
+      this.stores.tokens.allData.find(token => token.display_props.symbol.toUpperCase() === 'SSCRT').price,
+    );
 
-    const ethusdt = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT');
+    // fallback to binance prices
+    if (isNaN(this.scrtRate) || this.scrtRate === 0) {
+      const scrtbtc = await agent.get<{ body: IOperation }>(
+        'https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC',
+      );
+      const btcusdt = await agent.get<{ body: IOperation }>(
+        'https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT',
+      );
 
-    this.ethRate = ethusdt.body.lastPrice;
+      this.scrtRate = scrtbtc.body.lastPrice * btcusdt.body.lastPrice;
+    }
   }
+
+  // this.rates = {
+  //   BSC: ,
+  //   ETH: '',
+  //   PLSM: '',
+  // };
+
+  // const scrtbtc = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC');
+  // const btcusdt = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT');
+  //
+  // this.scrtRate = scrtbtc.body.lastPrice * btcusdt.body.lastPrice;
+  //
+  // const ethusdt = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT');
+  //
+  // this.ethRate = ethusdt.body.lastPrice;
+  //}
 }
