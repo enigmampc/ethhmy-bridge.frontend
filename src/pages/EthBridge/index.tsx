@@ -58,31 +58,36 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
+            <Message success>
+              <Message.Header>The bridge to Binance Smart Chain is now live!</Message.Header>
+              <Message.Content>
+                To get support, report bugs or suggestions you can use{' '}
+                <a
+                  href="https://discord.gg/7t7PqPZFJq"
+                  style={{ textDecoration: 'underline' }}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Discord
+                </a>{' '}
+                or{' '}
+                <a
+                  href="https://t.me/SCRTCommunity"
+                  style={{ textDecoration: 'underline' }}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Telegram
+                </a>
+              </Message.Content>
+            </Message>
             <Message info>
-              <Message.Header>
-                The
-                <a href="https://app.secretswap.io" style={{ textDecoration: 'none' }} target="_blank" rel="noreferrer">
-                  {' '}
-                  New SecretSwap App{' '}
-                </a>
-                is now LIVE!
-              </Message.Header>
-              <p>If you encounter any issues, you can access the legacy pages here:</p>
-              <p>
-                <a href="/sefi" style={{ textDecoration: 'underline' }} rel="noreferrer">
-                  SEFI(v1)
-                </a>
-              </p>
-              <p>
-                <a href="/swap" style={{ textDecoration: 'underline' }} rel="noreferrer">
-                  Swap(v1)
-                </a>
-                {/*{'Click '}*/}
-                {/*<a href="/sefi" style={{ textDecoration: 'underline' }} rel="noreferrer">*/}
-                {/*  HERE*/}
-                {/*</a>{' '}*/}
-                {/*Check it out now!*/}
-              </p>
+              <Message.Header>Warning</Message.Header>
+              <Message.Content>
+                <p>Binance-pegged assets from Binance Smart Chain are different than assets coming from Ethereum.</p>
+                <p>You will not be able to directly withdraw BSC assets to Ethereum, or vice-versa</p>
+                <p>Assets can be converted using SecretSwap</p>
+              </Message.Content>
             </Message>
             {/*<Message success>*/}
             {/*  <p>No current issues </p>*/}
