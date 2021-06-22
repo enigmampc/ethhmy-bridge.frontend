@@ -179,7 +179,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
   isCorrectNetworkSelected() {
     if (process.env.ENV === 'MAINNET') {
-      let result = chainIdMap[this.chainId].mainnet && chainIdMap[this.chainId].network === this.network;
+      let result = chainIdMap[this.chainId]?.mainnet && chainIdMap[this.chainId]?.network === this.network;
       if (!result) {
         if (this.network === NETWORKS.ETH) {
           // this doesn't actually work - metamask thing
