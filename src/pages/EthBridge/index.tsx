@@ -91,8 +91,10 @@ export const EthBridge = observer((props: any) => {
               <p></p>
               <Message.Header>Known Issues</Message.Header>
               <Message.Content>
-                <p>After creating your viewing key, you may need to refresh the page or change tokens for it to show</p>
-                <p>Some users may experience issues with viewing keys when using Brave</p>
+                <p>
+                  Some users may experience issues with viewing keys when using Chromium v91 browsers (Chrome, Brave,
+                  Edge) - make sure extension site access is set to "On all sites"
+                </p>
               </Message.Content>
             </Message>
             {/*<Message success>*/}
