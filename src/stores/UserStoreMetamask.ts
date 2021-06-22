@@ -122,13 +122,13 @@ export class UserStoreMetamask extends StoreConstructor {
         }),
     );
 
-    if (isNaN(this.rates.BSC) || this.rates.BSC === 0) {
+    if (isNaN(this.rates?.BSC) || this.rates?.BSC === 0) {
       const bnbUSDT = await agent.get<{ body: IOperation }>(
         'https://api.binance.com/api/v1/ticker/24hr?symbol=BNBUSDT',
       );
       this.rates.BSC = bnbUSDT.body.lastPrice;
     }
-    if (isNaN(this.rates.ETH) || this.rates.ETH === 0) {
+    if (isNaN(this.rates?.ETH) || this.rates?.ETH === 0) {
       const ethusdt = await agent.get<{ body: IOperation }>(
         'https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT',
       );
@@ -179,7 +179,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
   isCorrectNetworkSelected() {
     if (process.env.ENV === 'MAINNET') {
-      let result = chainIdMap[this.chainId].mainnet && chainIdMap[this.chainId].network === this.network;
+      let result = chainIdMap[this.chainId]?.mainnet && chainIdMap[this.chainId]?.network === this.network;
       if (!result) {
         if (this.network === NETWORKS.ETH) {
           // this doesn't actually work - metamask thing
@@ -195,6 +195,7 @@ export class UserStoreMetamask extends StoreConstructor {
       return !chainIdMap[this.chainId].mainnet && chainIdMap[this.chainId].network === this.network;
     }
 
+    console.log(`Could not identify chain: ${this.chainId}`);
     return false;
   }
 
@@ -212,10 +213,10 @@ export class UserStoreMetamask extends StoreConstructor {
                 chainName: 'Binance Smart Chain',
                 nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
                 rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                blockExplorerUrls: ['https://bscscan.com/']
-              }
-              ],
-          })
+                blockExplorerUrls: ['https://bscscan.com/'],
+              },
+            ],
+          });
         }
         // else if (chainId === 1) {
         //   // @ts-ignore
@@ -232,18 +233,18 @@ export class UserStoreMetamask extends StoreConstructor {
         //     ],
         //   })
         // }
-        return true
+        return true;
       } catch (error) {
-        console.error(error)
-        return false
+        console.error(error);
+        return false;
       }
     } else {
       console.error(
         `Can't setup the network with chainId: ${chainId} on metamask because window.ethereum is undefined`,
-      )
-      return false
+      );
+      return false;
     }
-  }
+  };
 
   @action.bound
   setError(error: string) {

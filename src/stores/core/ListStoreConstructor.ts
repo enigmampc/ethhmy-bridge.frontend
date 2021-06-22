@@ -256,10 +256,10 @@ export class ListStoreConstructor<T> extends StoreConstructor {
         this.fetchStatus = 'success';
 
         if (this.isLocal) {
-          this.allData = res.content;
+          this.allData = res.content || [];
           this.lastUpdateTime = res.lastUpdateTime;
         } else {
-          this.allData = res.content;
+          this.allData = res.content || [];
           this.lastUpdateTime = res.lastUpdateTime;
           this.updatePagination(res);
         }

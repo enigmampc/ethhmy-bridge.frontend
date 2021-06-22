@@ -120,14 +120,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>SeFi</Text>
             </Box>
 
-            <Box
-              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
-              onClick={() => {
-                const url = `https://app.secretswap.io`;
-                const win = window.open(url, '_blank');
-                win.focus();
-              }}
-            >
+            <Box className={cn(styles.itemToken, isSwap ? styles.selected : '')} onClick={() => routing.push('/swap')}>
               <Text>Swap</Text>
             </Box>
 

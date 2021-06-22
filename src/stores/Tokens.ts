@@ -22,16 +22,16 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
   }
 
   getTokenBySymbol(symbol: string): ITokenInfo {
-    return this.allData.find(token => token.display_props.symbol.toLowerCase() === symbol.toLowerCase());
+    return this.allData?.find(token => token.display_props.symbol.toLowerCase() === symbol.toLowerCase());
   }
 
   //
   @computed get totalLockedUSD() {
-    return this.allData.reduce((acc, v) => acc + Number(v.totalLockedUSD), 0);
+    return this.allData?.reduce((acc, v) => acc + Number(v.totalLockedUSD), 0);
   }
 
   tokensUsageSync(usage: TOKEN_USAGE, network?: NETWORKS) {
-    return this.allData.filter(token => {
+    return this.allData?.filter(token => {
       //      console.log(token.display_props.usage.includes(usage))
       if (network) {
         return networkFromToken(token) === network && token.display_props.usage.includes(usage);

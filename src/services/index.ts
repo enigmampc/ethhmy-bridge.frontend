@@ -92,8 +92,11 @@ export const getOperations = async (params: any): Promise<{ content: ISwap[] }> 
   ]);
 
   //const res = await agent.get<{ body: ISwap[] }>(url, params);
-  const swapArray: ISwap[] = res.flatMap(t => t.body.swaps)
-    .sort((a, b) => {return (a.created_on > b.created_on ? -1 : 1);});
+  const swapArray: ISwap[] = res
+    .flatMap(t => t.body.swaps)
+    .sort((a, b) => {
+      return a.created_on > b.created_on ? -1 : 1;
+    });
   // const content = res.body.swaps;
 
   return { content: swapArray };
@@ -130,14 +133,19 @@ export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[
       .map(t => {
         if (t.display_props.proxy) {
           t.display_props.proxy_address = t.dst_address;
-
-          const proxyToken = ProxyTokens[t.display_props.symbol.toUpperCase()][networkFromToken(t)];
-          t.dst_address = proxyToken.token;
-          t.display_props.proxy_symbol = proxyToken.proxySymbol;
+          try {
+            const proxyToken = ProxyTokens[t.display_props.symbol.toUpperCase()][networkFromToken(t)];
+            t.dst_address = proxyToken.token;
+            t.display_props.proxy_symbol = proxyToken.proxySymbol;
+          } catch (e) {
+            console.log(`Failed to parse proxy token ${t?.display_props?.symbol?.toUpperCase()}`);
+            return undefined;
+          }
         }
 
         return t;
       })
+      .filter(t => !!t)
       .map(t => {
         if (t.display_props?.usage === undefined) {
           t.display_props.usage = ['BRIDGE', 'REWARDS', 'SWAP'];

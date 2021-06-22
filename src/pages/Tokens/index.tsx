@@ -160,7 +160,7 @@ export const Tokens = observer((props: any) => {
     if (tokens.allData.length > 0) {
       setTVL(tokens.totalLockedUSD);
     }
-  }, [tokens.allData.length]);
+  }, [tokens.allData?.length]);
 
   const onChangeDataFlow = (props: any) => {
     tokens.onChangeDataFlow(props);
@@ -178,7 +178,7 @@ export const Tokens = observer((props: any) => {
 
   const filteredData = tokens
     .tokensUsageSync('BRIDGE')
-    .filter(token => {
+    ?.filter(token => {
       if (search) {
         // todo: check dst_network
         return (
