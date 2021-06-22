@@ -230,7 +230,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
 
     const [index, direction] = sorter.split(',');
     const dir = direction === 'asc' ? 1 : -1;
-    return this.filteredData.sort((a, b) => {
+    return this.filteredData.slice().sort((a, b) => {
       return Number(a[index]) < Number(b[index]) ? dir : -dir;
     });
   }
@@ -256,10 +256,10 @@ export class ListStoreConstructor<T> extends StoreConstructor {
         this.fetchStatus = 'success';
 
         if (this.isLocal) {
-          this.allData = res.content;
+          this.allData = res.content || [];
           this.lastUpdateTime = res.lastUpdateTime;
         } else {
-          this.allData = res.content;
+          this.allData = res.content || [];
           this.lastUpdateTime = res.lastUpdateTime;
           this.updatePagination(res);
         }

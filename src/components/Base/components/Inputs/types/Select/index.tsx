@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import ReactSelect, { StylesConfig, components } from 'react-select';
 import { ThemeConfig } from 'react-select/src/theme';
 import { withTheme } from 'styled-components';
@@ -69,10 +69,13 @@ export interface ISelectProps extends ICommonInputProps {
   disabled?: boolean;
   placeholder?: string;
   noDefaultValue?: boolean;
+  IconOption?: any,
+  SingleValue?: any,
+  mutatedOptions?: Array<any>
 }
 
 const { Option, SingleValue } = components;
-const IconOption = props => (
+const DefaultIconOption = props => (
   <Option {...props}>
     <Box direction="row" justify="start" align="center">
       {props.data.image ? (
@@ -83,7 +86,7 @@ const IconOption = props => (
   </Option>
 );
 
-const IconSingleValue = placeholder => props => (
+const DefaultIconSingleValue = placeholder => props => (
   <SingleValue {...props}>
     {props.data.label ? (
       <Box direction="row" justify="start" align="center">
@@ -99,7 +102,7 @@ const IconSingleValue = placeholder => props => (
 );
 
 const SelectClass = (props: ICommonInputProps & ISelectProps) => {
-  const { type = 'default', styles, disabled, placeholder, noDefaultValue } = props;
+  const { type = 'default', styles, disabled, placeholder, noDefaultValue, IconOption, SingleValue, mutatedOptions } = props;
 
   const mappedOptions = mapOptions(props.options);
 
@@ -113,11 +116,11 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
       menuPlacement="auto"
       components={{
         DropdownIndicator: ddProps => <DropdownIndicator glyph={props.glyph} {...ddProps} />,
-        Option: IconOption,
-        SingleValue: IconSingleValue(placeholder),
+        Option: IconOption || DefaultIconOption,
+        SingleValue: SingleValue || DefaultIconSingleValue(placeholder),
       }}
-      options={mappedOptions}
-      defaultValue={selectOptionByValue(props.value, mappedOptions, noDefaultValue)}
+      options={mutatedOptions || mappedOptions}
+      defaultValue={selectOptionByValue(props.value, mutatedOptions || mappedOptions, noDefaultValue)}
       onChange={(option: IReactSelectOption) => props.onChange(selectValueByOption(option))}
       {...injectValueProp(props.value, props.options)}
       placeholder={placeholder}

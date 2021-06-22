@@ -16,6 +16,8 @@ import { SwapStatus } from '../../../constants';
 import { CopyRow } from '../utils';
 import { EXCHANGE_MODE } from 'stores/interfaces';
 import HeadShake from 'react-reveal/HeadShake';
+import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
+import { networkToDisplay } from '../../../blockchain-bridge/utils';
 
 export const CheckTransaction = observer(() => {
   const { exchange } = useStores();
@@ -25,8 +27,8 @@ export const CheckTransaction = observer(() => {
   const [progressBar, setProgressBar] = useState<number>(0);
 
   useEffect(() => {
-    if (!exchange.operation) return
-    if (exchange.operation.type === EXCHANGE_MODE.SCRT_TO_ETH) {
+    if (!exchange.operation) return;
+    if (exchange.operation.type === EXCHANGE_MODE.FROM_SCRT) {
       setConfirmationsMessage(
         'You will have your Ethereum Tokens in your Metamask wallet within 6 network confirmations',
       );
@@ -42,16 +44,12 @@ export const CheckTransaction = observer(() => {
         status = 'Unsigned';
         break;
       case SwapStatus.SWAP_SIGNED:
-        status =
-          exchange.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
-            ? 'Being processed on Ethereum'
-            : 'Being processed on Secret Network';
+        status = `Being processed on ${networkToDisplay(exchange.operation.swap?.src_network)}`;
         break;
       case SwapStatus.SWAP_SUBMITTED:
-        status =
-          exchange.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
-            ? `Confirmed on Ethereum and it's being processed on Secret Network`
-            : `Confirmed on Secret Network and it's being processed on Ethereum`;
+        status = `Confirmed on ${networkToDisplay(
+          exchange.operation.swap?.src_network,
+        )} and it's being processed on ${networkToDisplay(exchange.operation.swap?.dst_network)}`;
         break;
       case SwapStatus.SWAP_CONFIRMED:
         status = 'Completed!';
@@ -79,7 +77,7 @@ export const CheckTransaction = observer(() => {
 
     if (exchange.operation.status <= 4) progress = (exchange.operation.status / 4) * 100;
     setProgressBar(progress);
-  }, [exchange.operation.status, exchange.operation.type]);
+  }, [exchange.operation.status, exchange.operation.swap]);
 
   const swap = exchange.operation.swap || { dst_address: '', src_tx_hash: '', dst_tx_hash: '', amount: '' };
 
@@ -157,12 +155,14 @@ export const CheckTransaction = observer(() => {
                   <Text size="small" bold>
                     {' '}
                     <a
-                      href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.operation.transactionHash}`}
+                      href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${
+                        exchange.operation.transactionHash
+                      }`}
                       style={{ textDecoration: 'none', color: '#00BFFF' }}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      View on Etherscan
+                      View in Explorer
                     </a>
                   </Text>
                 </Box>

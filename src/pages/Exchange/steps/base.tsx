@@ -1,23 +1,33 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react';
+
 import { Button, Icon, Text } from 'components/Base';
 import * as styles from '../styles.styl';
 import { Box } from 'grommet';
 import Web3 from 'web3';
 import * as bech32 from 'bech32';
-import { unlockToken } from 'utils';
+import { divDecimals, sleep, unlockToken } from 'utils';
 import { EXCHANGE_MODE, ITokenInfo, TOKEN } from 'stores/interfaces';
 import { Form, Input, NumberInput } from 'components/Form';
 import { ERC20Select } from '../ERC20Select';
+import { NetworkSelect } from '../NetworkSelect';
 import { AuthWarning } from '../../../components/AuthWarning';
 import { Exchange, EXCHANGE_STEPS } from '../../../stores/Exchange';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import HeadShake from 'react-reveal/HeadShake';
 import ProgressBar from '@ramonak/react-progress-bar';
-import { NetworkTemplate, NetworkTemplateInterface, TokenLocked, ViewingKeyIcon } from '../utils';
-import { formatSymbol } from '../../../utils';
+import {
+  HealthStatus,
+  HealthStatusDetailed,
+  Signer,
+  signerAddresses,
+  TokenLocked,
+  ViewingKeyIcon,
+  WrongNetwork,
+} from '../utils';
+import { formatSymbol, wrongNetwork } from '../../../utils';
 import { ISignerHealth } from '../../../stores/interfaces';
 import { useStores } from '../../../stores';
 import { getNetworkFee } from '../../../blockchain-bridge/eth/helpers';
@@ -25,6 +35,8 @@ import { toInteger } from 'lodash';
 import cogoToast from 'cogo-toast';
 import { UserStoreEx } from '../../../stores/UserStore';
 import { UserStoreMetamask } from '../../../stores/UserStoreMetamask';
+import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
+import { NETWORKS } from '../../../blockchain-bridge';
 
 interface Errors {
   amount: string;
@@ -37,7 +49,7 @@ type BalanceAmountInterface = {
   maxAmount: string;
 };
 
-type BalanceInterface = {
+export type BalanceInterface = {
   eth: BalanceAmountInterface;
   scrt: BalanceAmountInterface;
 };
@@ -67,11 +79,11 @@ const validateAmountInput = (value: string, minAmount: any, maxAmount: any) => {
 
 const validateAddressInput = (mode: EXCHANGE_MODE, value: string) => {
   if (!value) return 'Field required.';
-  if (mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+  if (mode === EXCHANGE_MODE.FROM_SCRT) {
     const web3 = new Web3();
     if (!web3.utils.isAddress(value) || !web3.utils.checkAddressChecksum(value)) return 'Not a valid Ethereum Address.';
   }
-  if (mode === EXCHANGE_MODE.ETH_TO_SCRT) {
+  if (mode === EXCHANGE_MODE.TO_SCRT) {
     if (!value.startsWith('secret')) return 'Not a valid Secret Address.';
 
     try {
@@ -93,29 +105,21 @@ const getBalance = async (
   const eth = { minAmount: '0', maxAmount: '0' };
   const scrt = { minAmount: '0', maxAmount: '0' };
 
-  const ethSwapFee = await getNetworkFee(process.env.SWAP_FEE);
-  const swapFeeUsd = ethSwapFee * user.ethRate;
+  const ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE));
+  const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
   const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
 
   const src_coin = exchange.transaction.tokenSelected.src_coin;
-
-  if (exchange.token === TOKEN.ERC20) {
-    if (!userMetamask.erc20TokenDetails) {
-      eth.maxAmount = '0';
-      eth.minAmount = '0';
-    }
-    scrt.maxAmount = user.balanceToken[src_coin] ? user.balanceToken[src_coin] : '0';
-    scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
-    eth.maxAmount = userMetamask.erc20Balance;
-    eth.minAmount = userMetamask.erc20BalanceMin || '0';
-  } else {
-    scrt.maxAmount =
-      !user.balanceToken['Ethereum'] || user.balanceToken['Ethereum'].includes(unlockToken)
-        ? '0'
-        : user.balanceToken['Ethereum'];
-    scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
-    eth.maxAmount = exchange.transaction.tokenSelected.symbol === 'ETH' ? userMetamask.ethBalance : '0';
-    eth.minAmount = exchange.transaction.tokenSelected.symbol === 'ETH' ? userMetamask.ethBalanceMin || '0' : '0';
+  const src_address = exchange.transaction.tokenSelected.src_address;
+  eth.maxAmount = userMetamask.balanceToken[src_coin]
+    ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
+    : wrongNetwork;
+  eth.minAmount = userMetamask.balanceTokenMin[src_coin] || '0';
+  scrt.maxAmount = user.balanceToken[src_coin] || '0';
+  scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
+  if (src_address === 'native') {
+    eth.maxAmount = userMetamask.isCorrectNetworkSelected() ? userMetamask.nativeBalance || '0' : wrongNetwork;
+    eth.minAmount = userMetamask.nativeBalanceMin || '0';
   }
 
   if (isLocked) {
@@ -125,33 +129,20 @@ const getBalance = async (
   return { eth, scrt };
 };
 
+function isNativeToken(selectedToken) {
+  return selectedToken.src_address === 'native';
+}
+
 export const Base = observer(() => {
   const { user, userMetamask, actionModals, exchange, tokens } = useStores();
   const [errors, setErrors] = useState<Errors>({ token: '', address: '', amount: '' });
   const [selectedToken, setSelectedToken] = useState<any>({});
-  const [networkTemplates, setNetworkTemplates] = useState<Array<NetworkTemplateInterface>>([
-    {
-      name: 'Ethereum',
-      wallet: 'Metamask',
-      symbol: 'Select a token',
-      amount: '',
-      image: '',
-      health: true,
-    },
-    {
-      name: 'Secret Network',
-      wallet: 'Keplr',
-      symbol: 'Select a token',
-      amount: '',
-      image: '',
-      health: true,
-    },
-  ]);
   const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
   const [minAmount, setMinAmount] = useState<string>('');
   const [maxAmount, setMaxAmount] = useState<string>('');
   const [warningAmount, setWarningAmount] = useState<string>('');
   const [progress, setProgress] = useState<number>(0);
+  const [metamaskNetwork, setMetamaskNetwork] = useState<NETWORKS>(NETWORKS.ETH);
 
   const defaultBalance: BalanceInterface = {
     eth: { minAmount: '', maxAmount: '' },
@@ -161,37 +152,76 @@ export const Base = observer(() => {
   const [onSwap, setSwap] = useState<boolean>(false);
   const [toApprove, setToApprove] = useState<boolean>(false);
   const [readyToSend, setReadyToSend] = useState<boolean>(false);
-  const [toSecretHealth, setToSecretHealth] = useState<boolean>(true);
-  const [fromSecretHealth, setFromSecretHealth] = useState<boolean>(true);
+  const [toSecretHealth, setToSecretHealth] = useState<HealthStatusDetailed>(undefined);
+  const [fromSecretHealth, setFromSecretHealth] = useState<HealthStatusDetailed>(undefined);
 
   const { signerHealth } = useStores();
 
   useEffect(() => {
-    const signers: ISignerHealth[] = signerHealth.allData;
+    const signers: ISignerHealth[] = signerHealth.allData.find(health => health.network === userMetamask.network)
+      ?.health;
 
-    if (signers.length === 0) {
+    if (!signers?.length) {
       return;
     }
 
-    const parseHealth = (signers: ISignerHealth[]): boolean => {
+    const parseHealth = (signers: ISignerHealth[], direction: EXCHANGE_MODE): Record<Signer, HealthStatus> => {
+      let healthStatus = {
+        [Signer.staked]: undefined,
+        [Signer.citadel]: undefined,
+        [Signer.bharvest]: undefined,
+        [Signer.enigma]: undefined,
+        [Signer.figment]: undefined,
+      };
+
       for (const signer of signers) {
-        if (signer.signer === process.env.LEADER_ACCOUNT && signers.length >= Number(process.env.SIG_THRESHOLD)) {
-          return true;
+        // note: We don't currently support multiple leader accounts for different networks
+        // if we want to make the leader address change on a different network we need to add
+        // it here
+        const updatedonTimestamp = new Date(signer.updated_on).getTime();
+        healthStatus[signerAddresses[metamaskNetwork][signer.signer.toLowerCase()]] = {
+          time: updatedonTimestamp,
+          status: (new Date().getTime() - updatedonTimestamp < 1000 * 60 * 5)
+                  && (direction === EXCHANGE_MODE.FROM_SCRT ? signer.from_scrt : signer.to_scrt)
         }
       }
-      return false;
+
+      return healthStatus;
     };
 
-    setFromSecretHealth(parseHealth(signers.filter(s => s.from_scrt)));
-    setToSecretHealth(parseHealth(signers.filter(s => s.to_scrt)));
-  }, [signerHealth.allData]);
+    setFromSecretHealth(
+      parseHealth(
+        signers,
+        EXCHANGE_MODE.FROM_SCRT
+      ),
+    );
+
+    setToSecretHealth(
+      parseHealth(
+        signers,
+        EXCHANGE_MODE.TO_SCRT
+      ),
+    );
+    // setFromSecretHealth(
+    //   parseHealth(
+    //     userMetamask.getLeaderAddress(),
+    //     signers.filter(s => s.from_scrt),
+    //   ),
+    // );
+    // setToSecretHealth(
+    //   parseHealth(
+    //     userMetamask.getLeaderAddress(),
+    //     signers.filter(s => s.to_scrt),
+    //   ),
+    // );
+  }, [signerHealth.allData, userMetamask.network]);
 
   useEffect(() => {
     setSelectedToken(exchange.transaction.tokenSelected);
   }, [exchange.transaction.tokenSelected]);
 
   useEffect(() => {
-    const fromNetwork = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'eth' : 'scrt';
+    const fromNetwork = exchange.mode === EXCHANGE_MODE.TO_SCRT ? 'eth' : 'scrt'; //userMetamask.getCurrencySymbol();
     const min = balance[fromNetwork].minAmount;
     const max = balance[fromNetwork].maxAmount;
     setMinAmount(min);
@@ -209,41 +239,27 @@ export const Base = observer(() => {
   }, [exchange.step.id]);
 
   useEffect(() => {
-    const NTemplate1: NetworkTemplateInterface = {
-      name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Ethereum' : 'Secret Network',
-      wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Metamask' : 'Keplr',
-      symbol: formatSymbol(
-        exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH,
-        selectedToken.symbol,
-      ),
-      amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.eth.maxAmount : balance.scrt.maxAmount,
-      image: selectedToken.image,
-      health: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? toSecretHealth : fromSecretHealth,
+    const selectNetwork = async () => {
+      if (userMetamask.network) {
+        await onSelectNetwork(userMetamask.network);
+      }
     };
-
-    const NTemplate2: NetworkTemplateInterface = {
-      name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Secret Network' : 'Ethereum',
-      wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Keplr' : 'Metamask',
-      symbol: formatSymbol(
-        exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? EXCHANGE_MODE.SCRT_TO_ETH : EXCHANGE_MODE.ETH_TO_SCRT,
-        selectedToken.symbol,
-      ),
-      amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.scrt.maxAmount : balance.eth.maxAmount,
-      image: selectedToken.image,
-      health: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? fromSecretHealth : toSecretHealth,
-    };
-
-    setNetworkTemplates([NTemplate1, NTemplate2]);
-  }, [exchange.mode, selectedToken, balance, toSecretHealth, fromSecretHealth]);
+    selectNetwork();
+  }, [userMetamask.network, userMetamask.chainId, userMetamask.ethAddress]);
 
   useEffect(() => {
     if (
       Number(exchange.transaction.amount) > 0 &&
-      selectedToken.symbol === 'ETH' &&
-      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+      selectedToken.symbol === userMetamask.getCurrencySymbol() &&
+      exchange.mode === EXCHANGE_MODE.TO_SCRT &&
       exchange.transaction.amount >= maxAmount
     ) {
-      setWarningAmount('Remember to leave some ETH behind to pay for network fees');
+      setWarningAmount(
+        `Remember to leave some ${chainPropToString(
+          chainProps.currency_symbol,
+          userMetamask.network || NETWORKS.ETH,
+        )} behind to pay for network fees`,
+      );
     } else {
       setWarningAmount('');
     }
@@ -251,10 +267,10 @@ export const Base = observer(() => {
 
   useEffect(() => {
     const approve =
-      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+      exchange.mode === EXCHANGE_MODE.TO_SCRT &&
       !exchange.isTokenApproved &&
       exchange.transaction.erc20Address !== '' &&
-      selectedToken.symbol !== 'ETH';
+      !isNativeToken(selectedToken);
 
     setToApprove(approve);
     if (approve) setProgress(1);
@@ -264,15 +280,15 @@ export const Base = observer(() => {
     if (
       exchange.isTokenApproved &&
       !toApprove &&
-      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-      selectedToken.symbol !== 'ETH'
+      exchange.mode === EXCHANGE_MODE.TO_SCRT &&
+      !isNativeToken(selectedToken)
     )
       setProgress(2);
   }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode]);
 
   useEffect(() => {
     const address =
-      exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress;
+      exchange.mode === EXCHANGE_MODE.FROM_SCRT ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress;
     const value =
       errors.token === '' &&
       errors.amount === '' &&
@@ -294,15 +310,21 @@ export const Base = observer(() => {
   ]);
 
   const onSelectedToken = async value => {
-    const token = tokens.allData.find(t => t.src_address === value);
+    const token = (await tokens.tokensUsage('BRIDGE', userMetamask.network)).find(t => t.src_address === value);
     setProgress(0);
     const newerrors = errors;
     setBalance({
       eth: { minAmount: 'loading', maxAmount: 'loading' },
       scrt: { minAmount: 'loading', maxAmount: 'loading' },
     });
-    token.display_props.symbol === 'ETH' ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20);
-    if (token.display_props.symbol === 'ETH') user.snip20Address = token.dst_address;
+
+    if (isNativeToken(token)) {
+      exchange.setToken(TOKEN.NATIVE);
+      user.snip20Address = token.dst_address;
+    } else {
+      exchange.setToken(TOKEN.ERC20);
+    }
+
     if (token.display_props.symbol !== exchange.transaction.tokenSelected.symbol) {
       exchange.transaction.amount = '';
       newerrors.amount = '';
@@ -313,9 +335,10 @@ export const Base = observer(() => {
       value: value,
       image: token.display_props.image,
       src_coin: token.src_coin,
+      src_address: token.src_address,
     };
 
-    if (token.display_props.symbol !== 'ETH') {
+    if (!isNativeToken(token)) {
       exchange.transaction.erc20Address = value;
       await exchange.checkTokenApprove(value);
     }
@@ -323,6 +346,11 @@ export const Base = observer(() => {
     const update = async () => {
       const amount = user.balanceToken[token.src_coin];
       const isLocked = amount === unlockToken;
+
+      while (userMetamask.balancesLoading) {
+        await sleep(50);
+      }
+
       const balance = await getBalance(exchange, userMetamask, user, isLocked, token);
 
       setBalance(balance);
@@ -334,21 +362,30 @@ export const Base = observer(() => {
     setTokenLocked(false);
 
     try {
-      if (token.display_props.symbol !== 'ETH') await userMetamask.setToken(value, tokens);
+      if (token.src_address !== 'native') {
+        await userMetamask.setToken(value, tokens);
+      }
       await user.updateBalanceForSymbol(token.display_props.symbol);
-      update();
+      await update();
     } catch (e) {
-      notify(
-        'error',
-        `Error on selecting ${token.display_props.symbol}, are you sure you have it added on your metamask?`,
-      );
-      update();
+      await update();
     }
+  };
+
+  const onSelectNetwork = async (network: NETWORKS) => {
+    userMetamask.setNetwork(network);
+    setMetamaskNetwork(network);
+    exchange.clear();
+    setErrors({ token: '', address: '', amount: '' });
+    setProgress(0);
+    setTokenLocked(false);
+    if (!location.pathname.startsWith('/operations')) exchange.stepNumber = EXCHANGE_STEPS.BASE;
+    await onSelectedToken('native');
   };
 
   const onClickHandler = async (callback: () => void) => {
     if (!user.isAuthorized) {
-      if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+      if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) {
         if (!user.isKeplrWallet) {
           return actionModals.open(() => <AuthWarning />, {
             title: '',
@@ -367,7 +404,7 @@ export const Base = observer(() => {
       }
     }
 
-    if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
+    if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.TO_SCRT) {
       if (!userMetamask.isAuthorized) {
         return await userMetamask.signIn(true);
       }
@@ -378,9 +415,28 @@ export const Base = observer(() => {
 
   return (
     <Box fill direction="column" background="transparent">
-      <Box className={styles.networksContainer} background="#f5f5f5" style={{ position: 'relative' }}>
-        <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} user={user} />
-        <Box className={styles.reverseButton}>
+      <Box
+        fill
+        direction="row"
+        justify="around"
+        pad="xlarge"
+        background="#f5f5f5"
+        style={{ zIndex: 2, position: 'relative' }}
+      >
+        <HeadShake spy={onSwap} delay={0}>
+          <NetworkSelect
+            value={metamaskNetwork}
+            secret={exchange.mode === EXCHANGE_MODE.FROM_SCRT}
+            balance={balance}
+            toSecretHealth={toSecretHealth}
+            fromSecretHealth={fromSecretHealth}
+            onChange={network => onSelectNetwork(network.id || network.value)}
+          />
+        </HeadShake>
+        <Box
+          style={{ margin: '0 16', position: 'absolute', left: 'Calc(50% - 60px)' }}
+          className={styles.reverseButton}
+        >
           <Icon
             size="60"
             glyph="Reverse"
@@ -390,17 +446,26 @@ export const Base = observer(() => {
               setSwap(!onSwap);
               setProgress(0);
 
-              exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                ? exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH)
-                : exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT);
+              exchange.mode === EXCHANGE_MODE.TO_SCRT
+                ? exchange.setMode(EXCHANGE_MODE.FROM_SCRT)
+                : exchange.setMode(EXCHANGE_MODE.TO_SCRT);
             }}
           />
         </Box>
-        <NetworkTemplate template={networkTemplates[1]} onSwap={onSwap} user={user} />
+        <HeadShake spy={onSwap} delay={0}>
+          <NetworkSelect
+            value={metamaskNetwork}
+            secret={exchange.mode === EXCHANGE_MODE.TO_SCRT}
+            balance={balance}
+            toSecretHealth={toSecretHealth}
+            fromSecretHealth={fromSecretHealth}
+            onChange={network => onSelectNetwork(network.id || network.value)}
+          />
+        </HeadShake>
       </Box>
       <Box fill direction="column" className={styles.exchangeContainer}>
         <Form data={exchange.transaction} {...({} as any)}>
-          <Box className={styles.baseContainer} >
+          <Box className={styles.baseContainer}>
             <Box className={styles.baseRightSide} gap="2px">
               <Box width="100%" margin={{ right: 'medium' }} direction="column">
                 <ERC20Select value={selectedToken.value} onSelectToken={value => onSelectedToken(value)} />
@@ -463,10 +528,9 @@ export const Base = observer(() => {
                       bgColor="#DEDEDE"
                       pad="xxsmall"
                       onClick={() => {
-                        if (maxAmount === unlockToken) return;
+                        if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
                         if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
-                        const value = maxAmount;
-                        exchange.transaction.amount = value;
+                        exchange.transaction.amount = maxAmount;
                       }}
                     >
                       <Text size="xxsmall" bold>
@@ -518,9 +582,9 @@ export const Base = observer(() => {
               </Box>
             </Box>
 
-            <Box className={styles.addressInput} >
-              {((exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && userMetamask.isAuthorized) ||
-                (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && user.isAuthorized)) && (
+            <Box className={styles.addressInput}>
+              {((exchange.mode === EXCHANGE_MODE.FROM_SCRT && userMetamask.isAuthorized) ||
+                (exchange.mode === EXCHANGE_MODE.TO_SCRT && user.isAuthorized)) && (
                 <Box
                   style={{
                     fontWeight: 'bold',
@@ -531,7 +595,7 @@ export const Base = observer(() => {
                     textAlign: 'right',
                   }}
                   onClick={() => {
-                    if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+                    if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) {
                       exchange.transaction.ethAddress = userMetamask.ethAddress;
                       setErrors({ ...errors, address: validateAddressInput(exchange.mode, userMetamask.ethAddress) });
                     } else {
@@ -546,21 +610,23 @@ export const Base = observer(() => {
 
               <Input
                 label={
-                  exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'Destination ETH Address' : 'Destination Secret Address'
+                  exchange.mode === EXCHANGE_MODE.FROM_SCRT
+                    ? `Destination ${userMetamask.getCurrencySymbol()} Address`
+                    : 'Destination Secret Address'
                 }
-                name={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'ethAddress' : 'scrtAddress'}
+                name={exchange.mode === EXCHANGE_MODE.FROM_SCRT ? 'ethAddress' : 'scrtAddress'}
                 style={{ width: '100%' }}
                 className={styles.input}
                 margin={{ bottom: 'none' }}
                 placeholder="Receiver address"
                 value={
-                  exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+                  exchange.mode === EXCHANGE_MODE.FROM_SCRT
                     ? exchange.transaction.ethAddress
                     : exchange.transaction.scrtAddress
                 }
                 onChange={value => {
-                  if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) exchange.transaction.ethAddress = value;
-                  if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) exchange.transaction.scrtAddress = value;
+                  if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) exchange.transaction.ethAddress = value;
+                  if (exchange.mode === EXCHANGE_MODE.TO_SCRT) exchange.transaction.scrtAddress = value;
                   const error = validateAddressInput(exchange.mode, value);
                   setErrors({ ...errors, address: error });
                 }}
@@ -587,6 +653,9 @@ export const Base = observer(() => {
                 }}
               />
             )}
+            {userMetamask.chainId && !userMetamask.isCorrectNetworkSelected() && (
+              <WrongNetwork networkSelected={metamaskNetwork} />
+            )}
           </Box>
           <Box direction="column">
             {progress > 0 && (
@@ -611,31 +680,29 @@ export const Base = observer(() => {
             )}
 
             <Box direction="row">
-              {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-                selectedToken.symbol !== '' &&
-                selectedToken.symbol !== 'ETH' && (
-                  <Button
-                    disabled={exchange.tokenApprovedLoading || !toApprove}
-                    bgColor={'#00ADE8'}
-                    color={'white'}
-                    style={{ minWidth: 180, height: 48 }}
-                    onClick={() => {
-                      const tokenError = validateTokenInput(selectedToken);
-                      setErrors({ ...errors, token: '' });
-                      if (tokenError) return setErrors({ ...errors, token: tokenError });
+              {exchange.mode === EXCHANGE_MODE.TO_SCRT && selectedToken.symbol !== '' && !isNativeToken(selectedToken) && (
+                <Button
+                  disabled={exchange.tokenApprovedLoading || !toApprove}
+                  bgColor={'#00ADE8'}
+                  color={'white'}
+                  style={{ minWidth: 180, height: 48 }}
+                  onClick={() => {
+                    const tokenError = validateTokenInput(selectedToken);
+                    setErrors({ ...errors, token: '' });
+                    if (tokenError) return setErrors({ ...errors, token: tokenError });
 
-                      if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
-                    }}
-                  >
-                    {exchange.tokenApprovedLoading ? (
-                      <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />
-                    ) : exchange.isTokenApproved ? (
-                      'Approved!'
-                    ) : (
-                      'Approve'
-                    )}
-                  </Button>
-                )}
+                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
+                  }}
+                >
+                  {exchange.tokenApprovedLoading ? (
+                    <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />
+                  ) : exchange.isTokenApproved ? (
+                    'Approved!'
+                  ) : (
+                    'Approve'
+                  )}
+                </Button>
+              )}
 
               <Button
                 disabled={!readyToSend}
@@ -644,10 +711,14 @@ export const Base = observer(() => {
                 color={!toApprove ? 'white' : '#748695'}
                 style={{ minWidth: 300, height: 48 }}
                 onClick={() => {
-                  if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
+                  if (exchange.step.id === EXCHANGE_STEPS.BASE) {
+                    onClickHandler(exchange.step.onClickSend);
+                  }
                 }}
               >
-                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Bridge to Secret Network' : 'Bridge to Ethereum'}
+                {exchange.mode === EXCHANGE_MODE.TO_SCRT
+                  ? 'Bridge to Secret Network'
+                  : `Bridge to ${userMetamask.getNetworkFullName()}`}
               </Button>
             </Box>
           </Box>

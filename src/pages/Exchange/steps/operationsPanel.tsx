@@ -59,7 +59,7 @@ export const OperationsPanel = observer(() => {
               <Box align="center" direction="row" margin={{ right: 'xmsmall' }}>
                 <Box margin={{ right: 'xxsmall' }}>
                   <Text style={{ maxWidth: 51, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} bold size="xsmall" color="#4b4b4b">{formatSymbol(
-                    operation.mode === EXCHANGE_MODE.ETH_TO_SCRT ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH,
+                    operation.mode === EXCHANGE_MODE.TO_SCRT ? EXCHANGE_MODE.TO_SCRT : EXCHANGE_MODE.FROM_SCRT,
                     operation.fromToken,
                   )}
                   </Text>
@@ -68,7 +68,7 @@ export const OperationsPanel = observer(() => {
                 <Box margin={{ left: 'xxsmall' }}>
                   <Text style={{ maxWidth: 60, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} bold size="xsmall" color="#4b4b4b">
                     {formatSymbol(
-                      operation.mode === EXCHANGE_MODE.ETH_TO_SCRT ? EXCHANGE_MODE.SCRT_TO_ETH : EXCHANGE_MODE.ETH_TO_SCRT,
+                      operation.mode === EXCHANGE_MODE.TO_SCRT ? EXCHANGE_MODE.FROM_SCRT : EXCHANGE_MODE.TO_SCRT,
                       operation.toToken,
                     )}
                   </Text>

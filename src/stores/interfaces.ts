@@ -1,13 +1,14 @@
 import { NativeToken, Token } from 'pages/Swap/types/trade';
 import { SwapStatus } from '../constants';
+import { NETWORKS } from '../blockchain-bridge';
 
 export enum EXCHANGE_MODE {
-  ETH_TO_SCRT = 'eth_to_scrt',
-  SCRT_TO_ETH = 'scrt_to_eth',
+  TO_SCRT = 'eth_to_scrt',
+  FROM_SCRT = 'scrt_to_eth',
 }
 
 export enum TOKEN {
-  ETH = 'eth',
+  NATIVE = 'eth',
   ERC20 = 'erc20',
   S20 = 'secret20',
 }
@@ -145,7 +146,7 @@ export const tokenFromSecretToken = (sToken: ISecretToken): ITokenInfo => {
     dst_coin: undefined,
     dst_network: '',
     src_address: '',
-    src_network: '',
+    src_network: 'Secret',
     symbol: sToken.id,
     totalLocked: '',
     totalLockedNormal: '',
@@ -208,6 +209,11 @@ export interface NativeTokenPool {
 export interface ISecretSwapPool {
   assets: Array<TokenPool | NativeTokenPool>;
   total_share: string;
+}
+
+export interface INetworkBridgeHealth {
+  network: NETWORKS;
+  health: ISignerHealth[];
 }
 
 export interface ISignerHealth {

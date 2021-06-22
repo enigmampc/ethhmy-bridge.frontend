@@ -4,10 +4,11 @@ import { statusFetching, SwapStatus } from '../constants';
 import { ACTION_TYPE, EXCHANGE_MODE, IOperation, ITokenInfo, TOKEN } from './interfaces';
 import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
-import { Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
+import { NETWORKS, Snip20SendToBridge, Snip20SwapHash, swapContractAddress } from '../blockchain-bridge';
 import { balanceNumberFormat, divDecimals, formatSymbol, mulDecimals, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
-import { web3 } from '../blockchain-bridge/eth';
+import { web3 } from '../blockchain-bridge';
+import { proxyContracts, ProxyTokens } from '../blockchain-bridge/eth/proxyTokens';
 
 export const LOCAL_STORAGE_OPERATIONS_KEY = 'operationskey';
 
@@ -20,6 +21,7 @@ export enum EXCHANGE_STEPS {
   RESULT = 'RESULT',
   CHECK_TRANSACTION = 'CHECK_TRANSACTION',
 }
+
 export interface IOperationPanel {
   id: string;
   tokenImage: any;
@@ -50,6 +52,7 @@ export class Exchange extends StoreConstructor {
   @observable isFeeLoading = false;
   @observable isTokenApproved = false;
   @observable tokenApprovedLoading = false;
+  @observable tokens: ITokenInfo[] = [];
 
   defaultTransaction = {
     scrtAddress: '',
@@ -65,6 +68,7 @@ export class Exchange extends StoreConstructor {
       image: '',
       value: '',
       src_coin: '',
+      src_address: '',
     },
   };
 
@@ -84,8 +88,11 @@ export class Exchange extends StoreConstructor {
   };
 
   @observable transaction = this.defaultTransaction;
-  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_SCRT;
+  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.TO_SCRT;
   @observable token: TOKEN;
+
+  @observable network: NETWORKS = NETWORKS.ETH;
+  @observable mainnet: boolean = true;
 
   @computed
   get step() {
@@ -99,17 +106,17 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get networkFee() {
-    return this.mode === EXCHANGE_MODE.ETH_TO_SCRT ? this.ethNetworkFee : 0.0134438;
+    return this.mode === EXCHANGE_MODE.TO_SCRT ? this.ethNetworkFee : 0.0134438;
   }
 
   @computed
   get swapFee() {
-    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? Number(balanceNumberFormat.format(this.swapFeeToken)) : 0;
+    return this.mode === EXCHANGE_MODE.FROM_SCRT ? Number(balanceNumberFormat.format(this.swapFeeToken)) : 0;
   }
 
   @computed
   get swapFeeUSD() {
-    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? this.swapFeeUsd : 0;
+    return this.mode === EXCHANGE_MODE.FROM_SCRT ? this.swapFeeUsd : 0;
   }
 
   stepsConfig = {
@@ -123,7 +130,7 @@ export class Exchange extends StoreConstructor {
         this.stepNumber = EXCHANGE_STEPS.CONFIRMATION;
 
         switch (this.mode) {
-          case EXCHANGE_MODE.ETH_TO_SCRT:
+          case EXCHANGE_MODE.TO_SCRT:
             this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
             this.isFeeLoading = true;
@@ -131,24 +138,24 @@ export class Exchange extends StoreConstructor {
             this.isFeeLoading = false;
             this.swapFeeToken = 0;
             break;
-          case EXCHANGE_MODE.SCRT_TO_ETH:
+          case EXCHANGE_MODE.FROM_SCRT:
             this.transaction.scrtAddress = this.stores.user.address;
             this.isFeeLoading = true;
-            this.ethSwapFee = await getNetworkFee(process.env.SWAP_FEE);
+            this.ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE));
             let token: ITokenInfo;
-            if (this.token === TOKEN.ETH) {
-              token = this.stores.tokens.allData.find(t => t.name === 'Ethereum');
+            if (this.token === TOKEN.NATIVE) {
+              token = this.tokens.find(t => t.src_address === 'native');
             } else {
-              token = this.stores.tokens.allData.find(t => t.dst_address === this.transaction.snip20Address);
+              token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
             }
-            this.swapFeeUsd = this.ethSwapFee * this.stores.user.ethRate;
+            this.swapFeeUsd = this.ethSwapFee * this.stores.userMetamask.getNetworkPrice();
             this.swapFeeToken = this.swapFeeUsd / Number(token.price);
             this.isFeeLoading = false;
             break;
         }
       },
       onClickApprove: async () => {
-        if (this.mode != EXCHANGE_MODE.ETH_TO_SCRT || this.token === TOKEN.ETH) return;
+        if (this.mode !== EXCHANGE_MODE.TO_SCRT || this.token === TOKEN.NATIVE) return;
         this.stepNumber = EXCHANGE_STEPS.APPROVE_CONFIRMATION;
         this.isFeeLoading = true;
         this.ethNetworkFee = await getNetworkFee(Number(process.env.ETH_GAS_LIMIT));
@@ -176,7 +183,7 @@ export class Exchange extends StoreConstructor {
     this.isTokenApproved = false;
     this.tokenApprovedLoading = true;
     try {
-      const allowance = await contract.ethMethodsERC20.getAllowance(address);
+      const allowance = await contract.fromScrtMethods[this.network][this.token].getAllowance(address);
       if (Number(allowance) > 0) this.isTokenApproved = true;
       this.tokenApprovedLoading = false;
     } catch (error) {
@@ -186,10 +193,10 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setAddressByMode() {
-    if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
+    if (this.mode === EXCHANGE_MODE.TO_SCRT) {
       this.transaction.scrtAddress = '';
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-    } else if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+    } else if (this.mode === EXCHANGE_MODE.FROM_SCRT) {
       this.transaction.ethAddress = '';
       this.transaction.scrtAddress = this.stores.user.address;
     }
@@ -227,10 +234,26 @@ export class Exchange extends StoreConstructor {
   }
 
   @action.bound
+  async setNetwork(network: NETWORKS) {
+    this.network = network;
+    await this.stores.tokens.fetch();
+    await this.setTokens(network);
+  }
+
+  @action.bound
   setToken(token: TOKEN) {
     // this.clear();
     this.token = token;
     // this.setAddressByMode();
+  }
+
+  async setTokens(network: NETWORKS) {
+    this.tokens = await this.stores.tokens.tokensUsage('BRIDGE', network);
+  }
+
+  @action.bound
+  setMainnet(mainnet: boolean) {
+    this.mainnet = mainnet;
   }
 
   @observable operation: IOperation;
@@ -238,7 +261,7 @@ export class Exchange extends StoreConstructor {
   @action.bound
   fetchStatus(id) {
     const fetcher = async () => {
-      const result = await operationService.getOperation({ id });
+      const result = await operationService.getOperation(this.network, { id });
       const swap = result.swap;
       function isEthHash(addr) {
         return /^0x([A-Fa-f0-9]{64})$/.test(addr);
@@ -255,39 +278,42 @@ export class Exchange extends StoreConstructor {
 
         this.operation.swap = swap;
 
-        this.operation.type = swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
+        this.operation.type = swap.src_network !== 'Secret' ? EXCHANGE_MODE.TO_SCRT : EXCHANGE_MODE.FROM_SCRT;
 
-        if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
-          const token = this.stores.tokens.allData.find(t => t.dst_address === swap.dst_address);
+        if (this.operation.type === EXCHANGE_MODE.TO_SCRT) {
+          const token = this.tokens.find(t => t.dst_address === swap.dst_address);
           if (token) {
             this.operation.image = token.display_props.image;
-            this.operation.symbol = formatSymbol(EXCHANGE_MODE.ETH_TO_SCRT, token.display_props.symbol);
-            this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
-          }
-        } else {
-          const token = this.stores.tokens.allData.find(t => t.dst_address === swap.src_coin);
-          if (token) {
-            this.operation.image = token.display_props.image;
-            this.operation.symbol = formatSymbol(EXCHANGE_MODE.SCRT_TO_ETH, token.display_props.symbol);
+            this.operation.symbol = formatSymbol(EXCHANGE_MODE.TO_SCRT, token.display_props.symbol);
             this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
           } else {
-            // todo: fix this up - proxy token
-            if (swap.src_coin === process.env.SIENNA_PROXY_CONTRACT) {
-              const token = this.stores.tokens.allData.find(t => t.display_props.symbol === 'SIENNA');
+            const proxy = proxyContracts.find(p => p.contract === swap.dst_address);
+            if (proxy) {
+              const token = this.stores.tokens.allData.find(t => t.display_props.symbol === proxy.symbol);
               this.operation.image = token.display_props.image;
-              this.operation.symbol = formatSymbol(EXCHANGE_MODE.SCRT_TO_ETH, token.display_props.symbol);
+              this.operation.symbol = formatSymbol(EXCHANGE_MODE.FROM_SCRT, token.display_props.symbol);
               this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
-            } else if (swap.src_coin === process.env.WSCRT_PROXY_CONTRACT) {
-              const token = this.stores.tokens.allData.find(t => t.display_props.symbol === 'SSCRT');
+            }
+          }
+        } else {
+          const token = this.tokens.find(t => t.dst_address === swap.src_coin);
+          if (token) {
+            this.operation.image = token.display_props.image;
+            this.operation.symbol = formatSymbol(EXCHANGE_MODE.TO_SCRT, token.display_props.symbol);
+            this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
+          } else {
+            const proxy = proxyContracts.find(p => p.contract === swap.src_coin);
+            if (proxy) {
+              const token = this.stores.tokens.allData.find(t => t.display_props.symbol === proxy.symbol);
               this.operation.image = token.display_props.image;
-              this.operation.symbol = formatSymbol(EXCHANGE_MODE.SCRT_TO_ETH, token.display_props.symbol);
+              this.operation.symbol = formatSymbol(EXCHANGE_MODE.FROM_SCRT, token.display_props.symbol);
               this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
             }
           }
         }
 
         try {
-          const etherHash = swap.dst_network === 'Ethereum' ? swap.dst_tx_hash : swap.src_tx_hash;
+          const etherHash = swap.src_network === 'Secret' ? swap.dst_tx_hash : swap.src_tx_hash;
           const blockNumber = await web3.eth.getBlockNumber();
           const tx = await web3.eth.getTransaction(etherHash);
           if (tx.blockNumber) this.confirmations = blockNumber - tx.blockNumber;
@@ -333,13 +359,13 @@ export class Exchange extends StoreConstructor {
       toToken: this.transaction.tokenSelected.symbol,
       mode: this.mode,
     });
-    await operationService.createOperation(params);
+    await operationService.createOperation(this.network, params);
     return this.operation;
   }
 
   @action.bound
   async updateOperation(id: string, transactionHash: string) {
-    const result = await operationService.updateOperation(id, transactionHash);
+    const result = await operationService.updateOperation(this.network, id, transactionHash);
 
     if (result.result === 'failed') {
       throw Error(
@@ -370,13 +396,13 @@ export class Exchange extends StoreConstructor {
       this.transaction.loading = true;
       this.transaction.error = '';
 
-      if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-        await this.swapSnip20ToEth(this.token === TOKEN.ETH);
-      } else if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
+      if (this.mode === EXCHANGE_MODE.FROM_SCRT) {
+        await this.swapSnip20ToEth(this.token === TOKEN.NATIVE);
+      } else if (this.mode === EXCHANGE_MODE.TO_SCRT) {
         if (this.token === TOKEN.ERC20) {
           await this.checkTokenApprove(this.transaction.erc20Address);
           if (!this.isTokenApproved) {
-            await this.approveEcr20();
+            await this.approveErc20();
           } else {
             await this.swapErc20ToScrt();
           }
@@ -397,12 +423,12 @@ export class Exchange extends StoreConstructor {
     }
   }
 
-  async approveEcr20() {
+  async approveErc20() {
     this.operation = this.defaultOperation;
     //await this.createOperation();
     //this.stores.routing.push('/operations/' + this.operation.id);
 
-    contract.ethMethodsERC20.callApprove(
+    contract.fromScrtMethods[this.network][this.token].callApprove(
       this.transaction.erc20Address,
       this.transaction.amount,
       this.stores.userMetamask.erc20TokenDetails.decimals,
@@ -432,7 +458,7 @@ export class Exchange extends StoreConstructor {
   async swapErc20ToScrt() {
     this.operation = this.defaultOperation;
 
-    contract.ethMethodsERC20.swapToken(
+    contract.fromScrtMethods[this.network][TOKEN.ERC20].swapToken(
       this.transaction.erc20Address,
       this.transaction.scrtAddress,
       this.transaction.amount,
@@ -467,65 +493,73 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
 
     try {
-      contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async result => {
-        if (result.hash) {
-          await this.createOperation(result.hash);
-          this.transaction.loading = false;
-          this.txHash = result.hash;
-          this.transaction.confirmed = true;
-          this.stores.routing.push('/operations/' + this.operation.id);
-          this.fetchStatus(this.operation.id);
-        }
+      contract.fromScrtMethods[this.network][TOKEN.NATIVE].swapEth(
+        this.transaction.scrtAddress,
+        this.transaction.amount,
+        async result => {
+          if (result.hash) {
+            await this.createOperation(result.hash);
+            this.transaction.loading = false;
+            this.txHash = result.hash;
+            this.transaction.confirmed = true;
+            this.stores.routing.push('/operations/' + this.operation.id);
+            this.fetchStatus(this.operation.id);
+          }
 
-        if (result.receipt) {
-          this.transaction.loading = false;
-          this.transaction.confirmed = true;
-        }
+          if (result.receipt) {
+            this.transaction.loading = false;
+            this.transaction.confirmed = true;
+          }
 
-        if (result.error) {
-          this.transaction.error = result.error.message;
-          this.transaction.loading = false;
-          this.operation.status = SwapStatus.SWAP_FAILED;
-        }
-      });
+          if (result.error) {
+            this.transaction.error = result.error.message;
+            this.transaction.loading = false;
+            this.operation.status = SwapStatus.SWAP_FAILED;
+          }
+        },
+      );
     } catch (error) {
       console.log('error', error);
     }
     return;
   }
 
-  async swapSnip20ToEth(isEth: boolean) {
+  async swapSnip20ToEth(isNative: boolean) {
     this.operation = this.defaultOperation;
 
     let proxyContract: string;
     let decimals: number | string;
-    let recipient = process.env.SCRT_SWAP_CONTRACT;
+    let recipient = swapContractAddress(this.network);
     let price: string;
-    if (isEth) {
-      decimals = 18;
-      const token = this.stores.tokens.allData.find(t => t.src_coin === 'Ethereum');
+    if (isNative) {
+      const token = this.tokens.find(t => t.src_address === 'native');
+      decimals = token.decimals;
       price = token.price;
       this.transaction.snip20Address = token.dst_address;
     } else {
-      const token = this.stores.tokens.allData.find(t => t.dst_address === this.transaction.snip20Address);
+      const token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
       if (token) {
         decimals = token.decimals;
         price = token.price;
         this.transaction.snip20Address = token.dst_address;
         // todo: fix this up - proxy token
         if (token.display_props.proxy) {
-          if (
-            token.display_props.symbol.toUpperCase() === 'WSCRT' ||
-            token.display_props.symbol.toUpperCase() === 'SSCRT'
-          ) {
-            proxyContract = process.env.WSCRT_PROXY_CONTRACT;
-            recipient = process.env.WSCRT_PROXY_CONTRACT;
-            this.transaction.snip20Address = process.env.SSCRT_CONTRACT;
-          } else if (token.display_props.symbol === 'SIENNA') {
-            proxyContract = process.env.SIENNA_PROXY_CONTRACT;
-            recipient = process.env.SIENNA_PROXY_CONTRACT;
-            this.transaction.snip20Address = process.env.SIENNA_CONTRACT;
-          }
+          proxyContract = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.proxy;
+          recipient = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.proxy;
+          this.transaction.snip20Address = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.token;
+
+          // if (
+          //   token.display_props.symbol.toUpperCase() === 'WSCRT' ||
+          //   token.display_props.symbol.toUpperCase() === 'SSCRT'
+          // ) {
+          //   proxyContract = process.env.WSCRT_PROXY_CONTRACT;
+          //   recipient = process.env.WSCRT_PROXY_CONTRACT;
+          //   this.transaction.snip20Address = process.env.SSCRT_CONTRACT;
+          // } else if (token.display_props.symbol === 'SIENNA') {
+          //   proxyContract = process.env.SIENNA_PROXY_CONTRACT;
+          //   recipient = process.env.SIENNA_PROXY_CONTRACT;
+          //   this.transaction.snip20Address = process.env.SIENNA_CONTRACT;
+          // }
         }
       }
     }
@@ -561,10 +595,5 @@ export class Exchange extends StoreConstructor {
 
   clear() {
     this.transaction = this.defaultTransaction;
-    this.operation = null;
-    this.txHash = '';
-    this.actionStatus = 'init';
-    this.stepNumber = EXCHANGE_STEPS.BASE;
-    this.stores.routing.push(`/`);
   }
 }

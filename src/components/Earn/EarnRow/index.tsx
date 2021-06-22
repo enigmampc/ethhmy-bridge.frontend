@@ -14,7 +14,6 @@ import { divDecimals, formatWithTwoDecimals, zeroDecimalsFormatter } from '../..
 import { Text } from '../../Base';
 import ScrtTokenBalance from '../ScrtTokenBalance';
 
-
 export const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: number) => {
   // console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
@@ -27,16 +26,19 @@ export const calculateAPY = (token: RewardsToken, price: number, priceUnderlying
   const locked = Number(token.totalLockedRewards);
 
   //console.log(`pending - ${pending}; locked: ${locked}, time remaining: ${timeRemaining}`)
-  return (((pending * 100) / locked) * (3.154e7 / timeRemaining)).toFixed(0);
+  const apr = Number((((pending * 100) / locked) * (3.154e7 / timeRemaining)).toFixed(0));
+  const apy = Number((Math.pow(1 + apr / 100 / 365, 365) - 1) * 100);
+
+  return apy;
 };
 
 export const apyString = (token: RewardsToken) => {
   const apy = Number(calculateAPY(token, Number(token.rewardsPrice), Number(token.price)));
   if (isNaN(apy) || 0 > apy) {
-    return `0%`;
+    return '0%';
   }
 
-  const apyStr = zeroDecimalsFormatter.format(Number(apy));
+  const apyStr = zeroDecimalsFormatter.format(apy);
 
   return `${apyStr}%`;
 };
@@ -64,19 +66,19 @@ interface RewardsToken {
 }
 @observer
 class EarnRow extends Component<
-{
-  userStore: UserStoreEx;
-  token: RewardsToken;
-  notify: Function;
-  callToAction: string;
-},
-{
-  activeIndex: Number;
-  depositValue: string;
-  withdrawValue: string;
-  claimButtonPulse: boolean;
-  pulseInterval: number;
-}
+  {
+    userStore: UserStoreEx;
+    token: RewardsToken;
+    notify: Function;
+    callToAction: string;
+  },
+  {
+    activeIndex: Number;
+    depositValue: string;
+    withdrawValue: string;
+    claimButtonPulse: boolean;
+    pulseInterval: number;
+  }
 > {
   state = {
     activeIndex: -1,
@@ -181,7 +183,8 @@ class EarnRow extends Component<
                 if (value) {
                   this.props.notify(
                     'success',
-                    `Created a viewing key for ${this.props.token.display_props.symbol !== 'SEFI' ? 's' : ''}${this.props.token.display_props.symbol
+                    `Created a viewing key for ${this.props.token.display_props.symbol !== 'SEFI' ? 's' : ''}${
+                      this.props.token.display_props.symbol
                     }`,
                   );
                 } else {
@@ -208,7 +211,8 @@ class EarnRow extends Component<
                 if (value) {
                   this.props.notify(
                     'success',
-                    `Created a viewing key for ${this.props.token.display_props.symbol !== 'SEFI' ? 's' : ''}${this.props.token.display_props.symbol
+                    `Created a viewing key for ${this.props.token.display_props.symbol !== 'SEFI' ? 's' : ''}${
+                      this.props.token.display_props.symbol
                     } rewards`,
                   );
                 } else {

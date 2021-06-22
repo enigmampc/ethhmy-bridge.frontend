@@ -1,9 +1,9 @@
-import { ISecretSwapPair, ISignerHealth } from './interfaces';
+import { INetworkBridgeHealth, ISecretSwapPair, ISignerHealth } from './interfaces';
 import { IStores } from './index';
 import * as services from '../services';
 import { ListStoreConstructor } from './core/ListStoreConstructor';
 
-export class SignerHealthStore extends ListStoreConstructor<ISignerHealth> {
+export class SignerHealthStore extends ListStoreConstructor<INetworkBridgeHealth> {
   constructor(stores: IStores) {
     super(stores, () => services.getSignerHealth(), {
       pollingInterval: 30000,

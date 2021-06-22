@@ -9,8 +9,8 @@ export class Operations extends ListStoreConstructor<ISwap> {
     super(stores, services.getOperations, {
       pollingInterval: 20000,
       isLocal: true,
-      paginationData: { pageSize: 10 },
-      // sorter: 'created_on, asc',
+      //paginationData: { pageSize: 10 },
+      sorter: 'created_on, desc',
     });
   }
 }

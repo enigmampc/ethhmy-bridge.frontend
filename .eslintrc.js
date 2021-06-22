@@ -5,6 +5,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'react-hooks'],
   rules: {
+    curly: 'error',
     'require-await': 'off',
   },
 };

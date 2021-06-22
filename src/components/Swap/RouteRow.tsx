@@ -97,6 +97,7 @@ export const RouteRow = ({
               <strong>Routing through these tokens resulted in the best price for your trade.</strong>
             </div>
             {allRoutesOutputs
+              .slice()
               .sort((a, b) => {
                 if (a.toOutput) {
                   if (a.toOutput.eq(b.toOutput)) {
