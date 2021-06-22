@@ -41,7 +41,7 @@ export const ERC20Select = observer((props: { onSelectToken?: Function; value: s
 
   useEffect(() => {
     const bridgeTokens = tokens.tokensUsageSync('BRIDGE');
-    if (bridgeTokens.length > 0) {
+    if (bridgeTokens?.length) {
       setFilteredTokens(
         bridgeTokens.filter(value => {
           return networkFromToken(value) === userMetamask.network;
