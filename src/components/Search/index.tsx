@@ -11,7 +11,7 @@ export const SearchInput = observer((params: { value: string; onChange: (value: 
       style={{
         background: 'white',
         flex: 1,
-        padding: '0 0 0 16px',
+        padding: '10px 16px',
         height: 48,
       }}
       onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {

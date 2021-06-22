@@ -115,10 +115,11 @@ export class Table extends React.Component<IProps> {
       tableParams,
       scroll = {},
     } = this.props;
+    console.log(dataLayerConfig)
     const { paginationData } = dataLayerConfig;
 
     return (
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', width: '100%' }}>
         {isPending && (
           <LoaderWrap>
             <Spinner style={{ width: 24, height: 24 }} />

@@ -196,7 +196,6 @@ export const Explorer = observer((props: any) => {
             className={styles.search}
             justify="end"
             style={{ width: '85vw' }}
-            pad={{ horizontal: '9px' }}
             margin={{ top: 'medium', bottom: 'medium' }}
           >
             <SearchInput value={search} onChange={setSearch} />
@@ -208,7 +207,7 @@ export const Explorer = observer((props: any) => {
             isPending={operations.isPending}
             dataLayerConfig={operations.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
-            onRowClicked={() => {}}
+            onRowClicked={() => { }}
             tableParams={{
               rowKey: (data: any) => data.id,
             }}

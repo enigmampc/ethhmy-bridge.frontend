@@ -126,6 +126,8 @@ const getBalance = async (
     scrt.maxAmount = unlockToken;
   }
 
+
+
   return { eth, scrt };
 };
 
@@ -145,8 +147,8 @@ export const Base = observer(() => {
   const [metamaskNetwork, setMetamaskNetwork] = useState<NETWORKS>(NETWORKS.ETH);
 
   const defaultBalance: BalanceInterface = {
-    eth: { minAmount: '', maxAmount: '' },
-    scrt: { minAmount: '', maxAmount: '' },
+    eth: { minAmount: '0', maxAmount: '0' },
+    scrt: { minAmount: '0', maxAmount: '0' },
   };
   const [balance, setBalance] = useState<BalanceInterface>(defaultBalance);
   const [onSwap, setSwap] = useState<boolean>(false);
@@ -314,8 +316,8 @@ export const Base = observer(() => {
     setProgress(0);
     const newerrors = errors;
     setBalance({
-      eth: { minAmount: 'loading', maxAmount: 'loading' },
-      scrt: { minAmount: 'loading', maxAmount: 'loading' },
+      eth: { minAmount: userMetamask.isAuthorized ? 'loading' : '0', maxAmount: userMetamask.isAuthorized ? 'loading' : '0' },
+      scrt: { minAmount: user.isAuthorized ? 'loading' : '0', maxAmount: user.isAuthorized ? 'loading' : '0' },
     });
 
     if (isNativeToken(token)) {
@@ -346,6 +348,8 @@ export const Base = observer(() => {
     const update = async () => {
       const amount = user.balanceToken[token.src_coin];
       const isLocked = amount === unlockToken;
+
+
 
       while (userMetamask.balancesLoading) {
         await sleep(50);
