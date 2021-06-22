@@ -32,6 +32,7 @@ export const createViewingKey = async (user: any, callback?: Function) => {
   try {
     console.log(user.chainId, user.snip20Address);
     await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
+    await user.updateSnip20BalanceForAddress(user.snip20Address)
     callback(true);
   } catch (error) {
     console.log(error);

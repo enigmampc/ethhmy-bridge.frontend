@@ -328,27 +328,27 @@ export class UserStoreEx extends StoreConstructor {
     try {
       const client = isSigner
         ? new AsyncSender(
-            address,
-            this.address,
-            this.keplrOfflineSigner,
-            // @ts-ignore
-            window.getEnigmaUtils(this.chainId),
-            {
-              init: {
-                amount: [{ amount: '300000', denom: 'uscrt' }],
-                gas: '300000',
-              },
-              exec: {
-                amount: [{ amount: '500000', denom: 'uscrt' }],
-                gas: '500000',
-              },
+          address,
+          this.address,
+          this.keplrOfflineSigner,
+          // @ts-ignore
+          window.getEnigmaUtils(this.chainId),
+          {
+            init: {
+              amount: [{ amount: '300000', denom: 'uscrt' }],
+              gas: '300000',
             },
-            BroadcastMode.Async,
-          )
+            exec: {
+              amount: [{ amount: '500000', denom: 'uscrt' }],
+              gas: '500000',
+            },
+          },
+          BroadcastMode.Async,
+        )
         : new CosmWasmClient(
-            address,
-            // @ts-ignore
-          );
+          address,
+          // @ts-ignore
+        );
       this.syncLocalStorage();
       this.getBalances();
       return client;
@@ -507,6 +507,19 @@ export class UserStoreEx extends StoreConstructor {
     while (!this.address && !this.secretjs && this.stores.tokens.isPending) {
       await sleep(100);
     }
+  };
+
+  @action public updateSnip20BalanceForAddress = async (address: string) => {
+    while (!this.address && !this.secretjs && this.stores.tokens.allData.length === 0) {
+      await sleep(100);
+    }
+    if (!address) return;
+
+    const token = this.stores.tokens.allData.find(t => t.dst_address === address);
+    if (!token) return;
+    if (token.display_props.symbol === 'sSCRT') await this.updateSScrtBalance();
+
+    await this.refreshTokenBalance(token.display_props.symbol);
   };
 
   @action public updateBalanceForSymbol = async (symbol: string) => {
