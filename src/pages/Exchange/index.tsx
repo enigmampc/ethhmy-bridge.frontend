@@ -26,7 +26,9 @@ export const Exchange = observer(() => {
       {exchange.step.id === EXCHANGE_STEPS.APPROVE_CONFIRMATION && <ERC20ApprovalModal />}
       {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION && <SwapConfirmation />}
       {exchange.step.id === EXCHANGE_STEPS.CHECK_TRANSACTION && <CheckTransaction />}
-      <OperationsPanel />
+      <div style={{zIndex: 2}}>
+        <OperationsPanel />
+      </div>
     </Box>
   );
 });
