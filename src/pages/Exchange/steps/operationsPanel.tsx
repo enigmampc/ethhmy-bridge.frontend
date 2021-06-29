@@ -14,18 +14,20 @@ import { EXCHANGE_MODE } from 'stores/interfaces';
 import Fade from 'react-reveal/Fade';
 
 export const OperationsPanel = observer(() => {
-  const { routing, exchange } = useStores();
+  const { exchange } = useStores();
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     exchange.operations = exchange.getLocalstorageOperations() || []
   }, []);
 
-  if (!exchange.operations || exchange.operations.length <= 0) return null
+  if (!exchange.operations || exchange.operations.length <= 0) {
+    return null
+  }
 
   return (
     <Box className={styles.operationsPanel} direction="column">
-      <Box style={{ zIndex: 10 }}>
+      <Box>
         <Fade left>
           <Box className={styles.operationsHeader} direction="row" style={{ position: 'relative' }} onClick={() => { setOpen(!open) }}>
             <Box className={styles.operationsImage}>

@@ -110,6 +110,7 @@ const getBalance = async (
   const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
 
   const src_coin = exchange.transaction.tokenSelected.src_coin;
+  console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`)
   const src_address = exchange.transaction.tokenSelected.src_address;
   eth.maxAmount = userMetamask.balanceToken[src_coin]
     ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
@@ -273,7 +274,7 @@ export const Base = observer(() => {
       !isNativeToken(selectedToken);
 
     setToApprove(approve);
-    if (approve) setProgress(1);
+    if (approve) {setProgress(1);}
   }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc20Address]);
 
   useEffect(() => {
@@ -282,8 +283,9 @@ export const Base = observer(() => {
       !toApprove &&
       exchange.mode === EXCHANGE_MODE.TO_SCRT &&
       !isNativeToken(selectedToken)
-    )
-      setProgress(2);
+    ) {
+        setProgress(2);
+    }
   }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode]);
 
   useEffect(() => {
@@ -421,7 +423,7 @@ export const Base = observer(() => {
         justify="around"
         pad="xlarge"
         background="#f5f5f5"
-        style={{ zIndex: 2, position: 'relative' }}
+        style={{ zIndex: 1, position: 'relative' }}
       >
         <HeadShake spy={onSwap} delay={0}>
           <NetworkSelect

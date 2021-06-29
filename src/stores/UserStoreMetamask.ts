@@ -381,7 +381,9 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @action.bound public getBalances = async () => {
-    if (!this.ethAddress) return;
+    if (!this.ethAddress) {
+      return;
+    }
 
     this.balancesLoading = true;
 
@@ -393,7 +395,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     this.nativeBalanceMin = this.balanceTokenMin[this.getNetworkFullName()];
 
-    for (const token of this.stores.tokens.allData) {
+    for (const token of this.stores.tokens.allData.filter(t => networkFromToken(t) === this.network)) {
       if (token.src_address === 'native') {
         continue;
       }
