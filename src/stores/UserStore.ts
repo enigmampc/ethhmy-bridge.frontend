@@ -361,8 +361,10 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getSnip20Balance = async (snip20Address: string, decimals?: string | number): Promise<string> => {
-    if (!this.secretjs) {
-      return '0';
+    let timeout = 0;
+    while (timeout < 1000 && !this.secretjs) {
+      await sleep(100);
+      timeout += 100;
     }
 
     const viewingKey = await getViewingKey({
