@@ -159,6 +159,30 @@ export const Base = observer(() => {
   const { signerHealth } = useStores();
 
   useEffect(() => {
+    const testRateLimit = async () => {
+      try {
+        while (!user.secretjs) {
+          await sleep(100);
+        }
+        await user.secretjs.getBlock();
+      } catch (e) {
+        console.log(e?.message);
+        if (e?.message.includes('(')) {
+          let error = JSON.parse(e.message.split('(')[0]);
+          if (error?.statusCode === 429) {
+            notify("error", error?.message || "This IP address has performed too many requests. Please wait 60 seconds and try again");
+          }
+          console.log(error?.statusCode)
+          if (error?.statusCode === 403) {
+            notify("error", `You have hit the daily quota of requests allowed. ${error?.message || "Try again in 24 hours"}`);
+          }
+        }
+      }
+    };
+    testRateLimit();
+  }, []);
+
+  useEffect(() => {
     const signers: ISignerHealth[] = signerHealth.allData.find(health => health.network === userMetamask.network)
       ?.health;
 
