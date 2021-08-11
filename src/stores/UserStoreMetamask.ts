@@ -36,6 +36,7 @@ const leaderMap: Record<NETWORKS, string> = {
   [NETWORKS.ETH]: process.env.LEADER_ACCOUNT_ETH,
   [NETWORKS.PLSM]: '',
   [NETWORKS.BSC]: process.env.LEADER_ACCOUNT_BSC,
+  [NETWORKS.XMR]: '',
 };
 
 export interface IERC20Token {

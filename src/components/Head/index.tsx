@@ -109,16 +109,16 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Earn</Text>
             </Box>
 
-            <Box
-              className={cn(styles.itemToken, isSeFi ? styles.selected : '')}
-              onClick={() => {
-                const url = `https://app.secretswap.io/sefi`;
-                const win = window.open(url, '_blank');
-                win.focus();
-              }}
-            >
-              <Text>SeFi</Text>
-            </Box>
+            {/*<Box*/}
+            {/*  className={cn(styles.itemToken, isSeFi ? styles.selected : '')}*/}
+            {/*  onClick={() => {*/}
+            {/*    const url = `https://app.secretswap.io/sefi`;*/}
+            {/*    const win = window.open(url, '_blank');*/}
+            {/*    win.focus();*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Text>SeFi</Text>*/}
+            {/*</Box>*/}
 
             <Box
               className={cn(styles.itemToken, isSwap ? styles.selected : '')}
@@ -128,7 +128,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                 win.focus();
               }}
             >
-              <Text>Swap</Text>
+              <Text>SecretSwap</Text>
             </Box>
 
             <Box className={cn(styles.itemToken, isFaq ? styles.selected : '')} onClick={() => routing.push('/faq')}>

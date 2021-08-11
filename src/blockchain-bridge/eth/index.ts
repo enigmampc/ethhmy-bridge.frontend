@@ -55,6 +55,7 @@ export const fromScrtMethods: Record<NETWORKS, Record<TOKEN, any>> = {
     }),
     [TOKEN.S20]: null,
   },
+  [NETWORKS.XMR]: null,
 };
 
 const sefiTokenCompiledContract = require('../out/MyERC20.json');
