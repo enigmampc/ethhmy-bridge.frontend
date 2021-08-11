@@ -30,6 +30,8 @@ import Graph from 'node-dijkstra';
 import { SecretSwapPools } from 'stores/SecretSwapPools';
 
 export const SwapPageWrapper = observer(() => {
+  window.location.href = 'https://app.secretswap.io/swap';
+
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
   let { user, tokens, secretSwapPairs, secretSwapPools } = useStores();
 

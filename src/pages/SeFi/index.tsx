@@ -60,6 +60,8 @@ interface RewardData {
 }
 
 export const SeFiPage = observer(() => {
+  window.location.href = 'https://app.secretswap.io/earn';
+
   const { user, tokens, rewards, userMetamask } = useStores();
 
   const [filteredTokens, setFilteredTokens] = useState<ITokenInfo[]>([]);
