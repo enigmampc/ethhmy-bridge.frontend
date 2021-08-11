@@ -61,6 +61,15 @@ export const EthBridge = observer((props: any) => {
             <Message success>
               <Message.Header>The bridge to Monero is now live!</Message.Header>
               <Message.Content>
+                We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
+                <a
+                  href="https://blog.scrt.network/"
+                  style={{ textDecoration: 'underline' }}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  here
+                </a>
                 {/*To get support, report bugs or suggestions you can use{' '}*/}
                 {/*<a*/}
                 {/*  href="https://discord.gg/7t7PqPZFJq"*/}
