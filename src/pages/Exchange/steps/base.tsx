@@ -741,7 +741,7 @@ export const Base = observer(() => {
           Leave Secret Bridge
         </Header>
         <Modal.Content>
-          <p>You are now leaving the Secrete Bridge to {externalUrl}.</p>
+          <p>You are now leaving the Secret Bridge to: {externalUrl}.</p>
           <p>
             We take no responsibility for any page, content, actions or consequences on 3rd party sites. Please use
             caution and good judgement when using any crypto application.
