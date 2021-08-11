@@ -2,7 +2,14 @@ export const enum NETWORKS {
   ETH = 'ETH',
   BSC = 'BSC',
   PLSM = 'PLSM',
+  XMR = 'XMR',
 }
+
+export const EXTERNAL_NETWORKS = ['XMR'];
+
+export const EXTERNAL_LINKS = {
+  XMR: 'https://ipfs.io/ipfs/QmNRrLDhKGZCSXAZcPU1cBTaLouhWnTi5kfWUzJB4nJbzA',
+};
 
 export const networkFromToken = (token: { src_network: string; dst_network?: string }): NETWORKS => {
   switch (token.src_network.toLowerCase().replace(/\s/g, '')) {

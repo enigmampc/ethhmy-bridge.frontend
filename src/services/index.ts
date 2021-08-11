@@ -104,12 +104,12 @@ export const getOperations = async (params: any): Promise<{ content: ISwap[] }> 
 
 export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[] }> => {
   let urls = [];
-  let secretTokenUrls = [];
+  //let secretTokenUrls = [];
   // fuck typescript Enums
   for (const network of availableNetworks) {
     urls.push(backendUrl(network, '/tokens/'));
   }
-  secretTokenUrls.push(backendUrl(NETWORKS.ETH, '/secret_tokens/'));
+  //secretTokenUrls.push(backendUrl(NETWORKS.ETH, '/secret_tokens/'));
   //console.log(`urls: ${JSON.stringify(urls)}`);
   //console.log(`secretTokenUrls: ${JSON.stringify(secretTokenUrls)}`);
   //const secretTokenListUrl = backendUrl('/secret_tokens/');
@@ -120,11 +120,11 @@ export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[
     }),
   ]);
 
-  let secretTokens = await Promise.all(
-    secretTokenUrls.map(secretTokenListUrl => {
-      return agent.get<{ body: { tokens: ISecretToken[] } }>(secretTokenListUrl, params);
-    }),
-  );
+  // let secretTokens = await Promise.all(
+  //   secretTokenUrls.map(secretTokenListUrl => {
+  //     return agent.get<{ body: { tokens: ISecretToken[] } }>(secretTokenListUrl, params);
+  //   }),
+  // );
 
   const tokenArray: ITokenInfo[] = tokens.flatMap(t => t.body.tokens);
   try {
@@ -153,13 +153,13 @@ export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[
         //t.display_props.symbol = t.display_props.symbol.split('(')[0];
         return t;
       });
-    const secretTokenArray: ISecretToken[] = secretTokens.flatMap(t => t.body.tokens);
-
-    let sTokens = secretTokenArray.map(t => {
-      return tokenFromSecretToken(t);
-    });
-
-    content.push(...sTokens);
+    // const secretTokenArray: ISecretToken[] = secretTokens.flatMap(t => t.body.tokens);
+    //
+    // let sTokens = secretTokenArray.map(t => {
+    //   return tokenFromSecretToken(t);
+    // });
+    //
+    // content.push(...sTokens);
 
     return { content };
   } catch (e) {

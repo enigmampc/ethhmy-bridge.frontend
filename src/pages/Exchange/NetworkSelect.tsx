@@ -1,13 +1,10 @@
 import * as React from 'react';
-import { useEffect, useState, useRef } from 'react';
-
-import { Box } from 'grommet';
+import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { Button, Text } from 'components/Base';
-import { EXCHANGE_MODE, ITokenInfo } from 'stores/interfaces';
+import { EXCHANGE_MODE } from 'stores/interfaces';
 import { chainProps, chainPropToString } from '../../blockchain-bridge/eth/chainProps';
-import { NetworkTemplateInterface, NetworkTemplate, HealthStatusDetailed } from './utils';
+import { HealthStatusDetailed, NetworkTemplate, NetworkTemplateInterface } from './utils';
 import { formatSymbol } from '../../utils';
 import { BalanceInterface } from './steps/base';
 import Select, { components } from 'react-select';
@@ -31,7 +28,9 @@ export const NetworkSelect = observer(
     const slider = useRef();
 
     useEffect(() => {
-      if (secret) return;
+      if (secret) {
+        return;
+      }
       const networks = [];
       const ids = [NETWORKS.ETH, NETWORKS.BSC];
       ids.forEach(id => {
@@ -39,7 +38,7 @@ export const NetworkSelect = observer(
           value: id,
           id,
           name: chainPropToString(chainProps.full_name, id),
-          wallet: 'Metamask',
+          wallet: chainPropToString(chainProps.wallet, id),
           symbol: formatSymbol(EXCHANGE_MODE.TO_SCRT, exchange.transaction.tokenSelected.symbol),
           amount: balance.eth.maxAmount,
           image: exchange.transaction.tokenSelected.image,
@@ -48,11 +47,27 @@ export const NetworkSelect = observer(
         });
       });
 
+      const external_ids = [NETWORKS.XMR];
+      external_ids.forEach(id => {
+        networks.push({
+          value: id,
+          id,
+          name: chainPropToString(chainProps.full_name, id),
+          wallet: chainPropToString(chainProps.wallet, id),
+          symbol: formatSymbol(EXCHANGE_MODE.TO_SCRT, exchange.transaction.tokenSelected.symbol),
+          amount: balance.eth.maxAmount,
+          image: exchange.transaction.tokenSelected.image,
+          networkImage: chainPropToString(chainProps.image_logo, id),
+        });
+      });
+
       setNetworks(networks);
     }, [secret, fromSecretHealth, exchange.transaction.tokenSelected, balance]);
 
     useEffect(() => {
-      if (!slider || !slider.current) return;
+      if (!slider || !slider.current) {
+        return;
+      }
 
       //@ts-ignore
       slider.current.slickGoTo(userMetamask.network === NETWORKS.ETH ? 0 : 1);
@@ -68,12 +83,13 @@ export const NetworkSelect = observer(
       networkImage: '/static/networks/secret-scrt-logo-dark.svg',
     };
 
-    if (secret)
+    if (secret) {
       return (
         <div style={{ padding: 10, minWidth: 300 }}>
           <NetworkTemplate template={SecretTemplate} user={user} />
         </div>
       );
+    }
 
     const SingleValue = ({ children, ...props }) => {
       return <NetworkTemplate template={props.data} user={user} />;

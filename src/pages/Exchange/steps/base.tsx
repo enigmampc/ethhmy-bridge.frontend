@@ -36,7 +36,9 @@ import cogoToast from 'cogo-toast';
 import { UserStoreEx } from '../../../stores/UserStore';
 import { UserStoreMetamask } from '../../../stores/UserStoreMetamask';
 import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
-import { NETWORKS } from '../../../blockchain-bridge';
+import { EXTERNAL_NETWORKS, NETWORKS } from '../../../blockchain-bridge';
+import { EXTERNAL_LINKS } from '../../../blockchain-bridge/eth/networks';
+import { Header, Modal, Button as SemanticButton, Icon as SemanticIcon } from 'semantic-ui-react';
 
 interface Errors {
   amount: string;
@@ -110,7 +112,7 @@ const getBalance = async (
   const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
 
   const src_coin = exchange.transaction.tokenSelected.src_coin;
-  console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`)
+  console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
   const src_address = exchange.transaction.tokenSelected.src_address;
   eth.maxAmount = userMetamask.balanceToken[src_coin]
     ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
@@ -135,6 +137,8 @@ function isNativeToken(selectedToken) {
 }
 
 export const Base = observer(() => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [externalUrl, setExternalUrl] = useState<string>('');
   const { user, userMetamask, actionModals, exchange, tokens } = useStores();
   const [errors, setErrors] = useState<Errors>({ token: '', address: '', amount: '' });
   const [selectedToken, setSelectedToken] = useState<any>({});
@@ -206,27 +210,18 @@ export const Base = observer(() => {
         const updatedonTimestamp = new Date(signer.updated_on).getTime();
         healthStatus[signerAddresses[metamaskNetwork][signer.signer.toLowerCase()]] = {
           time: updatedonTimestamp,
-          status: (new Date().getTime() - updatedonTimestamp < 1000 * 60 * 5)
-                  && (direction === EXCHANGE_MODE.FROM_SCRT ? signer.from_scrt : signer.to_scrt)
-        }
+          status:
+            new Date().getTime() - updatedonTimestamp < 1000 * 60 * 5 &&
+            (direction === EXCHANGE_MODE.FROM_SCRT ? signer.from_scrt : signer.to_scrt),
+        };
       }
 
       return healthStatus;
     };
 
-    setFromSecretHealth(
-      parseHealth(
-        signers,
-        EXCHANGE_MODE.FROM_SCRT
-      ),
-    );
+    setFromSecretHealth(parseHealth(signers, EXCHANGE_MODE.FROM_SCRT));
 
-    setToSecretHealth(
-      parseHealth(
-        signers,
-        EXCHANGE_MODE.TO_SCRT
-      ),
-    );
+    setToSecretHealth(parseHealth(signers, EXCHANGE_MODE.TO_SCRT));
     // setFromSecretHealth(
     //   parseHealth(
     //     userMetamask.getLeaderAddress(),
@@ -298,7 +293,9 @@ export const Base = observer(() => {
       !isNativeToken(selectedToken);
 
     setToApprove(approve);
-    if (approve) {setProgress(1);}
+    if (approve) {
+      setProgress(1);
+    }
   }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc20Address]);
 
   useEffect(() => {
@@ -308,7 +305,7 @@ export const Base = observer(() => {
       exchange.mode === EXCHANGE_MODE.TO_SCRT &&
       !isNativeToken(selectedToken)
     ) {
-        setProgress(2);
+      setProgress(2);
     }
   }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode]);
 
@@ -399,14 +396,19 @@ export const Base = observer(() => {
   };
 
   const onSelectNetwork = async (network: NETWORKS) => {
-    userMetamask.setNetwork(network);
-    setMetamaskNetwork(network);
-    exchange.clear();
-    setErrors({ token: '', address: '', amount: '' });
-    setProgress(0);
-    setTokenLocked(false);
-    if (!location.pathname.startsWith('/operations')) exchange.stepNumber = EXCHANGE_STEPS.BASE;
-    await onSelectedToken('native');
+    if (EXTERNAL_NETWORKS.includes(network)) {
+      setExternalUrl(EXTERNAL_LINKS[network]);
+      setOpen(true);
+    } else {
+      userMetamask.setNetwork(network);
+      setMetamaskNetwork(network);
+      exchange.clear();
+      setErrors({ token: '', address: '', amount: '' });
+      setProgress(0);
+      setTokenLocked(false);
+      if (!location.pathname.startsWith('/operations')) exchange.stepNumber = EXCHANGE_STEPS.BASE;
+      await onSelectedToken('native');
+    }
   };
 
   const onClickHandler = async (callback: () => void) => {
@@ -750,6 +752,43 @@ export const Base = observer(() => {
           </Box>
         </Box>
       </Box>
+      <Modal
+        basic
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
+        open={open}
+        size="small"
+        trigger={<div />}
+      >
+        <Header icon>
+          <SemanticIcon name="external alternate" />
+          Leave Secret Bridge
+        </Header>
+        <Modal.Content>
+          <p>You are now leaving the Secrete Bridge to {externalUrl}.</p>
+          <p>
+            We take no responsibility for any page, content, actions or consequences on 3rd party sites. Please use
+            caution and good judgement when using any crypto application.
+          </p>
+        </Modal.Content>
+        <Modal.Actions>
+          <SemanticButton basic color="red" inverted onClick={() => setOpen(false)}>
+            <SemanticIcon name="remove" /> Take me back
+          </SemanticButton>
+          <SemanticButton
+            color="blue"
+            inverted
+            onClick={() => {
+              setOpen(false);
+
+              const win = window.open(externalUrl, '_blank');
+              win.focus();
+            }}
+          >
+            <SemanticIcon name="checkmark" /> Continue
+          </SemanticButton>
+        </Modal.Actions>
+      </Modal>
     </Box>
   );
 });

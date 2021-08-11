@@ -14,6 +14,8 @@ export const swapContractAddress = (network: NETWORKS): string => {
       return process.env.BSC_SCRT_SWAP_CONTRACT;
     case NETWORKS.PLSM:
       return process.env.PLSM_SWAP_CONTRACT;
+    default:
+      throw new Error('Swap contract address undefined');
   }
 };
 
