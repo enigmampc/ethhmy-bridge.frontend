@@ -557,15 +557,16 @@ export class UserStoreEx extends StoreConstructor {
       return t.inc_token.symbol.toLowerCase() === symbol.toLowerCase();
     });
     if (!rewardsToken) {
-      // old style rewards token (earn page)
+      // symbol is the raw token symbol (e.g. "dai"), for earn page we try to match the token
+      // with the rewards pool marked as "s+symbol", e.g. "sdai"
       rewardsToken = this.stores.rewards.allData.find(t => {
-        return t.inc_token.symbol.toLowerCase().includes(symbol.toLowerCase());
+        return t.inc_token.symbol.toLowerCase() === `s${symbol.toLowerCase()}`;
       });
+    }
 
-      if (!rewardsToken) {
-        console.log('No rewards token for', symbol);
-        throw new Error(`No rewards token for ${symbol}`);
-      }
+    if (!rewardsToken) {
+      console.log('No rewards token for', symbol);
+      throw new Error(`No rewards token for ${symbol}`);
     }
 
     try {
