@@ -462,6 +462,7 @@ export class Exchange extends StoreConstructor {
       this.transaction.erc20Address,
       this.transaction.scrtAddress,
       this.transaction.amount,
+      0,
       this.stores.userMetamask.erc20TokenDetails.decimals,
       async result => {
         if (result.hash) {

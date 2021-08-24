@@ -27,14 +27,18 @@ export class EthMethodsERC20 {
   }
 
   sendHandler = async (method: any, args: Object, callback: Function) => {
-    method.send(args).on('transactionHash', function (hash) {
-      callback({ hash })
-    }).then(function (receipt) {
-      callback({ receipt })
-    }).catch(function (error) {
-      callback({ error })
-    })
-  }
+    method
+      .send(args)
+      .on('transactionHash', function(hash) {
+        callback({ hash });
+      })
+      .then(function(receipt) {
+        callback({ receipt });
+      })
+      .catch(function(error) {
+        callback({ error });
+      });
+  };
 
   getAllowance = async erc20Address => {
     // @ts-ignore
@@ -58,16 +62,27 @@ export class EthMethodsERC20 {
     const allowance = await this.getAllowance(erc20Address);
 
     if (Number(allowance) < Number(amount)) {
-      this.sendHandler(erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT), {
-        from: accounts[0],
-        gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: await getGasPrice(this.web3),
-        amount: amount,
-      }, callback)
+      this.sendHandler(
+        erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT),
+        {
+          from: accounts[0],
+          gas: process.env.ETH_GAS_LIMIT,
+          gasPrice: await getGasPrice(this.web3),
+          amount: amount,
+        },
+        callback,
+      );
     }
   };
 
-  swapToken = async (erc20Address, userAddr, amount, decimals, callback) => {
+  swapToken = async (
+    erc20Address: string,
+    userAddr: string,
+    amount: string,
+    toScrt: number,
+    decimals: string,
+    callback,
+  ) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -75,16 +90,19 @@ export class EthMethodsERC20 {
     // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods
-      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
+      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address, toScrt)
       .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
-    this.sendHandler(this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address), {
-      from: accounts[0],
-      gas: new BN(gasLimit),
-      gasPrice: await getGasPrice(this.web3),
-    }, callback)
-
+    this.sendHandler(
+      this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address, toScrt),
+      {
+        from: accounts[0],
+        gas: new BN(gasLimit),
+        gasPrice: await getGasPrice(this.web3),
+      },
+      callback,
+    );
   };
 
   checkEthBalance = async (erc20Address, addr) => {
