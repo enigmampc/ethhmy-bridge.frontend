@@ -125,7 +125,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
     }
 
     if (this.pollingInterval > 0) {
-      this.tId = setInterval(() => {
+      this.tId = window.setInterval(() => {
         !this.isPending && this.fetch({}, true);
       }, this.pollingInterval);
     }
