@@ -30,7 +30,7 @@ import {
 import { formatSymbol, wrongNetwork } from '../../../utils';
 import { ISignerHealth } from '../../../stores/interfaces';
 import { useStores } from '../../../stores';
-import { getNetworkFee } from '../../../blockchain-bridge/eth/helpers';
+import { getDuplexNetworkFee, getNetworkFee } from '../../../blockchain-bridge/eth/helpers';
 import { toInteger } from 'lodash';
 import cogoToast from 'cogo-toast';
 import { UserStoreEx } from '../../../stores/UserStore';
@@ -107,7 +107,7 @@ const getBalance = async (
   const eth = { minAmount: '0', maxAmount: '0' };
   const scrt = { minAmount: '0', maxAmount: '0' };
 
-  const ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE));
+  const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
   const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
   const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
 
@@ -174,11 +174,17 @@ export const Base = observer(() => {
         if (e?.message.includes('(')) {
           let error = JSON.parse(e.message.split('(')[0]);
           if (error?.statusCode === 429) {
-            notify("error", error?.message || "This IP address has performed too many requests. Please wait 60 seconds and try again");
+            notify(
+              'error',
+              error?.message || 'This IP address has performed too many requests. Please wait 60 seconds and try again',
+            );
           }
-          console.log(error?.statusCode)
+          console.log(error?.statusCode);
           if (error?.statusCode === 403) {
-            notify("error", `You have hit the daily quota of requests allowed. ${error?.message || "Try again in 24 hours"}`);
+            notify(
+              'error',
+              `You have hit the daily quota of requests allowed. ${error?.message || 'Try again in 24 hours'}`,
+            );
           }
         }
       }

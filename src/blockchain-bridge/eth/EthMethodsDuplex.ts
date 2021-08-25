@@ -9,21 +9,25 @@ const MAX_UINT = Web3.utils
   .pow(Web3.utils.toBN(256))
   .sub(Web3.utils.toBN(1));
 
-export interface IEthMethodsInitParams {
+export const DUPLEX_TOKENS = ['0xa47c8bf37f92aBed4A126BDA807A7b7498661acD'];
+
+interface IEthMethodsInitParams {
   web3: Web3;
   ethManagerContract: Contract;
   ethManagerAddress: string;
 }
 
-export class EthMethodsERC20 {
+export class EthMethodsDuplex {
   private readonly web3: Web3;
   private ethManagerContract: Contract;
   private ethManagerAddress: string;
+  private erc20: any;
 
   constructor(params: IEthMethodsInitParams) {
     this.web3 = params.web3;
     this.ethManagerContract = params.ethManagerContract;
     this.ethManagerAddress = params.ethManagerAddress;
+    this.erc20 = require('../out/MyERC20.json');
   }
 
   sendHandler = async (method: any, args: Object, callback: Function) => {
@@ -44,8 +48,7 @@ export class EthMethodsERC20 {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
+    const erc20Contract = new this.web3.eth.Contract(this.erc20.abi, erc20Address);
 
     return await erc20Contract.methods.allowance(accounts[0], this.ethManagerAddress).call();
   };
@@ -54,12 +57,13 @@ export class EthMethodsERC20 {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
+    const erc20Contract = new this.web3.eth.Contract(this.erc20.abi, erc20Address);
 
     amount = Number(mulDecimals(amount, decimals));
 
     const allowance = await this.getAllowance(erc20Address);
+
+    //const gasPrices = await getGasPrice(this.web3);
 
     if (Number(allowance) < Number(amount)) {
       this.sendHandler(
@@ -67,7 +71,8 @@ export class EthMethodsERC20 {
         {
           from: accounts[0],
           gas: process.env.ETH_GAS_LIMIT,
-          gasPrice: await getGasPrice(this.web3),
+          // maxFeePerGas: gasPrices[0],
+          // maxPriorityFeePerGas: gasPrices[1],
           amount: amount,
         },
         callback,
@@ -75,7 +80,14 @@ export class EthMethodsERC20 {
     }
   };
 
-  swapToken = async (erc20Address: string, userAddr: string, amount: string, decimals: string, callback) => {
+  swapToken = async (
+    erc20Address: string,
+    userAddr: string,
+    amount: string,
+    toScrt: number,
+    decimals: string,
+    callback,
+  ) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -83,24 +95,23 @@ export class EthMethodsERC20 {
     // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods
-      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
+      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address, toScrt)
       .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
     this.sendHandler(
-      this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address),
+      this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address, toScrt),
       {
         from: accounts[0],
         gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3),
+        //gasPrice: await getGasPrice(this.web3),
       },
       callback,
     );
   };
 
   checkEthBalance = async (erc20Address, addr) => {
-    const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
+    const erc20Contract = new this.web3.eth.Contract(this.erc20.abi, erc20Address);
 
     return await erc20Contract.methods.balanceOf(addr).call();
   };

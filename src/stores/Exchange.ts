@@ -6,9 +6,10 @@ import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
 import { NETWORKS, Snip20SendToBridge, Snip20SwapHash, web3 } from '../blockchain-bridge';
 import { balanceNumberFormat, divDecimals, formatSymbol, mulDecimals, uuid } from '../utils';
-import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import { getDuplexNetworkFee, getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import { proxyContracts, ProxyTokens } from '../blockchain-bridge/eth/proxyTokens';
 import { chainProps, chainPropToString } from '../blockchain-bridge/eth/chainProps';
+import { DUPLEX_TOKENS } from '../blockchain-bridge/eth/EthMethodsDuplex';
 
 export const LOCAL_STORAGE_OPERATIONS_KEY = 'operationskey';
 
@@ -141,7 +142,7 @@ export class Exchange extends StoreConstructor {
           case EXCHANGE_MODE.FROM_SCRT:
             this.transaction.scrtAddress = this.stores.user.address;
             this.isFeeLoading = true;
-            this.ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE));
+            this.ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
             let token: ITokenInfo;
             if (this.token === TOKEN.NATIVE) {
               token = this.tokens.find(t => t.src_address === 'native');
@@ -183,7 +184,11 @@ export class Exchange extends StoreConstructor {
     this.isTokenApproved = false;
     this.tokenApprovedLoading = true;
     try {
-      const allowance = await contract.fromScrtMethods[this.network][this.token].getAllowance(address);
+      const allowanceMethod = DUPLEX_TOKENS.includes(this.transaction.erc20Address)
+        ? contract.fromScrtMethods[this.network][TOKEN.DUPLEX].getAllowance
+        : contract.fromScrtMethods[this.network][TOKEN.ERC20].getAllowance;
+
+      const allowance = await allowanceMethod(address);
       if (Number(allowance) > 0) this.isTokenApproved = true;
       this.tokenApprovedLoading = false;
     } catch (error) {
@@ -428,7 +433,11 @@ export class Exchange extends StoreConstructor {
     //await this.createOperation();
     //this.stores.routing.push('/operations/' + this.operation.id);
 
-    contract.fromScrtMethods[this.network][this.token].callApprove(
+    let approveMethod = DUPLEX_TOKENS.includes(this.transaction.erc20Address)
+      ? contract.fromScrtMethods[this.network][TOKEN.DUPLEX].callApprove
+      : contract.fromScrtMethods[this.network][TOKEN.ERC20].callApprove;
+
+    approveMethod(
       this.transaction.erc20Address,
       this.transaction.amount,
       this.stores.userMetamask.erc20TokenDetails.decimals,
@@ -458,34 +467,64 @@ export class Exchange extends StoreConstructor {
   async swapErc20ToScrt() {
     this.operation = this.defaultOperation;
 
-    contract.fromScrtMethods[this.network][TOKEN.ERC20].swapToken(
-      this.transaction.erc20Address,
-      this.transaction.scrtAddress,
-      this.transaction.amount,
-      0,
-      this.stores.userMetamask.erc20TokenDetails.decimals,
-      async result => {
-        if (result.hash) {
-          await this.createOperation(result.hash);
-          this.transaction.loading = false;
-          this.txHash = result.hash;
-          this.transaction.confirmed = true;
-          this.stores.routing.push('/operations/' + this.operation.id);
-          this.fetchStatus(this.operation.id);
-        }
+    if (DUPLEX_TOKENS.includes(this.transaction.erc20Address)) {
+      contract.fromScrtMethods[this.network][TOKEN.DUPLEX].swapToken(
+        this.transaction.erc20Address,
+        this.transaction.scrtAddress,
+        this.transaction.amount,
+        0,
+        this.stores.userMetamask.erc20TokenDetails.decimals,
+        async result => {
+          if (result.hash) {
+            await this.createOperation(result.hash);
+            this.transaction.loading = false;
+            this.txHash = result.hash;
+            this.transaction.confirmed = true;
+            this.stores.routing.push('/operations/' + this.operation.id);
+            this.fetchStatus(this.operation.id);
+          }
 
-        if (result.receipt) {
-          this.transaction.loading = false;
-          this.transaction.confirmed = result.receipt;
-        }
+          if (result.receipt) {
+            this.transaction.loading = false;
+            this.transaction.confirmed = result.receipt;
+          }
 
-        if (result.error) {
-          this.transaction.error = result.error.message;
-          this.transaction.loading = false;
-          this.operation.status = SwapStatus.SWAP_FAILED;
-        }
-      },
-    );
+          if (result.error) {
+            this.transaction.error = result.error.message;
+            this.transaction.loading = false;
+            this.operation.status = SwapStatus.SWAP_FAILED;
+          }
+        },
+      );
+    } else {
+      contract.fromScrtMethods[this.network][TOKEN.ERC20].swapToken(
+        this.transaction.erc20Address,
+        this.transaction.scrtAddress,
+        this.transaction.amount,
+        this.stores.userMetamask.erc20TokenDetails.decimals,
+        async result => {
+          if (result.hash) {
+            await this.createOperation(result.hash);
+            this.transaction.loading = false;
+            this.txHash = result.hash;
+            this.transaction.confirmed = true;
+            this.stores.routing.push('/operations/' + this.operation.id);
+            this.fetchStatus(this.operation.id);
+          }
+
+          if (result.receipt) {
+            this.transaction.loading = false;
+            this.transaction.confirmed = result.receipt;
+          }
+
+          if (result.error) {
+            this.transaction.error = result.error.message;
+            this.transaction.loading = false;
+            this.operation.status = SwapStatus.SWAP_FAILED;
+          }
+        },
+      );
+    }
 
     return;
   }

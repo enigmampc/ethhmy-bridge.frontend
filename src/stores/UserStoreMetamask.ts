@@ -193,7 +193,7 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     if (process.env.ENV === 'TESTNET') {
-      return !chainIdMap[this.chainId].mainnet && chainIdMap[this.chainId].network === this.network;
+      return !chainIdMap[this.chainId]?.mainnet && chainIdMap[this.chainId]?.network === this.network;
     }
 
     console.log(`Could not identify chain: ${this.chainId}`);

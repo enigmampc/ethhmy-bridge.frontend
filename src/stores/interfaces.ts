@@ -11,6 +11,7 @@ export enum TOKEN {
   NATIVE = 'eth',
   ERC20 = 'erc20',
   S20 = 'secret20',
+  DUPLEX = 'duplex',
 }
 
 export enum ACTION_TYPE {
