@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Select, Text } from 'components/Base';
 import { EXCHANGE_MODE, ITokenInfo } from 'stores/interfaces';
-import { networkFromToken } from '../../blockchain-bridge';
+import { networkFromToken, NETWORKS } from '../../blockchain-bridge';
 
 // todo: fix this up - proxy token
 const selectTokenText = (mode: string, token: ITokenInfo) => {
@@ -16,6 +16,8 @@ const selectTokenText = (mode: string, token: ITokenInfo) => {
     return `secret${token.display_props.symbol}`;
   } else if (mode !== EXCHANGE_MODE.FROM_SCRT && !token.display_props.proxy) {
     return `${token.display_props.symbol}`;
+  } else if (networkFromToken(token) === NETWORKS.BSC && token.display_props.symbol === 'SIENNA') {
+    return 'SIENNA';
   } else if (mode === EXCHANGE_MODE.FROM_SCRT) {
     if (token.display_props.symbol === 'SIENNA') {
       return 'SIENNA';

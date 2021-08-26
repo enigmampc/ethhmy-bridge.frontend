@@ -135,6 +135,7 @@ export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[
           t.display_props.proxy_address = t.dst_address;
           try {
             const proxyToken = ProxyTokens[t.display_props.symbol.toUpperCase()][networkFromToken(t)];
+            console.log(t.display_props.symbol.toUpperCase())
             t.dst_address = proxyToken.token;
             t.display_props.proxy_symbol = proxyToken.proxySymbol;
           } catch (e) {
