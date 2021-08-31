@@ -361,6 +361,10 @@ export const Base = observer(() => {
       src_address: token.src_address,
     };
 
+    if (token.display_props.proxy) {
+      exchange.transaction.tokenSelected.symbol = token.display_props.proxy_symbol;
+    }
+
     if (!isNativeToken(token)) {
       exchange.transaction.erc20Address = value;
       await exchange.checkTokenApprove(value);

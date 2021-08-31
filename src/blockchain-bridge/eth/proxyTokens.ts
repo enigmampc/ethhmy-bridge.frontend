@@ -50,7 +50,7 @@ export const ProxyTokens = {
     [NETWORKS.BSC]: {
       proxy: process.env.SIENNA_PROXY_CONTRACT_BSC,
       token: process.env.SIENNA_CONTRACT,
-      proxySymbol: 'WSIENNA',
+      proxySymbol: 'SIENNA',
       secretSymbol: 'SIENNA',
     },
     [NETWORKS.PLSM]: {
