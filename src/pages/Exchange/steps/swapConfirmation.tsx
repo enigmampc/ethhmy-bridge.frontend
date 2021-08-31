@@ -48,6 +48,7 @@ const renderNetworkTemplate = (template: NetworkTemplateInterface, justify: any)
 export const SwapConfirmation = observer(() => {
   const { exchange, user, userMetamask } = useStores();
   const [hash, setHash] = useState<string>(null);
+  const [correctNetwork, setCorrectNetwork] = useState<boolean>(true);
   const [calculated, setCalculated] = useState<number>(null);
   const [feePercentage, setFeePercentage] = useState<number>(0);
   const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
@@ -89,6 +90,14 @@ export const SwapConfirmation = observer(() => {
       });
     } catch (e) {}
   }, []);
+
+  useEffect(() => {
+    async function asyncRun() {
+      setCorrectNetwork(await userMetamask.isCorrectNetworkSelected());
+    }
+
+    asyncRun();
+  }, [userMetamask, userMetamask.network, userMetamask.chainId]);
 
   useEffect(() => {
     if (exchange.mode === EXCHANGE_MODE.TO_SCRT) {
@@ -285,7 +294,7 @@ export const SwapConfirmation = observer(() => {
               </HeadShake>
             )}
 
-            {exchange.mode === EXCHANGE_MODE.FROM_SCRT && !userMetamask.isCorrectNetworkSelected() && (
+            {exchange.mode === EXCHANGE_MODE.FROM_SCRT && !correctNetwork && (
               <HeadShake bottom>
                 <Box margin={{ top: 'xsmall' }}>
                   <Text color={'#a1991d'}>

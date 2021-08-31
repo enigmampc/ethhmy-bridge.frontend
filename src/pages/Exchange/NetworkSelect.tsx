@@ -32,7 +32,7 @@ export const NetworkSelect = observer(
         return;
       }
       const networks = [];
-      const ids = [NETWORKS.ETH, NETWORKS.BSC];
+      const ids = [NETWORKS.ETH]; // , NETWORKS.BSC
       ids.forEach(id => {
         networks.push({
           value: id,
@@ -47,7 +47,7 @@ export const NetworkSelect = observer(
         });
       });
 
-      const external_ids = [NETWORKS.XMR];
+      const external_ids = []; //NETWORKS.XMR
       external_ids.forEach(id => {
         networks.push({
           value: id,

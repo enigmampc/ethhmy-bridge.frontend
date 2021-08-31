@@ -178,16 +178,17 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   }
 
-  isCorrectNetworkSelected() {
+  async isCorrectNetworkSelected() {
     if (process.env.ENV === 'MAINNET') {
       let result = chainIdMap[this.chainId]?.mainnet && chainIdMap[this.chainId]?.network === this.network;
       if (!result) {
         if (this.network === NETWORKS.ETH) {
           // this doesn't actually work - metamask thing
-          this.setupNetwork(1);
-        } else if (this.network === NETWORKS.BSC) {
-          this.setupNetwork(56);
+          await this.setupNetwork(1);
         }
+        // else if (this.network === NETWORKS.BSC) {
+        //           this.setupNetwork(56);
+        //         }
       }
       return result;
     }
@@ -204,36 +205,37 @@ export class UserStoreMetamask extends StoreConstructor {
     const provider = await detectEthereumProvider();
     if (provider) {
       try {
-        if (chainId === 56) {
-          // @ts-ignore
-          await provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: `0x38`,
-                chainName: 'Binance Smart Chain',
-                nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-                rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                blockExplorerUrls: ['https://bscscan.com/'],
-              },
-            ],
-          });
-        }
-        // else if (chainId === 1) {
+        // if (chainId === 56) {
         //   // @ts-ignore
         //   await provider.request({
         //     method: 'wallet_addEthereumChain',
         //     params: [
         //       {
-        //         chainId: `0x1`,
-        //         chainName: 'Ethereum Mainnet',
-        //         nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-        //         rpcUrls: ['https://mainnet.infura.io/v3/undefined'],
-        //         blockExplorerUrls: ['https://etherscan.io']
-        //       }
+        //         chainId: `0x38`,
+        //         chainName: 'Binance Smart Chain',
+        //         nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+        //         rpcUrls: ['https://bsc-dataseed.binance.org/'],
+        //         blockExplorerUrls: ['https://bscscan.com/'],
+        //       },
         //     ],
-        //   })
+        //   });
         // }
+        //else
+        if (chainId === 1) {
+          // @ts-ignore
+          await provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [
+              {
+                chainId: `0x1`,
+                // chainName: 'Ethereum Mainnet',
+                // nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                // rpcUrls: ['https://mainnet.infura.io/v3/undefined'],
+                // blockExplorerUrls: ['https://etherscan.io']
+              },
+            ],
+          });
+        }
         return true;
       } catch (error) {
         console.error(error);

@@ -121,7 +121,7 @@ const getBalance = async (
   scrt.maxAmount = user.balanceToken[src_coin] || '0';
   scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
   if (src_address === 'native') {
-    eth.maxAmount = userMetamask.isCorrectNetworkSelected() ? userMetamask.nativeBalance || '0' : wrongNetwork;
+    eth.maxAmount = (await userMetamask.isCorrectNetworkSelected()) ? userMetamask.nativeBalance || '0' : wrongNetwork;
     eth.minAmount = userMetamask.nativeBalanceMin || '0';
   }
 
@@ -137,10 +137,11 @@ function isNativeToken(selectedToken) {
 }
 
 export const Base = observer(() => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [externalUrl, setExternalUrl] = useState<string>('');
   const { user, userMetamask, actionModals, exchange, tokens } = useStores();
   const [errors, setErrors] = useState<Errors>({ token: '', address: '', amount: '' });
+  const [open, setOpen] = useState<boolean>(false);
+  const [externalUrl, setExternalUrl] = useState<string>('');
+  const [correctNetwork, setCorrectNetwork] = useState<boolean>(true);
   const [selectedToken, setSelectedToken] = useState<any>({});
   const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
   const [minAmount, setMinAmount] = useState<string>('');
@@ -257,6 +258,14 @@ export const Base = observer(() => {
       setErrors({ ...errors, amount: error });
     }
   }, [exchange.mode, balance]);
+
+  useEffect(() => {
+    async function asyncRun() {
+      setCorrectNetwork(await userMetamask.isCorrectNetworkSelected());
+    }
+
+    asyncRun();
+  }, [userMetamask, userMetamask.network, userMetamask.chainId]);
 
   useEffect(() => {
     if (exchange.step.id === EXCHANGE_STEPS.BASE && exchange.transaction.tokenSelected.value) {
@@ -687,9 +696,7 @@ export const Base = observer(() => {
                 }}
               />
             )}
-            {userMetamask.chainId && !userMetamask.isCorrectNetworkSelected() && (
-              <WrongNetwork networkSelected={metamaskNetwork} />
-            )}
+            {userMetamask.chainId && !correctNetwork && <WrongNetwork networkSelected={metamaskNetwork} />}
           </Box>
           <Box direction="column">
             {progress > 0 && (

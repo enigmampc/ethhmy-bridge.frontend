@@ -16,7 +16,7 @@ import { SwapStatus } from '../constants';
 import { ProxyTokens } from '../blockchain-bridge/eth/proxyTokens';
 import { networkFromToken, NETWORKS } from '../blockchain-bridge';
 
-const availableNetworks = [NETWORKS.ETH, NETWORKS.BSC]; //, NETWORKS.PLSM
+const availableNetworks = [NETWORKS.ETH]; //, NETWORKS.PLSM , NETWORKS.BSC
 
 const BACKENDS = {
   [NETWORKS.ETH]: process.env.BACKEND_URL,
