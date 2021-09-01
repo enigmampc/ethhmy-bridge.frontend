@@ -109,7 +109,7 @@ const getBalance = async (
 
   const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
   const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
-  const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
+  const swapFeeToken = (((swapFeeUsd / Number(token.price)) * 0.9) / 8).toFixed(`${toInteger(token.price)}`.length);
 
   const src_coin = exchange.transaction.tokenSelected.src_coin;
   console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
