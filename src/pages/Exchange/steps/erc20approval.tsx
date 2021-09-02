@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { observer } from 'mobx-react';
-import { Button, Icon, Text, Title } from 'components/Base';
-import { Modal } from 'semantic-ui-react';
+import { Button, Text, Title } from 'components/Base';
+import { Modal, Icon } from 'semantic-ui-react';
 import { Box } from 'grommet';
 import * as styles from '../styles.styl';
 import { EXCHANGE_MODE } from 'stores/interfaces';
@@ -32,14 +32,14 @@ export const ERC20ApprovalModal = observer(() => {
           <div style={{ padding: '12 32', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Title bold>Approve {exchange.transaction.tokenSelected.symbol}!</Title>
             <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
-              <Icon size="23" glyph="Close" />
+              <Icon size="small" glyph="Close" />
             </span>
           </div>
         </Modal.Header>
         <Modal.Content>
           <Box direction="column" fill={true} pad="large">
             <Box direction="row" fill={true} justify="center" align="center" style={{ marginBottom: 26 }}>
-              <Icon size="160" glyph="Check2" />
+              <Icon size="large" glyph="Check2" />
             </Box>
             <Text bold size="medium" margin={{ top: 'large' }}>
               Why am I doing this?

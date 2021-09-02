@@ -3,7 +3,6 @@ import { observer } from 'mobx-react';
 import { lighten } from 'polished';
 import * as React from 'react';
 import styled, { withTheme } from 'styled-components';
-import { BlockChainLoader } from '../BlockChainLoader';
 import { Col, Row } from '../Layout';
 import { getSize } from '../Inputs/common';
 
@@ -75,19 +74,6 @@ interface IStyledButtonProps {
   pad?: TEdgeSize;
 }
 
-const StyledLoader = styled(BlockChainLoader)`
-  position: absolute;
-
-  height: 100%;
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 4px;
-`;
-
 const StyledButton = styled.button<IStyledButtonProps & any>`
   position: relative;
   padding: ${props => props.theme.styled.button.padding || ''};
@@ -110,11 +96,6 @@ const StyledButton = styled.button<IStyledButtonProps & any>`
 
   ${props => props.margin && getMarginCSS(props.margin, props.theme)}
   ${props => props.pad && getPaddingCSS(props.pad, props.theme)}
-
-  &, ${StyledLoader} {
-    background-color: ${getButtonBgColor};
-    color: ${getButtonTextColor};
-  }
 
   &:hover {
     background-color: ${props => props.bgHoverColor || lighten(props.disabled ? 0 : 0.07, getButtonBgColor(props))};
@@ -253,7 +234,7 @@ class ButtonClass extends React.Component<IButtonProps> {
         <StyledButton {...rest} onClick={this.handleOnClick}>
           <Content>
             {children}
-            {isButtonLoading && <StyledLoader color="white" size="small" />}
+            {isButtonLoading}
           </Content>
         </StyledButton>
         {this.renderConfirmTooltip()}

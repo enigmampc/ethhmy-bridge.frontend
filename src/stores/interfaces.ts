@@ -1,4 +1,4 @@
-import { NativeToken, Token } from 'pages/Swap/types/trade';
+//import { NativeToken, Token } from 'pages/Swap/types/trade';
 import { SwapStatus } from '../constants';
 import { NETWORKS } from '../blockchain-bridge';
 
@@ -175,18 +175,18 @@ export interface IRewardPool {
   hidden?: boolean;
 }
 
-export interface ISecretSwapPair {
-  asset_infos: Array<Token | NativeToken>;
-  contract_addr: string;
-  liquidity_token: string;
-  token_code_hash: string;
-  asset0_volume: string;
-  asset1_volume: string;
-  factory: {
-    address: string;
-    code_hash: string;
-  };
-}
+// export interface ISecretSwapPair {
+//   asset_infos: Array<Token | NativeToken>;
+//   contract_addr: string;
+//   liquidity_token: string;
+//   token_code_hash: string;
+//   asset0_volume: string;
+//   asset1_volume: string;
+//   factory: {
+//     address: string;
+//     code_hash: string;
+//   };
+// }
 
 export interface TokenPool {
   info: {
@@ -199,18 +199,18 @@ export interface TokenPool {
   amount: string;
 }
 
-export interface NativeTokenPool {
-  info: {
-    native_token: {
-      denom: string;
-    };
-  };
-  amount: string;
-}
-export interface ISecretSwapPool {
-  assets: Array<TokenPool | NativeTokenPool>;
-  total_share: string;
-}
+// export interface NativeTokenPool {
+//   info: {
+//     native_token: {
+//       denom: string;
+//     };
+//   };
+//   amount: string;
+// }
+// export interface ISecretSwapPool {
+//   assets: Array<TokenPool | NativeTokenPool>;
+//   total_share: string;
+// }
 
 export interface INetworkBridgeHealth {
   network: NETWORKS;

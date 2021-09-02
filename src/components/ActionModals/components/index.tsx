@@ -6,7 +6,6 @@ import { IStyledProps } from 'themes';
 // import background from '../../../assets/images/header.png';
 import { Title } from 'components/Base';
 import { Spinner } from 'ui/Spinner';
-import { CloseIcon } from 'ui/Icons';
 
 interface IHederProps {
   onClose: () => any;

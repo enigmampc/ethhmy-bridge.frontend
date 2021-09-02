@@ -3,13 +3,9 @@ import {
   INetworkBridgeHealth,
   IOperation,
   IRewardPool,
-  ISecretSwapPair,
-  ISecretSwapPool,
-  ISecretToken,
   ISignerHealth,
   ISwap,
   ITokenInfo,
-  tokenFromSecretToken,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
@@ -166,26 +162,6 @@ export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[
     console.error(e);
     return { content: undefined };
   }
-};
-
-export const getSecretSwapPairs = async (params: any): Promise<{ content: ISecretSwapPair[] }> => {
-  const url = backendUrl(NETWORKS.ETH, '/secretswap_pairs/');
-
-  const res = await agent.get<{ body: ISecretSwapPair[] }>(url, params);
-
-  const content = res.body.pairs;
-
-  return { content: content };
-};
-
-export const getSecretSwapPools = async (params: any): Promise<{ content: ISecretSwapPool[] }> => {
-  const url = backendUrl(NETWORKS.ETH, '/secretswap_pools/');
-
-  const res = await agent.get<{ body: ISecretSwapPool[] }>(url, params);
-
-  const content = res.body.pools;
-
-  return { content: content };
 };
 
 export const getSignerHealth = async (): Promise<{ content: INetworkBridgeHealth[] }> => {

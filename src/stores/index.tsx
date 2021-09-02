@@ -7,9 +7,7 @@ import { Operations } from './Operations';
 import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
 import { Rewards } from './RewardsStore';
-import { SecretSwapPairs } from './SecretSwapPairs';
 import { SignerHealthStore } from './SignerHealthStore';
-import { SecretSwapPools } from './SecretSwapPools';
 
 export interface IStores {
   routing?: RouterStore;
@@ -20,8 +18,6 @@ export interface IStores {
   operations?: Operations;
   tokens?: Tokens;
   rewards?: Rewards;
-  secretSwapPairs?: SecretSwapPairs;
-  secretSwapPools?: SecretSwapPools;
   signerHealth?: SignerHealthStore;
 }
 
@@ -35,8 +31,6 @@ stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
 stores.rewards = new Rewards(stores);
-stores.secretSwapPairs = new SecretSwapPairs(stores);
-stores.secretSwapPools = new SecretSwapPools(stores);
 stores.signerHealth = new SignerHealthStore(stores);
 
 if (!process.env.production) {
