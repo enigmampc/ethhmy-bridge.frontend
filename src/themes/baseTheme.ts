@@ -1,3 +1,5 @@
+import { transparentize } from 'polished';
+
 export interface IStyledProps {
   theme?: ITheme;
 }
@@ -71,12 +73,12 @@ const palette: IPalette = {
   StandardWhite: '#ffffff',
 
   Shadow: 'rgba(115, 115, 146, 0.16)',
-  Background: 'linear-gradient(171.96deg, #4460DC 0%, #3247A2 89.05%)',
+  Background: `#0A1C34`,
 
   Green: '#19B97C',
   Black: '#405965',
   // BlackTxt: '#495057',
-  BlackTxt: '#212D5E',
+  BlackTxt: '#BAD2F2',
 };
 
 //body {
@@ -92,13 +94,13 @@ const palette: IPalette = {
 
 export const baseTheme: any = {
   // storybook theming
-  colorPrimary: 'black',
+  colorPrimary: '#BAD2F2',
   colorSecondary: 'lightblue',
 
   // UI
   appBg: 'white',
   appContentBg: 'white',
-  appBorderColor: 'grey',
+  appBorderColor: '#0A1C34',
   appBorderRadius: 4,
 
   // Typography
@@ -151,7 +153,6 @@ export const baseTheme: any = {
   },
 
   select: {
-    background: palette.Basic100,
     icons: {
       color: palette.Basic700,
     },
@@ -179,7 +180,6 @@ export const baseTheme: any = {
         font-family: ${props.theme.fontBase};
         outline: none;
         box-shadow: none;
-        
         * {
           font-size: 16px;
         }
@@ -234,6 +234,7 @@ export const baseTheme: any = {
       padding: '16px',
       border: `1px solid ${palette.Purple500}`,
       fontSize: '16px',
+      bgColor: '#133665',
     },
 
     tabs: {
@@ -251,17 +252,17 @@ export const baseTheme: any = {
         margin: '0 32px 0 0',
       },
     },
-
     input: {
-      bgColor: 'white',
-      textColor: '#212D5E',
-      border: `1px solid ${palette.Basic200}`,
+      bgColor: '#133665',
+      textColor: '#BAD2F2',
+      label: '#BAD2F2',
+      //border: `1px solid ${palette.Basic200}`,
       borderRadius: '4px',
       disabledColor: palette.Basic300,
       minHeight: '45px',
       customDDSeparator: {
         margin: 0,
-        backgroundColor: palette.Basic200,
+        backgroundColor: '#BAD2F2',
       },
       ddIndicatorProps: {
         pad: '8px',
@@ -270,9 +271,9 @@ export const baseTheme: any = {
     },
 
     colors: {
-      colorPrimary: palette.Purple500,
+      colorPrimary: '#BAD2F2',
       colorSecondary: 'white',
-      buttonBgColor: '#1c2a5e',
+      buttonBgColor: '#061222',
       // buttonBgColor: '#03ade8',
       buttonHoverBgColor: '#03ade8',
       buttonColor: 'white',

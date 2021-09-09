@@ -39,14 +39,15 @@ export const createViewingKey = async (user: any, callback?: Function) => {
   }
 };
 
-export const ViewingKeyIcon = (props: { user: any; callback?: Function }) => {
+export const UnlockWalletButton = (props: { style?: any; user: any; callback?: Function }) => {
   return (
     <Box
+      style={props.style}
       onClick={() => {
         createViewingKey(props.user, props.callback);
       }}
     >
-      🔍
+      Unlock Wallet
     </Box>
   );
 };
@@ -190,7 +191,7 @@ export const NetworkTemplate = (props: { template: NetworkTemplateInterface; use
         </Box>
 
         <Box direction="column">
-          <Title bold color={'#30303D'} margin={{ bottom: 'xxsmall' }}>
+          <Title bold color={'#FAF9FA'} margin={{ bottom: 'xxsmall' }}>
             {props.template.name}
           </Title>
           <Text size="medium" bold color={'#748695'}>
@@ -217,26 +218,31 @@ export const NetworkTemplate = (props: { template: NetworkTemplateInterface; use
           align={'center'}
           margin={{ top: 'xxsmall' }}
           className={styles.networktemplatetoken}
+          style={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          {props.template.image && (
-            <img src={props.template.image} style={{ width: 20, margin: '0 5' }} alt={props.template.symbol} />
-          )}
-          {props.template.amount === 'loading' ? (
-            <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1.5em" style={{ margin: '0 10' }} />
-          ) : props.template.amount === unlockToken ? (
-            <Box direction="row" style={{ margin: '0 5' }}>
-              <ViewingKeyIcon user={props.user} />
-            </Box>
-          ) : (
-            <Text bold size="medium" style={{ margin: '0 5' }}>
-              <span style={{ color: props.template.amount === wrongNetwork ? '#c5bb2e' : '#30303D' }}>
-                {props.template.amount}
-              </span>
+          <div>
+            {props.template.amount === 'loading' ? (
+              <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1.5em" style={{ margin: '0 10' }} />
+            ) : props.template.amount === unlockToken ? (
+              <Box direction="row" style={{ margin: '0 5' }}>
+                <UnlockWalletButton user={props.user} />
+              </Box>
+            ) : (
+              <Text bold size="medium" style={{ margin: '0 5' }}>
+                <span style={{ color: props.template.amount === wrongNetwork ? '#c5bb2e' : '#FAF9FA' }}>
+                  {props.template.amount}
+                </span>
+              </Text>
+            )}
+          </div>
+          <div style={{ display: 'flex' }}>
+            {props.template.image && (
+              <img src={props.template.image} style={{ width: 20, margin: '0 5' }} alt={props.template.symbol} />
+            )}
+            <Text bold style={{ margin: '0 5' }} color="#748695" size="medium">
+              {props.template.symbol}
             </Text>
-          )}
-          <Text bold style={{ margin: '0 5' }} color="#748695" size="medium">
-            {props.template.symbol}
-          </Text>
+          </div>
         </Box>
       )}
     </Box>

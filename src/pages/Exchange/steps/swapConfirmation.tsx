@@ -243,7 +243,7 @@ export const SwapConfirmation = observer(() => {
                 <Box className={styles.warningSign} direction="row" align="center">
                   <img style={{ marginRight: 6, width: 15, height: 15 }} src={userMetamask.getNetworkImage()} />
                   <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>
-                    {userMetamask.getNetworkFullName()} Fee
+                    {userMetamask.getNetworkFullName()} Fee (estimated)
                   </Text>
                 </Box>
                 {exchange.isFeeLoading ? (

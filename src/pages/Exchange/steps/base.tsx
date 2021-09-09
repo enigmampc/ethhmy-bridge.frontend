@@ -24,7 +24,7 @@ import {
   Signer,
   signerAddresses,
   TokenLocked,
-  ViewingKeyIcon,
+  UnlockWalletButton,
   WrongNetwork,
 } from '../utils';
 import { formatSymbol, wrongNetwork } from '../../../utils';
@@ -39,6 +39,8 @@ import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/ch
 import { EXTERNAL_NETWORKS, NETWORKS } from '../../../blockchain-bridge';
 import { EXTERNAL_LINKS } from '../../../blockchain-bridge/eth/networks';
 import { Header, Modal, Button as SemanticButton, Icon as SemanticIcon } from 'semantic-ui-react';
+
+const DEFAULT_TOKEN = '0xa47c8bf37f92aBed4A126BDA807A7b7498661acD';
 
 interface Errors {
   amount: string;
@@ -157,6 +159,8 @@ export const Base = observer(() => {
   const [balance, setBalance] = useState<BalanceInterface>(defaultBalance);
   const [onSwap, setSwap] = useState<boolean>(false);
   const [toApprove, setToApprove] = useState<boolean>(false);
+  const [toUnlock, setToUnlock] = useState<boolean>(false);
+
   const [readyToSend, setReadyToSend] = useState<boolean>(false);
   const [toSecretHealth, setToSecretHealth] = useState<HealthStatusDetailed>(undefined);
   const [fromSecretHealth, setFromSecretHealth] = useState<HealthStatusDetailed>(undefined);
@@ -314,19 +318,29 @@ export const Base = observer(() => {
   }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc20Address]);
 
   useEffect(() => {
-    if (
-      exchange.isTokenApproved &&
-      !toApprove &&
-      exchange.mode === EXCHANGE_MODE.TO_SCRT &&
-      !isNativeToken(selectedToken)
-    ) {
+    const unlock = exchange.mode === EXCHANGE_MODE.FROM_SCRT && maxAmount === unlockToken;
+
+    setToUnlock(unlock);
+    if (unlock) {
+      setProgress(1);
+    }
+  }, [selectedToken, exchange.mode, maxAmount, exchange.transaction.snip20Address]);
+
+  useEffect(() => {
+    if (exchange.mode === EXCHANGE_MODE.TO_SCRT) {
+      if (exchange.isTokenApproved && !toApprove && !isNativeToken(selectedToken)) {
+        setProgress(2);
+      }
+    } else if (maxAmount !== unlockToken && !toUnlock) {
       setProgress(2);
     }
-  }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode]);
+  }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode, toUnlock, maxAmount]);
 
   useEffect(() => {
     const address =
       exchange.mode === EXCHANGE_MODE.FROM_SCRT ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress;
+
+    const step1Done = exchange.mode === EXCHANGE_MODE.TO_SCRT ? !toApprove : !toUnlock;
     const value =
       errors.token === '' &&
       errors.amount === '' &&
@@ -334,11 +348,12 @@ export const Base = observer(() => {
       exchange.transaction.amount !== '' &&
       selectedToken !== '' &&
       address !== '' &&
-      !toApprove;
+      step1Done;
 
     setReadyToSend(value);
   }, [
     toApprove,
+    toUnlock,
     errors,
     exchange.transaction.amount,
     selectedToken,
@@ -349,7 +364,7 @@ export const Base = observer(() => {
 
   const onSelectedToken = async value => {
     const token = (await tokens.tokensUsage('BRIDGE', userMetamask.network)).find(t => t.src_address === value);
-    setProgress(0);
+    setProgress(1);
     const newerrors = errors;
     setBalance({
       eth: { minAmount: 'loading', maxAmount: 'loading' },
@@ -383,15 +398,20 @@ export const Base = observer(() => {
 
     const update = async () => {
       const amount = user.balanceToken[token.src_coin];
+      console.log(`updated balance to ${amount}`);
       const isLocked = amount === unlockToken;
+      console.log(`is ${isLocked}`);
 
       while (userMetamask.balancesLoading) {
         await sleep(50);
       }
+      console.log(`done loading metamask balances`);
 
       const balance = await getBalance(exchange, userMetamask, user, isLocked, token);
 
       setBalance(balance);
+      console.log(`set balances ${JSON.stringify(balance)}`);
+
       setTokenLocked(amount === unlockToken);
       setErrors(newerrors);
     };
@@ -456,6 +476,11 @@ export const Base = observer(() => {
     callback();
   };
 
+  if (!selectedToken.value) {
+    selectedToken.value = DEFAULT_TOKEN;
+    onSelectedToken(DEFAULT_TOKEN);
+  }
+
   return (
     <Box fill direction="column" background="transparent">
       <Box
@@ -463,7 +488,7 @@ export const Base = observer(() => {
         direction="row"
         justify="around"
         pad="xlarge"
-        background="#f5f5f5"
+        background="#0A1C34"
         style={{ zIndex: 1, position: 'relative' }}
       >
         <HeadShake spy={onSwap} delay={0}>
@@ -512,6 +537,7 @@ export const Base = observer(() => {
             <Box className={styles.baseRightSide} gap="2px">
               <Box width="100%" margin={{ right: 'medium' }} direction="column">
                 <ERC20Select value={selectedToken.value} onSelectToken={value => onSelectedToken(value)} />
+
                 <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
                   {errors.token && (
                     <HeadShake>
@@ -520,8 +546,9 @@ export const Base = observer(() => {
                   )}
                 </Box>
               </Box>
+
               <Box direction="column" width="100%">
-                <Text bold size="large">
+                <Text bold size="large" color="#BAD2F2">
                   Amount
                 </Text>
                 <Box
@@ -531,56 +558,57 @@ export const Base = observer(() => {
                   justify="between"
                   align="center"
                 >
-                  <Box width="40%" style={{ flex: 1 }}>
-                    <NumberInput
-                      name="amount"
-                      type="decimal"
-                      precision="18"
-                      delimiter="."
-                      placeholder="0"
-                      margin={{ bottom: 'none' }}
-                      value={exchange.transaction.amount}
-                      className={styles.input}
-                      style={{ borderColor: 'transparent', height: 44 }}
-                      onChange={async value => {
-                        exchange.transaction.amount = value;
-                        const error = validateAmountInput(value, minAmount, maxAmount);
-                        setErrors({ ...errors, amount: error });
-                      }}
-                    />
-                  </Box>
-
-                  <Box direction="row" align="center" justify="end">
-                    <Box className={styles.maxAmountInput} direction="row">
-                      <Text bold margin={{ right: 'xxsmall' }}>
-                        /
-                      </Text>
-                      {maxAmount === 'loading' ? (
-                        <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-                      ) : maxAmount === unlockToken ? (
-                        <ViewingKeyIcon user={user} />
-                      ) : (
-                        <Text bold className={styles.maxAmountInput}>
-                          {maxAmount}
-                        </Text>
-                      )}
+                  <>
+                    <Box width="40%" style={{ flex: 1 }}>
+                      <NumberInput
+                        name="amount"
+                        type="decimal"
+                        precision="18"
+                        delimiter="."
+                        placeholder="0"
+                        margin={{ bottom: 'none' }}
+                        value={exchange.transaction.amount}
+                        className={styles.input}
+                        style={{ borderColor: 'transparent', height: 44 }}
+                        onChange={async value => {
+                          exchange.transaction.amount = value;
+                          const error = validateAmountInput(value, minAmount, maxAmount);
+                          setErrors({ ...errors, amount: error });
+                        }}
+                      />
                     </Box>
-
-                    <Button
-                      margin={{ left: 'xsmall', right: 'xsmall' }}
-                      bgColor="#DEDEDE"
-                      pad="xxsmall"
-                      onClick={() => {
-                        if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
-                        if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
-                        exchange.transaction.amount = maxAmount;
-                      }}
-                    >
-                      <Text size="xxsmall" bold>
-                        MAX
-                      </Text>
-                    </Button>
-                  </Box>
+                    <Box direction="row" align="center" justify="end">
+                      {/*<Box className={styles.maxAmountInput} direction="row">*/}
+                      {/*  <Text bold margin={{ right: 'xxsmall' }}>*/}
+                      {/*    /*/}
+                      {/*  </Text>*/}
+                      {/*  {maxAmount === 'loading' ? (*/}
+                      {/*    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />*/}
+                      {/*  ) : (*/}
+                      {/*    <Text bold className={styles.maxAmountInput}>*/}
+                      {/*      {maxAmount}*/}
+                      {/*    </Text>*/}
+                      {/*  )}*/}
+                      {/*</Box>*/}
+                      <Button
+                        margin={{ left: 'xsmall', right: 'xsmall' }}
+                        //bgColor="#E1C442"
+                        //bgColor="#E1C442"
+                        bgColor={'transparent'}
+                        bgHoverColor={'#0A1C34'}
+                        pad="xxsmall"
+                        onClick={() => {
+                          if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
+                          if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
+                          exchange.transaction.amount = maxAmount;
+                        }}
+                      >
+                        <Text size="xxsmall" bold color={'#E1C442'}>
+                          MAX
+                        </Text>
+                      </Button>
+                    </Box>
+                  </>
                 </Box>
                 <Box margin={{ top: 'xxsmall' }} direction="row" align="center" justify="between">
                   <Box direction="row">
@@ -590,7 +618,7 @@ export const Base = observer(() => {
                     {minAmount === 'loading' ? (
                       <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
                     ) : (
-                      <Text size="small" color="#748695">
+                      <Text size="small" color="#E1C442">
                         {`${minAmount} ${formatSymbol(exchange.mode, selectedToken.symbol)}`}
                       </Text>
                     )}
@@ -703,18 +731,21 @@ export const Base = observer(() => {
               <Box direction="row" align="center" margin={{ left: '75', bottom: 'small' }} fill>
                 <Text
                   className={styles.progressNumber}
-                  style={{ background: progress === 2 ? '#00ADE888' : '#00ADE8' }}
+                  style={{ background: progress === 2 ? '#E1C442' : '#E1C442', color: '#555365' }}
                 >
                   1
                 </Text>
                 <ProgressBar
                   height="4"
                   width="220"
-                  bgColor={'#00BFFF'}
+                  bgColor={'#E1C442'}
                   completed={progress * 50}
                   isLabelVisible={false}
                 />
-                <Text className={styles.progressNumber} style={{ background: progress === 1 ? '#E4E4E4' : '#00ADE8' }}>
+                <Text
+                  className={styles.progressNumber}
+                  style={{ background: progress === 1 ? '#E4E4E4' : '#E1C442', color: '#555365' }}
+                >
                   2
                 </Text>
               </Box>
@@ -724,8 +755,8 @@ export const Base = observer(() => {
               {exchange.mode === EXCHANGE_MODE.TO_SCRT && selectedToken.symbol !== '' && !isNativeToken(selectedToken) && (
                 <Button
                   disabled={exchange.tokenApprovedLoading || !toApprove}
-                  bgColor={'#00ADE8'}
-                  color={'white'}
+                  bgColor={'#E1C442'}
+                  color={'#061222'}
                   style={{ minWidth: 180, height: 48 }}
                   onClick={() => {
                     const tokenError = validateTokenInput(selectedToken);
@@ -744,12 +775,42 @@ export const Base = observer(() => {
                   )}
                 </Button>
               )}
-
+              {exchange.mode === EXCHANGE_MODE.FROM_SCRT && selectedToken.symbol !== '' && (
+                <Button
+                  disabled={!toUnlock}
+                  bgColor={'#E1C442'}
+                  color={'#061222'}
+                  style={{ minWidth: 180, height: 48 }}
+                  onClick={async () => {
+                    const tokenError = validateTokenInput(selectedToken);
+                    setErrors({ ...errors, token: '' });
+                    if (tokenError) return setErrors({ ...errors, token: tokenError });
+                    if (exchange.step.id === EXCHANGE_STEPS.BASE)
+                      onClickHandler(async () => {
+                        await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
+                        await sleep(500);
+                        //await user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol);
+                        await onSelectedToken(exchange.transaction.tokenSelected.src_address);
+                        if (maxAmount !== unlockToken) {
+                          setProgress(2);
+                        }
+                      });
+                  }}
+                >
+                  {maxAmount === 'loading' ? (
+                    <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />
+                  ) : user.snip20Balance !== unlockToken ? (
+                    'Unlocked!'
+                  ) : (
+                    'Unlock Token'
+                  )}
+                </Button>
+              )}
               <Button
                 disabled={!readyToSend}
                 margin={{ left: 'medium' }}
-                bgColor={!toApprove ? '#00ADE8' : '#E4E4E4'}
-                color={!toApprove ? 'white' : '#748695'}
+                bgColor={!toApprove ? '#E1C442' : '#E1C442'}
+                color={!toApprove ? '#061222' : '#061222'}
                 style={{ minWidth: 300, height: 48 }}
                 onClick={() => {
                   if (exchange.step.id === EXCHANGE_STEPS.BASE) {

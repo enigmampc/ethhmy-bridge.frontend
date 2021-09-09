@@ -150,7 +150,7 @@ export class Exchange extends StoreConstructor {
               token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
             }
             this.swapFeeUsd = this.ethSwapFee * this.stores.userMetamask.getNetworkPrice();
-            this.swapFeeToken = this.swapFeeUsd / Number(token.price);
+            this.swapFeeToken = 50; //this.swapFeeUsd / Number(token.price) / 8;
             this.isFeeLoading = false;
             break;
         }

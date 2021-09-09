@@ -42,7 +42,7 @@ export const OperationsPanel = observer(() => {
             </Box>
             <Box margin={{ left: 'large' }}>
               <Text size="medium" bold>
-                Transactions Panel
+                My Transactions
               </Text>
             </Box>
           </Box>

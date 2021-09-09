@@ -37,7 +37,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     return (
       <Box
         style={{
-          background: palette.StandardWhite,
+          background: theme.palette.Background,
           // background: '#f6f7fb',
           overflow: 'visible',
           position: 'absolute',
@@ -63,8 +63,8 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box> */}
             <a href="/" style={{ textDecoration: 'none' }}>
               <Box>
-                <Title size="medium" color="BlackTxt" bold>
-                  𝕊ecret Finance
+                <Title size="medium" color="#E1C442" bold>
+                  Duplex Bridge
                 </Title>
               </Box>
             </a>
@@ -120,16 +120,16 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             {/*  <Text>SeFi</Text>*/}
             {/*</Box>*/}
 
-            <Box
-              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
-              onClick={() => {
-                const url = `https://app.secretswap.io/swap`;
-                const win = window.open(url, '_blank');
-                win.focus();
-              }}
-            >
-              <Text>SecretSwap</Text>
-            </Box>
+            {/*<Box*/}
+            {/*  className={cn(styles.itemToken, isSwap ? styles.selected : '')}*/}
+            {/*  onClick={() => {*/}
+            {/*    const url = `https://app.secretswap.io/swap`;*/}
+            {/*    const win = window.open(url, '_blank');*/}
+            {/*    win.focus();*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Text>SecretSwap</Text>*/}
+            {/*</Box>*/}
 
             <Box className={cn(styles.itemToken, isFaq ? styles.selected : '')} onClick={() => routing.push('/faq')}>
               <Text>FAQ</Text>

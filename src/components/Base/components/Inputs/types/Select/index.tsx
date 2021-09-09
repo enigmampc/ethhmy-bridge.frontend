@@ -69,9 +69,9 @@ export interface ISelectProps extends ICommonInputProps {
   disabled?: boolean;
   placeholder?: string;
   noDefaultValue?: boolean;
-  IconOption?: any,
-  SingleValue?: any,
-  mutatedOptions?: Array<any>
+  IconOption?: any;
+  SingleValue?: any;
+  mutatedOptions?: Array<any>;
 }
 
 const { Option, SingleValue } = components;
@@ -102,7 +102,16 @@ const DefaultIconSingleValue = placeholder => props => (
 );
 
 const SelectClass = (props: ICommonInputProps & ISelectProps) => {
-  const { type = 'default', styles, disabled, placeholder, noDefaultValue, IconOption, SingleValue, mutatedOptions } = props;
+  const {
+    type = 'default',
+    styles,
+    disabled,
+    placeholder,
+    noDefaultValue,
+    IconOption,
+    SingleValue,
+    mutatedOptions,
+  } = props;
 
   const mappedOptions = mapOptions(props.options);
 
@@ -132,4 +141,4 @@ export const Select: React.ComponentType<ISelectProps> = withTheme(SelectClass);
 
 const injectValueProp = (value: any, options: ISelectOption[]) => {
   return !value ? { value: '' } : { value: mapOptions(options).find(option => option.value === value) };
-}
+};

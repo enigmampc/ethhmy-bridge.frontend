@@ -7,7 +7,7 @@ import { chainProps, chainPropToString } from '../../blockchain-bridge/eth/chain
 import { HealthStatusDetailed, NetworkTemplate, NetworkTemplateInterface } from './utils';
 import { formatSymbol } from '../../utils';
 import { BalanceInterface } from './steps/base';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import * as styles from './styles.styl';
 import { NETWORKS } from '../../blockchain-bridge';
 
@@ -83,6 +83,17 @@ export const NetworkSelect = observer(
       networkImage: '/static/networks/secret-scrt-logo-dark.svg',
     };
 
+    // just hard code Ethereum for now. No need for a selector
+    const EthereumTemplate: NetworkTemplateInterface = {
+      name: chainPropToString(chainProps.full_name, NETWORKS.ETH),
+      wallet: chainPropToString(chainProps.wallet, NETWORKS.ETH),
+      symbol: formatSymbol(EXCHANGE_MODE.TO_SCRT, exchange.transaction.tokenSelected.symbol),
+      amount: balance.eth.maxAmount,
+      image: exchange.transaction.tokenSelected.image,
+      health: toSecretHealth,
+      networkImage: chainPropToString(chainProps.image_logo, NETWORKS.ETH),
+    };
+
     if (secret) {
       return (
         <div style={{ padding: 10, minWidth: 300 }}>
@@ -91,64 +102,69 @@ export const NetworkSelect = observer(
       );
     }
 
-    const SingleValue = ({ children, ...props }) => {
-      return <NetworkTemplate template={props.data} user={user} />;
-    };
+    // const SingleValue = ({ children, ...props }) => {
+    //   return <NetworkTemplate template={props.data} user={user} />;
+    // };
+    //
+    // const Option = option => {
+    //   return (
+    //     <components.Option {...option} className={styles.selectOption}>
+    //       <NetworkTemplate template={{ ...option.data, symbol: null }} user={user} />
+    //     </components.Option>
+    //   );
+    // };
+    //
+    // const Control = ({ children, ...props }) => {
+    //   return (
+    //     <components.Control {...props} className={styles.selectContainer}>
+    //       {children}
+    //     </components.Control>
+    //   );
+    // };
 
-    const Option = option => {
-      return (
-        <components.Option {...option} className={styles.selectOption}>
-          <NetworkTemplate template={{ ...option.data, symbol: null }} user={user} />
-        </components.Option>
-      );
-    };
-
-    const Control = ({ children, ...props }) => {
-      return (
-        <components.Control {...props} className={styles.selectContainer}>
-          {children}
-        </components.Control>
-      );
-    };
-
-    const selectedOption = networks.find(n => n.id === value);
+    //const selectedOption = networks.find(n => n.id === value);
     return (
-      <Select
-        styles={{
-          option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#e0e0e0' : 'none',
-          }),
-          container: base => ({
-            ...base,
-            minWidth: 350,
-          }),
-          control: (base, state) => ({
-            ...base,
-            boxShadow: 'none',
-          }),
-          valueContainer: (base, state) => ({
-            ...base,
-            paddingRight: 15,
-          }),
-          menuList: (base, state) => ({
-            ...base,
-            paddingBottom: 0,
-            paddingTop: 0,
-          }),
-        }}
-        components={{
-          Option,
-          SingleValue,
-          Control,
-        }}
-        options={networks}
-        value={selectedOption || networks[0]}
-        isSearchable={false}
-        onChange={v => {
-          onChange(v);
-        }}
-      />
+      <div style={{ padding: 10, minWidth: 300 }}>
+        <NetworkTemplate template={EthereumTemplate} user={user} />
+      </div>
     );
+    // return (
+    //   <Select
+    //     styles={{
+    //       option: (base, state) => ({
+    //         ...base,
+    //         backgroundColor: state.isSelected ? '#0A1C34' : '#133665',
+    //       }),
+    //       container: base => ({
+    //         ...base,
+    //         minWidth: 350,
+    //       }),
+    //       control: (base, state) => ({
+    //         ...base,
+    //         boxShadow: 'none',
+    //       }),
+    //       valueContainer: (base, state) => ({
+    //         ...base,
+    //         paddingRight: 15,
+    //       }),
+    //       menuList: (base, state) => ({
+    //         ...base,
+    //         paddingBottom: 0,
+    //         paddingTop: 0,
+    //       }),
+    //     }}
+    //     components={{
+    //       Option,
+    //       SingleValue,
+    //       Control,
+    //     }}
+    //     options={networks}
+    //     value={selectedOption || networks[0]}
+    //     isSearchable={false}
+    //     onChange={v => {
+    //       onChange(v);
+    //     }}
+    //   />
+    // );
   },
 );

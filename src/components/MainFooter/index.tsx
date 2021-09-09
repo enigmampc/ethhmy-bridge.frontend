@@ -9,8 +9,8 @@ export const MainFooter: typeof Box = props => (
   <Box
     flex={{ shrink: 0 }}
     style={{
-      borderTop: '1px solid rgb(231, 236, 247)',
-      backgroundColor: '#1c2a5e',
+      borderTop: '0px',
+      backgroundColor: '#0A1C34',
       overflow: 'visible',
       width: '100%',
       zIndex: 100,
@@ -86,12 +86,12 @@ export const MainFooter: typeof Box = props => (
             Community links
           </Title>
           <a
-            href="https://puzzle.report/"
+            href="https://secretnodes.com/"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
             rel="noreferrer"
           >
-            <Text>Puzzle</Text>
+            <Text>Secretnodes Explorer</Text>
           </a>
           <a
             href="http://www.secretanalytics.xyz/"
@@ -99,7 +99,7 @@ export const MainFooter: typeof Box = props => (
             target="_blank"
             rel="noreferrer"
           >
-            <Text>SecretAnalytics</Text>
+            <Text>Secret Analytics</Text>
           </a>
         </Box>
       </Box>

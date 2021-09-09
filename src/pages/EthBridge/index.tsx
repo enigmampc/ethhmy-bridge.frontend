@@ -58,38 +58,38 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message success>
-              <Message.Header>The bridge to Monero is now live!</Message.Header>
-              <Message.Content>
-                We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
-                <a
-                  href="https://scrt.network/blog/secret-monero-bridge-is-live-on-mainnet"
-                  style={{ textDecoration: 'underline' }}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  here
-                </a>
-                {/*To get support, report bugs or suggestions you can use{' '}*/}
-                {/*<a*/}
-                {/*  href="https://discord.gg/7t7PqPZFJq"*/}
-                {/*  style={{ textDecoration: 'underline' }}*/}
-                {/*  target="_blank"*/}
-                {/*  rel="noreferrer"*/}
-                {/*>*/}
-                {/*  Discord*/}
-                {/*</a>{' '}*/}
-                {/*or{' '}*/}
-                {/*<a*/}
-                {/*  href="https://t.me/SCRTCommunity"*/}
-                {/*  style={{ textDecoration: 'underline' }}*/}
-                {/*  target="_blank"*/}
-                {/*  rel="noreferrer"*/}
-                {/*>*/}
-                {/*  Telegram*/}
-                {/*</a>*/}
-              </Message.Content>
-            </Message>
+            {/*<Message success>*/}
+            {/*  <Message.Header>The bridge to Monero is now live!</Message.Header>*/}
+            {/*  <Message.Content>*/}
+            {/*    We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}*/}
+            {/*    <a*/}
+            {/*      href="https://scrt.network/blog/secret-monero-bridge-is-live-on-mainnet"*/}
+            {/*      style={{ textDecoration: 'underline' }}*/}
+            {/*      target="_blank"*/}
+            {/*      rel="noreferrer"*/}
+            {/*    >*/}
+            {/*      here*/}
+            {/*    </a>*/}
+            {/*    /!*To get support, report bugs or suggestions you can use{' '}*!/*/}
+            {/*    /!*<a*!/*/}
+            {/*    /!*  href="https://discord.gg/7t7PqPZFJq"*!/*/}
+            {/*    /!*  style={{ textDecoration: 'underline' }}*!/*/}
+            {/*    /!*  target="_blank"*!/*/}
+            {/*    /!*  rel="noreferrer"*!/*/}
+            {/*    /!*>*!/*/}
+            {/*    /!*  Discord*!/*/}
+            {/*    /!*</a>{' '}*!/*/}
+            {/*    /!*or{' '}*!/*/}
+            {/*    /!*<a*!/*/}
+            {/*    /!*  href="https://t.me/SCRTCommunity"*!/*/}
+            {/*    /!*  style={{ textDecoration: 'underline' }}*!/*/}
+            {/*    /!*  target="_blank"*!/*/}
+            {/*    /!*  rel="noreferrer"*!/*/}
+            {/*    /!*>*!/*/}
+            {/*    /!*  Telegram*!/*/}
+            {/*    /!*</a>*!/*/}
+            {/*  </Message.Content>*/}
+            {/*</Message>*/}
             {/*<Message info>*/}
             {/*  <Message.Header>Warning</Message.Header>*/}
             {/*  <Message.Content>*/}
@@ -110,7 +110,9 @@ export const EthBridge = observer((props: any) => {
             {/*  <p>No current issues </p>*/}
             {/*</Message>*/}
             <Box className={styles.headerBridge} fill margin={{ bottom: 'medium', top: 'large' }}>
-              <Title bold>Secret Bridge</Title>
+              <Title bold color="#BAD2F2">
+                Secret Bridge
+              </Title>
               <WalletBalances />
             </Box>
             <Exchange />

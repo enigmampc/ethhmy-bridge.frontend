@@ -37,11 +37,10 @@ export const Theme: any = {
       Blue500: '#4740a1',
 
       border: '#323232',
-      brand: 'white',
+      brand: '#E1C442',
       focus: 0,
       active: '#FFCB02',
       icon: 'black',
-      formBackground: '#f8f8f8',
       text: {
         dark: 'black',
         light: '#323232',
@@ -64,7 +63,7 @@ export const Theme: any = {
     },
     input: {
       border: {
-        radius: '2px',
+        radius: '0px',
       },
       disabled: {
         opacity: 0.5,
@@ -141,10 +140,7 @@ export const Theme: any = {
     // `,
   },
   select: {
-    border: {
-      radius: '2px',
-    },
-    background: 'dark',
+    background: '#9E9CAB',
     color: 'black',
     icons: {
       color: 'black',

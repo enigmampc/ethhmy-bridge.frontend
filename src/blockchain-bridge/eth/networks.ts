@@ -29,3 +29,18 @@ export const networkFromToken = (token: { src_network: string; dst_network?: str
       throw new Error(`Invalid network: ${token.src_network}`);
   }
 };
+
+export const networkFromSymbol = (symbol: string): NETWORKS => {
+  switch (symbol.toUpperCase().replace(/\s/g, '')) {
+    case 'ETH':
+      return NETWORKS.ETH;
+    case 'BSC':
+      return NETWORKS.BSC;
+    case 'PLM':
+      return NETWORKS.PLSM;
+    case 'SCRT':
+      return undefined;
+    default:
+      throw new Error(`Invalid network: ${symbol}`);
+  }
+};

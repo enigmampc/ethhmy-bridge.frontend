@@ -53,7 +53,7 @@ export const ERC20Select = observer((props: { onSelectToken?: Function; value: s
   return (
     <Box direction="column">
       <Box direction="row" align="center" justify="between">
-        <Text size="large" bold>
+        <Text size="large" bold color="#BAD2F2">
           {/*{exchange.mode === EXCHANGE_MODE.FROM_SCRT ? 'SecretToken' : 'Ethereum Asset'}*/}
           Token
         </Text>

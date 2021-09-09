@@ -48,7 +48,7 @@ const defaultPreset: StylesConfig = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused
-      ? state.theme.palette.Basic100
+      ? state.theme.palette.Background
       : state.isSelected
       ? state.theme.palette.Basic200
       : 'transparent',
@@ -72,7 +72,7 @@ const defaultPreset: StylesConfig = {
     // padding: '3px',
     borderRadius: props.theme.styled.input.borderRadius || 0,
     minHeight: props.theme.styled.input.minLength || 38,
-    borderColor: `${props.theme.palette.Basic200} !important`,
+    borderColor: `${props.theme.palette.Background} !important`,
     boxShadow: 'none',
   }),
   indicatorSeparator: (provided, props) => {

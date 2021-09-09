@@ -3,7 +3,7 @@ import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { Button, Text } from 'components/Base';
 import * as styles from './wallet-balances.styl';
-import { truncateAddressString } from 'utils';
+import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import Loader from 'react-loader-spinner';
@@ -14,19 +14,19 @@ import Flip from 'react-reveal/Flip';
 
 const WalletTemplate = observer((props: { address: string; symbol: string; amount: string }) => {
   return (
-    <Box direction="row" background="white" style={{ borderRadius: 4 }}>
+    <Box direction="row" background="#133665" style={{ borderRadius: 4 }}>
       <CopyToClipboard text={props.address} onCopy={() => createNotification('success', 'Copied to Clipboard!', 2)}>
         <Box pad="xxsmall" align="center" direction="row">
           <img className={styles.imgToken} src={'/static/wallet.svg'} />
           <Text margin={{ left: 'xxsmall' }} className={styles.onClickAddress}>
-            {truncateAddressString(props.address, 10)}
+            {truncateAddressString(props.address, 6)}
           </Text>
         </Box>
       </CopyToClipboard>
 
-      <Box pad="xxsmall" background="#DBDCE1" align="center" direction="row" style={{ borderRadius: 4 }}>
+      <Box pad="xxsmall" background="#0C2545" align="center" direction="row" style={{ borderRadius: 4 }}>
         {props.amount ? (
-          <Text bold>{props.amount}</Text>
+          <Text bold>{formatWithTwoDecimals(props.amount)}</Text>
         ) : (
           <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
         )}
@@ -41,7 +41,7 @@ const WalletTemplate = observer((props: { address: string; symbol: string; amoun
 export const WalletBalances = observer(() => {
   const { user, userMetamask, actionModals } = useStores();
   return (
-    <Box className={styles.walletsContainer} >
+    <Box className={styles.walletsContainer}>
       <Box margin={{ right: 'small' }}>
         {!user.isAuthorized ? (
           <Button
@@ -104,7 +104,6 @@ export const WalletBalances = observer(() => {
               symbol={userMetamask.getCurrencySymbol()}
             />
           </Flip>
-
         )}
       </Box>
     </Box>
