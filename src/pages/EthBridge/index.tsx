@@ -111,7 +111,7 @@ export const EthBridge = observer((props: any) => {
             {/*</Message>*/}
             <Box className={styles.headerBridge} fill margin={{ bottom: 'medium', top: 'large' }}>
               <Title bold color="#BAD2F2">
-                Secret Bridge
+                {' '}
               </Title>
               <WalletBalances />
             </Box>

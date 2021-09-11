@@ -25,7 +25,8 @@ const faqConfig = [
     text: () => (
       <>
         <p>
-          Relax. No matter what happens your Ethereum assets are safely stored in our multisig contract. As long as you've entered a Secret Network address that you control, your funds are safe.
+          Relax. No matter what happens your Ethereum assets are safely stored in our multisig contract. As long as
+          you've entered a Secret Network address that you control, your funds are safe.
         </p>
         <br />
         <p>
@@ -150,46 +151,37 @@ const faqConfig = [
       </>
     ),
   },
-  {
-    label: 'Who are the bridge operators?',
-    text: () => (
-      <p>
-        The bridge operators are very reputable staking operators:{' '}
-        <a href="https://figment.io/" target="_blank" rel="noreferrer">
-          Figment
-        </a>
-        ,{' '}
-        <a href="https://staked.us/" target="_blank" rel="noreferrer">
-          Staked
-        </a>
-        ,{' '}
-        <a href="https://bharvest.io/" target="_blank" rel="noreferrer">
-          B-Harvest
-        </a>
-        ,{' '}
-        <a href="https://citadel.one/" target="_blank" rel="noreferrer">
-          Citadel.one
-        </a>{' '}
-        and{' '}
-        <a href="https://enigma.co/" target="_blank" rel="noreferrer">
-          Enigma
-        </a>
-        .
-      </p>
-    ),
-  },
+  // {
+  //   label: 'Who are the bridge operators?',
+  //   text: () => (
+  //     <p>
+  //       The bridge operators are very reputable staking operators:{' '}
+  //       <a href="https://figment.io/" target="_blank" rel="noreferrer">
+  //         Figment
+  //       </a>
+  //       ,{' '}
+  //       <a href="https://staked.us/" target="_blank" rel="noreferrer">
+  //         Staked
+  //       </a>
+  //       ,{' '}
+  //       <a href="https://bharvest.io/" target="_blank" rel="noreferrer">
+  //         B-Harvest
+  //       </a>
+  //       ,{' '}
+  //       <a href="https://citadel.one/" target="_blank" rel="noreferrer">
+  //         Citadel.one
+  //       </a>{' '}
+  //       and{' '}
+  //       <a href="https://enigma.co/" target="_blank" rel="noreferrer">
+  //         Enigma
+  //       </a>
+  //       .
+  //     </p>
+  //   ),
+  // },
   {
     label: 'Which tokens are supported?',
-    text: () => (
-      <p>
-        Currently the bridge supports ETH, OCEAN, YFI, UNI, TUSD, SNX, MKR, DAI, BAND, LINK, AAVE, COMP, KNC, USDT, WBTC
-        and BAC. If you’d like to see support for other tokens, please fill{' '}
-        <a href="https://airtable.com/shrLzEMvRiRFS4LpZ" target="_blank" rel="noreferrer">
-          this form
-        </a>
-        .
-      </p>
-    ),
+    text: () => <p>The Duplex Bridge currently only supports UST. Other tokens will be coming soon!</p>,
   },
   {
     label: 'What are the risks involved with Secret - Ethereum bridge?',
@@ -303,13 +295,14 @@ export const FAQPage = () => {
                 // color: '#47b8eb',
                 fontWeight: 600,
                 letterSpacing: 0.2,
+                color: '#E1C442',
               }}
               size="large"
             >
-              FAQ
+              Frequently Asked Questions
             </Title>
           </Box>
-          <Box style={{ background: 'white', borderRadius: 5 }} pad="xlarge">
+          <Box style={{ background: '#0C2545', borderRadius: 5 }} pad="xlarge">
             {faqConfig.map((item, idx) => {
               const isExpanded = expandedIdxs.includes(idx);
 

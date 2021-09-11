@@ -14,6 +14,7 @@ import { SwapStatus } from '../../constants';
 import { getScrtAddress, networkFromToken, NETWORKS } from '../../blockchain-bridge';
 import { SearchInput } from '../../components/Search';
 import { chainProps, chainPropToString } from '../../blockchain-bridge/eth/chainProps';
+import { Theme } from '../../themes';
 
 const ethAddress = (value, network?: NETWORKS) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -170,19 +171,17 @@ export const Explorer = observer((props: any) => {
   const filteredDataSearch = filteredData
     .filter(value => {
       if (search) {
-        return (
-          Object.values(value).some(
-            value => {
-              return (value &&
-              value
-                .toString()
-                .toLowerCase()
-                .includes(search.toLowerCase())
-            )
+        return Object.values(value).some(value => {
+          return (
+            value &&
+            value
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase())
+          );
+        });
       }
-        ));
-      }
-// || value.src_coin.toLowerCase().includes(search.toLowerCase()
+      // || value.src_coin.toLowerCase().includes(search.toLowerCase()
       return true;
     })
     .slice()
@@ -192,15 +191,15 @@ export const Explorer = observer((props: any) => {
     <BaseContainer>
       <PageContainer>
         <Box direction="row" wrap={true} fill={true} justify="center" align="start" margin={{ top: 'xlarge' }}>
-          <Box
-            className={styles.search}
-            justify="end"
-            style={{ width: '85vw' }}
-            pad={{ horizontal: '9px' }}
-            margin={{ top: 'medium', bottom: 'medium' }}
-          >
-            <SearchInput value={search} onChange={setSearch} />
-          </Box>
+          {/*<Box*/}
+          {/*  className={styles.search}*/}
+          {/*  justify="end"*/}
+          {/*  style={{ width: '85vw' }}*/}
+          {/*  pad={{ horizontal: '9px' }}*/}
+          {/*  margin={{ top: 'medium', bottom: 'medium' }}*/}
+          {/*>*/}
+          {/*  <SearchInput value={search} onChange={setSearch} />*/}
+          {/*</Box>*/}
 
           <Table
             data={search ? filteredDataSearch : operations.data}
@@ -212,6 +211,7 @@ export const Explorer = observer((props: any) => {
             tableParams={{
               rowKey: (data: any) => data.id,
             }}
+            theme={Theme}
           />
         </Box>
       </PageContainer>

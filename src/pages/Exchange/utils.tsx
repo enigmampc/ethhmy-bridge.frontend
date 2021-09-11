@@ -104,42 +104,43 @@ export const WrongNetwork = (props: { networkSelected: NETWORKS }) => {
 };
 
 export enum Signer {
-  figment,
-  bharvest,
-  citadel,
+  // figment,
+  // bharvest,
+  // citadel,
+  //
+  // staked,
   enigma,
-  staked,
 }
 
 export const signerToString = (signer: Signer): string => {
   switch (signer) {
-    case Signer.bharvest:
-      return 'B-Harvest';
-    case Signer.citadel:
-      return 'Citadel.One';
+    // case Signer.bharvest:
+    //   return 'B-Harvest';
+    // case Signer.citadel:
+    //   return 'Citadel.One';
     case Signer.enigma:
       return 'Enigma';
-    case Signer.figment:
-      return 'Figment';
-    case Signer.staked:
-      return 'Staked';
+    // case Signer.figment:
+    //   return 'Figment';
+    // case Signer.staked:
+    //   return 'Staked';
   }
 };
 
 export const signerAddresses = {
   [NETWORKS.ETH]: {
-    '0xd76c427fc6e48fc94d1c62e0a23c4bf07a22a3fb': Signer.bharvest,
-    '0xcc3040b283ff0df84073a5a446d88d10ea329460': Signer.citadel,
-    '0x9d06d59677b412c48f5f8546b45b9ea694a99698': Signer.enigma,
-    '0x42194527ddccaee189313d77458ae491fa41256a': Signer.staked,
-    '0x189fbd54bd7194cd4e49cbc067e92cfd6dc8281d': Signer.figment,
+    // '0xd76c427fc6e48fc94d1c62e0a23c4bf07a22a3fb': Signer.bharvest,
+    // '0xcc3040b283ff0df84073a5a446d88d10ea329460': Signer.citadel,
+    '0xd317e4642cb4c3d5258b033c1d439abb42c27b05': Signer.enigma,
+    // '0x42194527ddccaee189313d77458ae491fa41256a': Signer.staked,
+    // '0x189fbd54bd7194cd4e49cbc067e92cfd6dc8281d': Signer.figment,
   },
   [NETWORKS.BSC]: {
-    '0xd76c427fc6e48fc94d1c62e0a23c4bf07a22a3fb': Signer.bharvest,
-    '0xcc3040b283ff0df84073a5a446d88d10ea329460': Signer.citadel,
-    '0x08e54c84d61e9db2ed7ea53e2216276d75b5b426': Signer.enigma,
-    '0x42194527ddccaee189313d77458ae491fa41256a': Signer.staked,
-    '0x189fbd54bd7194cd4e49cbc067e92cfd6dc8281d': Signer.figment,
+    // '0xd76c427fc6e48fc94d1c62e0a23c4bf07a22a3fb': Signer.bharvest,
+    // '0xcc3040b283ff0df84073a5a446d88d10ea329460': Signer.citadel,
+    // '0x08e54c84d61e9db2ed7ea53e2216276d75b5b426': Signer.enigma,
+    // '0x42194527ddccaee189313d77458ae491fa41256a': Signer.staked,
+    // '0x189fbd54bd7194cd4e49cbc067e92cfd6dc8281d': Signer.figment,
   },
 };
 
@@ -149,7 +150,8 @@ export type HealthStatus = {
 };
 
 export type HealthStatusDetailed = Record<Signer, HealthStatus>;
-export const SignerTypes = [Signer.figment, Signer.enigma, Signer.citadel, Signer.bharvest, Signer.staked];
+//export const SignerTypes = [Signer.figment, Signer.enigma, Signer.citadel, Signer.bharvest, Signer.staked];
+export const SignerTypes = [Signer.enigma];
 
 export function healthFromStatus(health: HealthStatusDetailed): boolean {
   if (!health) {
@@ -260,7 +262,7 @@ export const CopyRow = (props: { label: string; value: string; rawValue: string 
         <Text>{props.value}</Text>
 
         <CopyToClipboard text={props.rawValue} onCopy={() => createNotification('success', 'Copied to Clipboard!', 2)}>
-          <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
+          <Icon glyph="PrintFormCopy" size="1em" color="#BAD2F2" style={{ marginLeft: 10, width: 20 }} />
         </CopyToClipboard>
       </Box>
     </Box>

@@ -64,9 +64,9 @@ export const WalletBalances = observer(() => {
               }
             }}
           >
-            <Box direction="row" align="center" justify="between" background="none">
+            <Box direction="row" align="center" justify="between">
               <img src={'/static/keplr.svg'} alt="keplr" height="28" />
-              <Text bold margin={{ left: 'xsmall' }} color="#00ADE8">
+              <Text bold margin={{ left: 'xsmall' }} color="#E1C442">
                 Connect Keplr
               </Text>
             </Box>
@@ -91,7 +91,7 @@ export const WalletBalances = observer(() => {
           >
             <Box direction="row" align="center" justify="between">
               <img src={'/static/metamask.svg'} alt="metamask" height="28" />
-              <Text bold margin={{ left: 'xsmall' }} color="#00ADE8">
+              <Text bold margin={{ left: 'xsmall' }} color="#E1C442">
                 Connect Metamask
               </Text>
             </Box>

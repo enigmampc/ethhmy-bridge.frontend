@@ -168,6 +168,7 @@ export const Theme: any = {
     body: {
       pad: { vertical: 'medium' },
       verticalAlign: 'top',
+      background: 'black',
     },
     extend: css`
       ${(props: any) => 'border-collapse: separate; width: 100%; table-layout: fixed; word-break: break-all;}'}

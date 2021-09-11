@@ -207,11 +207,11 @@ export const Base = observer(() => {
 
     const parseHealth = (signers: ISignerHealth[], direction: EXCHANGE_MODE): Record<Signer, HealthStatus> => {
       let healthStatus = {
-        [Signer.staked]: undefined,
-        [Signer.citadel]: undefined,
-        [Signer.bharvest]: undefined,
+        // [Signer.staked]: undefined,
+        // [Signer.citadel]: undefined,
+        // [Signer.bharvest]: undefined,
         [Signer.enigma]: undefined,
-        [Signer.figment]: undefined,
+        //        [Signer.figment]: undefined,
       };
 
       for (const signer of signers) {
@@ -757,7 +757,7 @@ export const Base = observer(() => {
                   disabled={exchange.tokenApprovedLoading || !toApprove}
                   bgColor={'#E1C442'}
                   color={'#061222'}
-                  style={{ minWidth: 180, height: 48 }}
+                  style={{ minWidth: 180, height: 48, borderRadius: 15 }}
                   onClick={() => {
                     const tokenError = validateTokenInput(selectedToken);
                     setErrors({ ...errors, token: '' });
@@ -780,7 +780,7 @@ export const Base = observer(() => {
                   disabled={!toUnlock}
                   bgColor={'#E1C442'}
                   color={'#061222'}
-                  style={{ minWidth: 180, height: 48 }}
+                  style={{ minWidth: 180, height: 48, borderRadius: 15 }}
                   onClick={async () => {
                     const tokenError = validateTokenInput(selectedToken);
                     setErrors({ ...errors, token: '' });
@@ -811,7 +811,7 @@ export const Base = observer(() => {
                 margin={{ left: 'medium' }}
                 bgColor={!toApprove ? '#E1C442' : '#E1C442'}
                 color={!toApprove ? '#061222' : '#061222'}
-                style={{ minWidth: 300, height: 48 }}
+                style={{ minWidth: 300, height: 48, borderRadius: 15 }}
                 onClick={() => {
                   if (exchange.step.id === EXCHANGE_STEPS.BASE) {
                     onClickHandler(exchange.step.onClickSend);

@@ -251,16 +251,16 @@ export const Tokens = observer((props: any) => {
           }
         </Box>
 
-        {!isMobile && (
-          <Box
-            className={styles.search}
-            pad={{ horizontal: '9px' }}
-            margin={{ top: 'medium', bottom: 'medium' }}
-            style={{ width: '85vw' }}
-          >
-            <SearchInput value={search} onChange={setSearch} />
-          </Box>
-        )}
+        {/*{!isMobile && (*/}
+        {/*  <Box*/}
+        {/*    className={styles.search}*/}
+        {/*    pad={{ horizontal: '9px' }}*/}
+        {/*    margin={{ top: 'medium', bottom: 'medium' }}*/}
+        {/*    style={{ width: '85vw' }}*/}
+        {/*  >*/}
+        {/*    <SearchInput value={search} onChange={setSearch} />*/}
+        {/*  </Box>*/}
+        {/*)}*/}
 
         <Box direction="row" wrap={true} fill={true} justify="center" align="start">
           <Table

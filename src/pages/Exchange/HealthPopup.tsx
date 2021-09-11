@@ -54,8 +54,9 @@ const HealthPopup = props => {
   if (!props.health) {
     return <></>;
   }
-
-  return <Popup content={HealthDetails(props)} trigger={props.children}></Popup>;
+  return <div>{props.children}</div>;
+  // disabling for now
+  //return <Popup content={HealthDetails(props)} trigger={props.children}></Popup>;
 };
 
 export default HealthPopup;

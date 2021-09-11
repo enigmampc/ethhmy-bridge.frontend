@@ -133,9 +133,6 @@ export class Table extends React.Component<IProps> {
           onRow={(rowData, index) => {
             return {
               onClick: () => onRowClicked instanceof Function && onRowClicked(rowData, index),
-              style: {
-                cursor: onRowClicked instanceof Function ? 'pointer' : 'auto',
-              },
             };
           }}
         />

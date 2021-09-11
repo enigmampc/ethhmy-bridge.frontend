@@ -3,11 +3,12 @@ Basic400 = #D7D7D7;
 
 :global(.rc-table-expanded-row .rc-table-cell) {
   box-shadow: inset 0 8px 8px -8px #95d3f2;
+  background-color: #95d3f2;
   // box-shadow: none;
 }
 
 :global(.rc-table-expanded-row > .rc-table-cell) {
-  // background-color: #f8f8f8;
+
   padding 0
 }
 
@@ -17,21 +18,68 @@ Basic400 = #D7D7D7;
     border-bottom: 1px solid Basic200;
   }
 
+
+
   td {
     padding: 9px 8px;
     font-size: 15px;
     height 70px
   }
 
+
+
+  tbody {
+    tr {
+      color: #00ADE8
+
+      & td {
+        transition: smooth 0.2s;
+        background: #0A1C34
+
+
+      }
+
+
+      &:hover td {
+        background: #061222;
+        transform: scale(1.01);
+      }
+    }
+
+    & > tr:nth-child(odd)  {
+      & td {
+        background: #0C2545;
+      }
+
+      &:hover td {
+        background: #061222;
+        transform: scale(1.01);
+      }
+    }
+  }
+
   thead {
     th {
-      background-color: white;
+      background-color: #061222;
       border-top: 1px solid Basic200;
       border-bottom: 1px solid Basic200;
       text-align: left;
     }
   }
 }
+
+//.rcTable {
+//  background: #0A1C34;
+//
+//  & > *:nth-child(odd)  {
+//    background-color: #0C2545;
+//  }
+//  & > * {
+//    padding: 20px 5px;
+//    height: 30px;
+//    cursor: pointer;
+//  }
+//}
 
 :global(.rc-table-content) {
   border: 1px solid Basic200;

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import * as styles from '../styles.styl';
 
 import { observer } from 'mobx-react';
 import { Icon, Text, Title } from 'components/Base';
@@ -90,106 +91,119 @@ export const CheckTransaction = observer(() => {
       style={{ width: '600px', display: 'flex' }}
     >
       <React.Fragment>
-        <Modal.Header>
-          <div style={{ padding: '12 32', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title bold>Follow your Transaction!</Title>
-            <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
-              <Icon size="23" glyph="Close" />
-            </span>
-          </div>
-        </Modal.Header>
-        <Modal.Content>
-          <Box direction="column" fill={true} pad="large">
-            <Box fill align="center" justify="center" style={{ minHeight: 180 }}>
-              {exchange.operation.status === SwapStatus.SWAP_CONFIRMED ? (
-                <Icon size="180" glyph="Check2" />
-              ) : (
-                <Loader type="Circles" color="#00BFFF" height="180px" width="180px" style={{ margin: '0 10' }} />
+        <div className={styles.modalHeader}>
+          <Modal.Header>
+            <div
+              style={{
+                padding: '12 32',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Title bold color={'#BAD2F2'}>
+                Follow your Transaction!
+              </Title>
+              <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
+                <Icon size="23" glyph="Close" />
+              </span>
+            </div>
+          </Modal.Header>
+        </div>
+        <div className={styles.modal}>
+          <Modal.Content>
+            <Box direction="column" fill={true} pad="large">
+              <Box fill align="center" justify="center" style={{ minHeight: 180 }}>
+                {exchange.operation.status === SwapStatus.SWAP_CONFIRMED ? (
+                  <Icon size="180" glyph="Check2" />
+                ) : (
+                  <Loader type="Circles" color="#00BFFF" height="180px" width="180px" style={{ margin: '0 10' }} />
+                )}
+              </Box>
+              <Box style={{ height: 25 }} direction="row" align="center" margin={{ top: 'large', bottom: 'xxsmall' }}>
+                <Text>
+                  Your transaction is <b style={{ color: color }}>{statusMessage}</b>
+                </Text>
+              </Box>
+
+              <Box direction="column" fill margin={{ top: 'xsmall' }}>
+                <ProgressBar bgColor={color} completed={progressBar} isLabelVisible={false} />
+              </Box>
+
+              <Text margin={{ top: 'medium' }}>
+                <b>Confirmations:</b> {exchange.confirmations}
+              </Text>
+
+              <Text size="small" color="#748695" margin={{ top: 'xxsmall', bottom: 'medium' }}>
+                {conformationsMessage}
+              </Text>
+
+              {swap.amount && (
+                <Box direction="row" justify="between">
+                  <Text size="small" bold>
+                    Amount
+                  </Text>
+                  <Box direction="row" align="center">
+                    <Text bold margin={{ right: 'xsmall' }}>
+                      {swap.amount} {exchange.operation.symbol}
+                    </Text>
+                    <img alt="exchange.operation.symbol" src={exchange.operation.image} width="17" />
+                  </Box>
+                </Box>
+              )}
+
+              {swap.dst_address && (
+                <Box margin={{ top: 'xxsmall' }}>
+                  <CopyRow
+                    label="Destination Address"
+                    value={truncateAddressString(swap.dst_address, 10)}
+                    rawValue={swap.dst_address}
+                  />
+                </Box>
+              )}
+
+              {exchange.operation.transactionHash && (
+                <HeadShake>
+                  <Box direction="row" justify="between" margin={{ top: 'xxsmall' }}>
+                    <Text size="small" bold>
+                      {' '}
+                      <a
+                        href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${
+                          exchange.operation.transactionHash
+                        }`}
+                        style={{ textDecoration: 'none', color: '#E1C442' }}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View in Explorer
+                      </a>
+                    </Text>
+                  </Box>
+                </HeadShake>
+              )}
+
+              {exchange.transaction.error && (
+                <HeadShake>
+                  <Box margin={{ top: 'xxsmall' }}>
+                    <Text size="small" color="#f37373">
+                      {exchange.transaction.error}
+                    </Text>
+                  </Box>
+                </HeadShake>
+              )}
+
+              {exchange.operation && (
+                <Box margin={{ top: 'medium' }}>
+                  <CopyRow
+                    label="Operation ID"
+                    value={truncateAddressString(exchange.operation.id, 15)}
+                    rawValue={exchange.operation.id}
+                  />
+                </Box>
               )}
             </Box>
-            <Box style={{ height: 25 }} direction="row" align="center" margin={{ top: 'large', bottom: 'xxsmall' }}>
-              <Text>
-                Your transaction is <b style={{ color: color }}>{statusMessage}</b>
-              </Text>
-            </Box>
-
-            <Box direction="column" fill margin={{ top: 'xsmall' }}>
-              <ProgressBar bgColor={color} completed={progressBar} isLabelVisible={false} />
-            </Box>
-
-            <Text margin={{ top: 'medium' }}>
-              <b>Confirmations:</b> {exchange.confirmations}
-            </Text>
-
-            <Text size="small" color="#748695" margin={{ top: 'xxsmall', bottom: 'medium' }}>
-              {conformationsMessage}
-            </Text>
-
-            {swap.amount && (
-              <Box direction="row" justify="between">
-                <Text size="small" bold>
-                  Amount
-                </Text>
-                <Box direction="row" align="center">
-                  <Text bold margin={{ right: 'xsmall' }}>
-                    {swap.amount} {exchange.operation.symbol}
-                  </Text>
-                  <img alt="exchange.operation.symbol" src={exchange.operation.image} width="17" />
-                </Box>
-              </Box>
-            )}
-
-            {swap.dst_address && (
-              <Box margin={{ top: 'xxsmall' }}>
-                <CopyRow
-                  label="Destination Address"
-                  value={truncateAddressString(swap.dst_address, 10)}
-                  rawValue={swap.dst_address}
-                />
-              </Box>
-            )}
-
-            {exchange.operation.transactionHash && (
-              <HeadShake>
-                <Box direction="row" justify="between" margin={{ top: 'xxsmall' }}>
-                  <Text size="small" bold>
-                    {' '}
-                    <a
-                      href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${
-                        exchange.operation.transactionHash
-                      }`}
-                      style={{ textDecoration: 'none', color: '#00BFFF' }}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View in Explorer
-                    </a>
-                  </Text>
-                </Box>
-              </HeadShake>
-            )}
-
-            {exchange.transaction.error && (
-              <HeadShake>
-                <Box margin={{ top: 'xxsmall' }}>
-                  <Text size="small" color="#f37373">
-                    {exchange.transaction.error}
-                  </Text>
-                </Box>
-              </HeadShake>
-            )}
-
-            {exchange.operation && (
-              <Box margin={{ top: 'medium' }}>
-                <CopyRow
-                  label="Operation ID"
-                  value={truncateAddressString(exchange.operation.id, 15)}
-                  rawValue={exchange.operation.id}
-                />
-              </Box>
-            )}
-          </Box>
-        </Modal.Content>
+          </Modal.Content>
+        </div>
       </React.Fragment>
     </Modal>
   );
