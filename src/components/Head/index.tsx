@@ -105,10 +105,22 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Transactions</Text>
             </Box>
 
-            <Box className={cn(styles.itemToken, isEarn ? styles.selected : '')} onClick={() => routing.push('/earn')}>
-              <Text>Earn</Text>
+            {/*<Box className={cn(styles.itemToken, isEarn ? styles.selected : '')} onClick={() => routing.push('/earn')}>*/}
+            {/*  <Text>Earn</Text>*/}
+            {/*</Box>*/}
+            <Box
+              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
+              onClick={() => {
+                const url = `https://duplex.finance`;
+                const win = window.open(url, '_blank');
+                win.focus();
+              }}
+            >
+              <Text>
+                Earn
+                <img style={{ height: 18, fill: '' }} src={'/static/arrow-external-link.svg'} />
+              </Text>
             </Box>
-
             {/*<Box*/}
             {/*  className={cn(styles.itemToken, isSeFi ? styles.selected : '')}*/}
             {/*  onClick={() => {*/}
