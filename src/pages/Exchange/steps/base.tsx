@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react';
-
 import { Button, Icon, Text } from 'components/Base';
 import * as styles from '../styles.styl';
 import { Box } from 'grommet';
@@ -18,19 +17,11 @@ import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import HeadShake from 'react-reveal/HeadShake';
 import ProgressBar from '@ramonak/react-progress-bar';
-import {
-  HealthStatus,
-  HealthStatusDetailed,
-  Signer,
-  signerAddresses,
-  TokenLocked,
-  UnlockWalletButton,
-  WrongNetwork,
-} from '../utils';
+import { HealthStatus, HealthStatusDetailed, Signer, signerAddresses, TokenLocked, WrongNetwork } from '../utils';
 import { formatSymbol, wrongNetwork } from '../../../utils';
 import { ISignerHealth } from '../../../stores/interfaces';
 import { useStores } from '../../../stores';
-import { getDuplexNetworkFee, getNetworkFee } from '../../../blockchain-bridge/eth/helpers';
+import { getDuplexNetworkFee } from '../../../blockchain-bridge/eth/helpers';
 import { toInteger } from 'lodash';
 import cogoToast from 'cogo-toast';
 import { UserStoreEx } from '../../../stores/UserStore';
@@ -38,7 +29,7 @@ import { UserStoreMetamask } from '../../../stores/UserStoreMetamask';
 import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
 import { EXTERNAL_NETWORKS, NETWORKS } from '../../../blockchain-bridge';
 import { EXTERNAL_LINKS } from '../../../blockchain-bridge/eth/networks';
-import { Header, Modal, Button as SemanticButton, Icon as SemanticIcon } from 'semantic-ui-react';
+import { Button as SemanticButton, Header, Icon as SemanticIcon, Modal, Progress } from 'semantic-ui-react';
 
 const DEFAULT_TOKEN = '0xa47c8bf37f92aBed4A126BDA807A7b7498661acD';
 
@@ -51,6 +42,7 @@ interface Errors {
 type BalanceAmountInterface = {
   minAmount: string;
   maxAmount: string;
+  maxAllowed?: string;
 };
 
 export type BalanceInterface = {
@@ -105,8 +97,9 @@ const getBalance = async (
   user: UserStoreEx,
   isLocked: boolean,
   token: ITokenInfo,
+  maxRemaining?: number,
 ): Promise<BalanceInterface> => {
-  const eth = { minAmount: '0', maxAmount: '0' };
+  const eth = { minAmount: '0', maxAmount: '0', maxAllowed: '0' };
   const scrt = { minAmount: '0', maxAmount: '0' };
 
   const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
@@ -119,6 +112,11 @@ const getBalance = async (
   eth.maxAmount = userMetamask.balanceToken[src_coin]
     ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
     : wrongNetwork;
+
+  if (maxRemaining) {
+    eth.maxAllowed = String(maxRemaining);
+  }
+
   eth.minAmount = userMetamask.balanceTokenMin[src_coin] || '0';
   scrt.maxAmount = user.balanceToken[src_coin] || '0';
   scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
@@ -139,7 +137,7 @@ function isNativeToken(selectedToken) {
 }
 
 export const Base = observer(() => {
-  const { user, userMetamask, actionModals, exchange, tokens } = useStores();
+  const { user, userMetamask, actionModals, exchange, tokens, duplexServices } = useStores();
   const [errors, setErrors] = useState<Errors>({ token: '', address: '', amount: '' });
   const [open, setOpen] = useState<boolean>(false);
   const [externalUrl, setExternalUrl] = useState<string>('');
@@ -161,11 +159,19 @@ export const Base = observer(() => {
   const [toApprove, setToApprove] = useState<boolean>(false);
   const [toUnlock, setToUnlock] = useState<boolean>(false);
 
+  const [tokenLimit, setTokenLimit] = useState<string>('5000000');
+  const [tokenAmountLocked, setAmountLocked] = useState<string>('0');
+
   const [readyToSend, setReadyToSend] = useState<boolean>(false);
   const [toSecretHealth, setToSecretHealth] = useState<HealthStatusDetailed>(undefined);
   const [fromSecretHealth, setFromSecretHealth] = useState<HealthStatusDetailed>(undefined);
 
   const { signerHealth } = useStores();
+
+  useEffect(() => {
+    setTokenLimit(duplexServices.getLimit('UST'));
+    setAmountLocked(duplexServices.getLocked('UST'));
+  }, [duplexServices, duplexServices.data]);
 
   useEffect(() => {
     const testRateLimit = async () => {
@@ -196,6 +202,8 @@ export const Base = observer(() => {
     };
     testRateLimit();
   }, []);
+
+  useEffect(() => {});
 
   useEffect(() => {
     const signers: ISignerHealth[] = signerHealth.allData.find(health => health.network === userMetamask.network)
@@ -256,7 +264,13 @@ export const Base = observer(() => {
     const min = balance[fromNetwork].minAmount;
     const max = balance[fromNetwork].maxAmount;
     setMinAmount(min);
-    setMaxAmount(max);
+
+    if (balance[fromNetwork]?.maxAllowed) {
+      setMaxAmount(String(Math.min(Number(max), Number(balance[fromNetwork].maxAllowed))));
+    } else {
+      setMaxAmount(max);
+    }
+
     if (exchange.transaction.amount && Number(min) >= 0 && Number(max) >= 0) {
       const error = validateAmountInput(exchange.transaction.amount, min, max);
       setErrors({ ...errors, amount: error });
@@ -363,7 +377,7 @@ export const Base = observer(() => {
   ]);
 
   const onSelectedToken = async value => {
-    const token = (await tokens.tokensUsage('BRIDGE', userMetamask.network)).find(t => t.src_address === value);
+    const token = (await tokens.tokensUsage('BRIDGE', NETWORKS.ETH)).find(t => t.src_address === value);
     setProgress(1);
     const newerrors = errors;
     setBalance({
@@ -407,7 +421,12 @@ export const Base = observer(() => {
       }
       console.log(`done loading metamask balances`);
 
-      const balance = await getBalance(exchange, userMetamask, user, isLocked, token);
+      let total_locked = duplexServices.getLocked('UST');
+      let limit = duplexServices.getLimit('UST');
+
+      let maxRemaining = Number(limit) - Number(total_locked);
+
+      const balance = await getBalance(exchange, userMetamask, user, isLocked, token, maxRemaining);
 
       setBalance(balance);
       console.log(`set balances ${JSON.stringify(balance)}`);
@@ -600,6 +619,7 @@ export const Base = observer(() => {
                         onClick={() => {
                           if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
                           if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
+
                           exchange.transaction.amount = maxAmount;
                         }}
                       >
@@ -610,7 +630,7 @@ export const Base = observer(() => {
                     </Box>
                   </>
                 </Box>
-                <Box margin={{ top: 'xxsmall' }} direction="row" align="center" justify="between">
+                <Box margin={{ top: 'xxsmall', bottom: 'xxsmall' }} direction="row" align="center" justify="between">
                   <Box direction="row">
                     <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>
                       Minimum:
@@ -636,7 +656,7 @@ export const Base = observer(() => {
                   )}
                 </Box>
 
-                <Box style={{ minHeight: 38 }} margin={{ top: 'medium' }} direction="column">
+                <Box style={{ minHeight: 38, marginTop: -5 }} direction="column">
                   {errors.amount && (
                     <HeadShake bottom>
                       <Text margin={{ bottom: 'xxsmall' }} color="red">
@@ -712,7 +732,34 @@ export const Base = observer(() => {
             </Box>
           </Box>
         </Form>
+        <Box
+          style={{
+            width: 1024,
+            paddingBottom: 100,
+            display: 'flex',
+            alignItems: 'center',
+            marginTop: -30,
+          }}
+        >
+          <Box className={styles.depositBarText}>
+            <Box fill className={styles.depositBarTextLeft}>
+              <Text>Total UST deposited</Text>
+            </Box>
+            <Box fill className={styles.depositBarTextRight}>
+              <Text>
+                {tokenAmountLocked}/{tokenLimit}
+              </Text>
+            </Box>
+          </Box>
 
+          <Progress
+            percent={(Number(tokenAmountLocked) / Number(tokenLimit)) * 100}
+            style={{ width: 500 }}
+            color={'yellow'}
+            inverted
+            //progress
+          />
+        </Box>
         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
           <Box style={{ maxWidth: '50%' }}>
             {isTokenLocked && (

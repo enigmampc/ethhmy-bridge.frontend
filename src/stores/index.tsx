@@ -10,6 +10,7 @@ import { Rewards } from './RewardsStore';
 import { SecretSwapPairs } from './SecretSwapPairs';
 import { SignerHealthStore } from './SignerHealthStore';
 import { SecretSwapPools } from './SecretSwapPools';
+import { DuplexServicesStore } from './DuplexServicesStore';
 
 export interface IStores {
   routing?: RouterStore;
@@ -23,6 +24,7 @@ export interface IStores {
   secretSwapPairs?: SecretSwapPairs;
   secretSwapPools?: SecretSwapPools;
   signerHealth?: SignerHealthStore;
+  duplexServices?: DuplexServicesStore;
 }
 
 const stores: IStores = {};
@@ -38,6 +40,7 @@ stores.rewards = new Rewards(stores);
 stores.secretSwapPairs = new SecretSwapPairs(stores);
 stores.secretSwapPools = new SecretSwapPools(stores);
 stores.signerHealth = new SignerHealthStore(stores);
+stores.duplexServices = new DuplexServicesStore(stores);
 
 if (!process.env.production) {
   window.stores = stores;

@@ -67,6 +67,13 @@ export interface IOperation {
   image?: string;
 }
 
+export interface ITokenLimits {
+  UST: {
+    locked: string;
+    limit: string;
+  };
+}
+
 export interface ISwap {
   dst_coin: string;
   dst_network: string;

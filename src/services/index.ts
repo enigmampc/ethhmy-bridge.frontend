@@ -9,6 +9,7 @@ import {
   ISignerHealth,
   ISwap,
   ITokenInfo,
+  ITokenLimits,
   tokenFromSecretToken,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
@@ -22,6 +23,10 @@ const BACKENDS = {
   [NETWORKS.ETH]: process.env.BACKEND_URL,
   [NETWORKS.BSC]: process.env.BSC_BACKEND_URL,
   [NETWORKS.PLSM]: process.env.PLSM_BACKEND_URL,
+};
+
+const duplexUrl = url => {
+  return `${process.env.BACKEND_DUPLEX_SERVICES}${url}`;
 };
 
 const backendUrl = (network: NETWORKS, url) => {
@@ -75,6 +80,16 @@ export const getSwap = async (network: NETWORKS, id: string): Promise<IOperation
   const res = await agent.get<{ body: IOperation }>(url);
 
   return res.body;
+};
+
+export const getTokenLimits = async (): Promise<{ content: ITokenLimits[] }> => {
+  const url = duplexUrl(`tokenlimit`);
+
+  const res = await agent.get<{ body: ITokenLimits }>(url);
+
+  let resp = res.body;
+
+  return { content: [resp] };
 };
 
 export const getOperations = async (params: any): Promise<{ content: ISwap[] }> => {

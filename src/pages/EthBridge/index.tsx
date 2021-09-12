@@ -12,7 +12,7 @@ import { EXCHANGE_STEPS } from 'stores/Exchange';
 import { Message } from 'semantic-ui-react';
 
 export const EthBridge = observer((props: any) => {
-  const { exchange, rewards, signerHealth, tokens } = useStores();
+  const { exchange, rewards, signerHealth, tokens, duplexServices } = useStores();
   //userMetamask
   //const [network, setNetwork] = useState<NETWORKS>(NETWORKS.ETH);
 
@@ -25,7 +25,8 @@ export const EthBridge = observer((props: any) => {
     rewards.fetch();
 
     tokens.init(); //TODO
-
+    duplexServices.init();
+    duplexServices.fetch();
     signerHealth.init({});
     signerHealth.fetch();
 

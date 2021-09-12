@@ -78,6 +78,8 @@ export class UserStoreMetamask extends StoreConstructor {
 
     const session = localStorage.getItem('metamask_session');
 
+    this.network = NETWORKS.ETH;
+
     const sessionObj = JSON.parse(session);
 
     if (sessionObj && sessionObj.ethAddress) {

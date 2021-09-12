@@ -111,6 +111,7 @@ function getClientEnvironment(publicUrl) {
         GAS_PRICE: process.env.GAS_PRICE,
 
         BACKEND_URL: process.env.BACKEND_URL,
+        BACKEND_DUPLEX_SERVICES: process.env.BACKEND_DUPLEX_SERVICES,
         PLSM_BACKEND_URL: process.env.PLSM_BACKEND_URL,
         BSC_BACKEND_URL: process.env.BSC_BACKEND_URL,
 
