@@ -2,6 +2,8 @@ import Web3 from 'web3';
 import { divDecimals, mulDecimals } from '../../utils';
 import { web3 } from './index';
 import * as agent from 'superagent';
+import { NETWORKS } from './networks';
+
 const BN = require('bn.js');
 
 export const getGasPrice = async (web3: Web3) => {
@@ -36,9 +38,14 @@ export const isGasCrazy = async (): Promise<boolean> => {
   return false;
 };
 
-export const getNetworkFee = async (gas_amount: number, decimals?: number, bridgePrice?: boolean) => {
+export const getNetworkFee = async (
+  gas_amount: number,
+  decimals?: number,
+  bridgePrice?: boolean,
+  network?: NETWORKS,
+) => {
   let gasPrice;
-  if (bridgePrice) {
+  if (bridgePrice && network === NETWORKS.ETH) {
     gasPrice = await getBridgeGasPrice(web3);
   } else {
     gasPrice = await getGasPrice(web3);
