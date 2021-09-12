@@ -17,6 +17,7 @@ import { createNotification, TokenLocked } from '../utils';
 import HeadShake from 'react-reveal/HeadShake';
 import Jump from 'react-reveal/Jump';
 import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
+import { isGasCrazy } from '../../../blockchain-bridge/eth/helpers';
 
 type NetworkTemplateInterface = {
   image: string;
@@ -51,6 +52,7 @@ export const SwapConfirmation = observer(() => {
   const [calculated, setCalculated] = useState<number>(null);
   const [feePercentage, setFeePercentage] = useState<number>(0);
   const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
+  const [isGasFluctuating, setIsGasFluctuating] = useState<boolean>(false);
 
   const symbol = formatSymbol(exchange.mode, exchange.transaction.tokenSelected.symbol);
   const tokenImage = exchange.transaction.tokenSelected.image;
@@ -107,6 +109,12 @@ export const SwapConfirmation = observer(() => {
     }
     setCalculated(calculatedAmount);
     setFeePercentage(Number(exchange.swapFeeToken) / Number(exchange.transaction.amount));
+
+    async function testGas() {
+      setIsGasFluctuating(await isGasCrazy());
+    }
+
+    testGas();
   }, [exchange.transaction.amount, exchange.swapFeeToken]);
 
   const NTemplate1: NetworkTemplateInterface = {
@@ -249,7 +257,15 @@ export const SwapConfirmation = observer(() => {
                 )}
               </Box>
             )}
-
+            {exchange.mode === EXCHANGE_MODE.FROM_SCRT && (
+              <Box direction={'row'} style={{ display: 'flex', width: 400 }}>
+                {isGasFluctuating ? (
+                  <Text bold size={'small'} color={'#f37373'}>
+                    Gas is highly volatile at this time. Actual bridge fees may vary
+                  </Text>
+                ) : null}
+              </Box>
+            )}
             {exchange.mode === EXCHANGE_MODE.FROM_SCRT && (
               <Box style={{ height: 40 }} direction="row" align="start" margin={{ top: 'xsmall' }} justify="between">
                 <Box direction="row" align="center">

@@ -108,7 +108,7 @@ const getBalance = async (
   const scrt = { minAmount: '0', maxAmount: '0' };
 
   const ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE));
-  const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
+  const swapFeeUsd = ethSwapFee * userMetamask.getNetworkTokenPrice();
   const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
 
   const src_coin = exchange.transaction.tokenSelected.src_coin;
@@ -174,11 +174,17 @@ export const Base = observer(() => {
         if (e?.message.includes('(')) {
           let error = JSON.parse(e.message.split('(')[0]);
           if (error?.statusCode === 429) {
-            notify("error", error?.message || "This IP address has performed too many requests. Please wait 60 seconds and try again");
+            notify(
+              'error',
+              error?.message || 'This IP address has performed too many requests. Please wait 60 seconds and try again',
+            );
           }
-          console.log(error?.statusCode)
+          console.log(error?.statusCode);
           if (error?.statusCode === 403) {
-            notify("error", `You have hit the daily quota of requests allowed. ${error?.message || "Try again in 24 hours"}`);
+            notify(
+              'error',
+              `You have hit the daily quota of requests allowed. ${error?.message || 'Try again in 24 hours'}`,
+            );
           }
         }
       }

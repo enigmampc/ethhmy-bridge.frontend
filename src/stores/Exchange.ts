@@ -141,14 +141,14 @@ export class Exchange extends StoreConstructor {
           case EXCHANGE_MODE.FROM_SCRT:
             this.transaction.scrtAddress = this.stores.user.address;
             this.isFeeLoading = true;
-            this.ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE));
+            this.ethSwapFee = await getNetworkFee(Number(process.env.SWAP_FEE), 18, true);
             let token: ITokenInfo;
             if (this.token === TOKEN.NATIVE) {
               token = this.tokens.find(t => t.src_address === 'native');
             } else {
               token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
             }
-            this.swapFeeUsd = this.ethSwapFee * this.stores.userMetamask.getNetworkPrice();
+            this.swapFeeUsd = this.ethSwapFee * this.stores.userMetamask.getNetworkTokenPrice();
             this.swapFeeToken = this.swapFeeUsd / Number(token.price);
             this.isFeeLoading = false;
             break;

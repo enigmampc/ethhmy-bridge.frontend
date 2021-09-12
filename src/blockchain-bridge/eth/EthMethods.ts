@@ -1,6 +1,6 @@
 import { Contract } from 'web3-eth-contract';
 import Web3 from 'web3';
-import { ethToWei, getGasPrice } from './helpers';
+import { ethToWei, getEIP1559Prices, getGasPrice, GWeiToWei } from './helpers';
 const BN = require('bn.js');
 
 export interface IEthMethodsInitParams {
@@ -30,20 +30,29 @@ export class EthMethods {
     });
 
     const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
+    //let eip1559gas = await getEIP1559Prices();
 
-    this.ethManagerContract.methods.swap(secretAddrHex).send({
-      value: ethToWei(amount),
-      from: accounts[0],
-      gas: new BN(gasLimit),
-      gasPrice: await getGasPrice(this.web3),
-    }).on('transactionHash', function (hash) {
-      sendTxCallback({ hash })
-    }).then(function (receipt) {
-      sendTxCallback({ receipt })
-    }).catch(function (error) {
-      sendTxCallback({ error })
-    })
+    //console.log(`${JSON.stringify(eip1559gas)}`);
 
+    this.ethManagerContract.methods
+      .swap(secretAddrHex)
+      .send({
+        value: ethToWei(amount),
+        from: accounts[0],
+        gas: new BN(gasLimit),
+        // maxFeePerGas: GWeiToWei(eip1559gas.maxFeePerGas),
+        // maxPriorityFeePerGas: GWeiToWei(eip1559gas.maxPriorityFeePerGas),
+        gasPrice: await getGasPrice(this.web3),
+      })
+      .on('transactionHash', function(hash) {
+        sendTxCallback({ hash });
+      })
+      .then(function(receipt) {
+        sendTxCallback({ receipt });
+      })
+      .catch(function(error) {
+        sendTxCallback({ error });
+      });
   };
 
   checkEthBalance = async addr => {

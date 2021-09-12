@@ -137,7 +137,7 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   }
 
-  getNetworkPrice() {
+  getNetworkTokenPrice() {
     return this.rates[this.network];
   }
 
