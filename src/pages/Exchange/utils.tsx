@@ -5,12 +5,13 @@ import { Text, Title, Icon } from 'components/Base';
 import Loader from 'react-loader-spinner';
 import * as styles from './styles.styl';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { unlockToken, wrongNetwork } from 'utils';
+import { displayHumanizedBalance, unlockToken, wrongNetwork } from 'utils';
 import { Icon as IconUI } from 'semantic-ui-react';
 import cogoToast from 'cogo-toast';
 import { NETWORKS } from '../../blockchain-bridge';
 import PopupExample from './HealthPopup';
 import HealthPopup from './HealthPopup';
+import { BigNumber } from 'bignumber.js';
 
 export const createNotification = (type: 'success' | 'error', msg: string, hideAfterSec: number = 120) => {
   if (type === 'error') {
@@ -219,6 +220,7 @@ export const NetworkTemplate = (props: { template: NetworkTemplateInterface; use
           direction="row"
           align={'center'}
           margin={{ top: 'xxsmall' }}
+          width={"small"}
           className={styles.networktemplatetoken}
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
@@ -232,7 +234,7 @@ export const NetworkTemplate = (props: { template: NetworkTemplateInterface; use
             ) : (
               <Text bold size="medium" style={{ margin: '0 5' }}>
                 <span style={{ color: props.template.amount === wrongNetwork ? '#c5bb2e' : '#FAF9FA' }}>
-                  {props.template.amount}
+                  {(new BigNumber(props.template.amount)).toFixed(2, BigNumber.ROUND_DOWN)}
                 </span>
               </Text>
             )}

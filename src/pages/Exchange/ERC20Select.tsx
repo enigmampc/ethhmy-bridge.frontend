@@ -82,6 +82,7 @@ export const ERC20Select = observer((props: { onSelectToken?: Function; value: s
             props.onSelectToken(value);
           }}
           placeholder="Select your token"
+          disabled={filteredTokens.length < 2}
         />
       </Box>
     </Box>

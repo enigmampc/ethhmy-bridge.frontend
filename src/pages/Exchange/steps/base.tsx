@@ -30,6 +30,7 @@ import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/ch
 import { EXTERNAL_NETWORKS, NETWORKS } from '../../../blockchain-bridge';
 import { EXTERNAL_LINKS } from '../../../blockchain-bridge/eth/networks';
 import { Button as SemanticButton, Header, Icon as SemanticIcon, Modal, Progress } from 'semantic-ui-react';
+import { BigNumber } from 'bignumber.js';
 
 const DEFAULT_TOKEN = '0xa47c8bf37f92aBed4A126BDA807A7b7498661acD';
 const MINIMUM_DISPLAY = 1372465;
@@ -621,7 +622,7 @@ export const Base = observer(() => {
                           if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
                           if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
 
-                          exchange.transaction.amount = maxAmount;
+                          exchange.transaction.amount = (new BigNumber(maxAmount)).toFixed(2, BigNumber.ROUND_DOWN);
                         }}
                       >
                         <Text size="xxsmall" bold color={'#E1C442'}>

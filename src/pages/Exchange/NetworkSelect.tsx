@@ -74,8 +74,8 @@ export const NetworkSelect = observer(
     }, [userMetamask.network]);
 
     const SecretTemplate: NetworkTemplateInterface = {
-      name: 'Secret Network',
-      wallet: 'Keplr',
+      name: 'Secret',
+      wallet: '(Keplr)',
       symbol: formatSymbol(EXCHANGE_MODE.FROM_SCRT, exchange.transaction.tokenSelected.symbol),
       amount: balance.scrt.maxAmount,
       image: `${exchange.transaction.tokenSelected.image.split('.')[0]}-scrt.png`,

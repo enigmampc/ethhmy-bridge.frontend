@@ -18,7 +18,7 @@ const LoaderWrap = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.1);
   z-index: 2;
 `;
 

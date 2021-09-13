@@ -121,7 +121,7 @@ export const UINT128_MAX = '340282366920938463463374607431768211454';
 
 export const displayHumanizedBalance = (
   balance: BigNumber,
-  roundingMode: BigNumber.RoundingMode = BigNumber.ROUND_HALF_UP,
+  roundingMode: BigNumber.RoundingMode = BigNumber.ROUND_DOWN,
   decimals: number = 6,
 ): string =>
   new Intl.NumberFormat('en-US', {

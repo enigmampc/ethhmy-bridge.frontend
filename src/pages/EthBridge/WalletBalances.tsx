@@ -11,8 +11,10 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { createNotification } from '../Exchange/utils';
 import Flip from 'react-reveal/Flip';
+import { BigNumber } from 'bignumber.js';
 
 const WalletTemplate = observer((props: { address: string; symbol: string; amount: string }) => {
+  console.log(`amount: ${props.amount}`)
   return (
     <Box direction="row" background="#133665" style={{ borderRadius: 4 }}>
       <CopyToClipboard text={props.address} onCopy={() => createNotification('success', 'Copied to Clipboard!', 2)}>
@@ -26,7 +28,7 @@ const WalletTemplate = observer((props: { address: string; symbol: string; amoun
 
       <Box pad="xxsmall" background="#0C2545" align="center" direction="row" style={{ borderRadius: 4 }}>
         {props.amount ? (
-          <Text bold>{formatWithTwoDecimals(props.amount)}</Text>
+          <Text bold>{(new BigNumber(props.amount.replace(/,/g, ''))).toFixed(2, BigNumber.ROUND_DOWN)}</Text>
         ) : (
           <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
         )}
