@@ -27,7 +27,7 @@ export const App: React.FC = () => (
         <Route exact path="/finance" component={FinancePage} />
         {/* <Route exact path="/info" component={InfoPage} /> */}
         <Route exact path="/explorer" component={Explorer} />
-        {/*<Route exact path="/earn" component={EarnRewards} />*/}
+        <Route exact path="/earn" component={EarnRewards} />
         <Route exact path="/" component={EthBridge} />
         <Route exact path="/operations/:operationId" component={EthBridge} />
         <Redirect to="/" />

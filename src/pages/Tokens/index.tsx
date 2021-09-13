@@ -233,7 +233,7 @@ export const Tokens = observer((props: any) => {
               minWidth: '100%',
             }}
           >
-            <span style={{ fontSize: '1.5em', fontWeight: 'bolder' }}>
+            <span style={{ fontSize: '1.5em', fontWeight: 'bolder', paddingBottom: "1em" }}>
               {isMobile ? 'TVL' : 'Total Value Locked'} (USD)
               <span
                 style={{

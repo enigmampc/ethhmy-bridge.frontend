@@ -28,90 +28,94 @@ export const ERC20ApprovalModal = observer(() => {
       style={{ width: '500px', display: 'flex' }}
     >
       <React.Fragment>
-        <Modal.Header>
-          <div style={{ padding: '12 32', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title bold>Approve {exchange.transaction.tokenSelected.symbol}!</Title>
-            <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
-              <Icon size="23" glyph="Close" />
-            </span>
-          </div>
-        </Modal.Header>
-        <Modal.Content>
-          <Box direction="column" fill={true} pad="large">
-            <Box direction="row" fill={true} justify="center" align="center" style={{ marginBottom: 26 }}>
-              <Icon size="160" glyph="Check2" />
-            </Box>
-            <Text bold size="medium" margin={{ top: 'large' }}>
-              Why am I doing this?
-            </Text>
-            <Text size="small" color="#748695" margin={{ top: 'xsmall' }}>
-              In order for the bridge to move your ERC20 tokens to Secret Network it first needs your approval. This is
-              only <b>required once</b> per ERC20 token!
-            </Text>
-            <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
-              <Text bold size="small" color="#00ADE8">
-                Fee
+        <div className={styles.modalHeader}>
+          <Modal.Header>
+            <div style={{ padding: '12 32', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Title bold color={'#BAD2F2'}>Approve {exchange.transaction.tokenSelected.symbol}!</Title>
+              <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
+                <Icon size="23" glyph="Close" />
+              </span>
+            </div>
+          </Modal.Header>
+        </div>
+        <div className={styles.modal}>
+          <Modal.Content>
+            <Box direction="column" fill={true} pad="large">
+              <Box direction="row" fill={true} justify="center" align="center" style={{ marginBottom: 26 }}>
+                <Icon size="160" glyph="Check2" />
+              </Box>
+              <Text bold size="medium" margin={{ top: 'large' }}>
+                Why am I doing this?
               </Text>
-              {exchange.isFeeLoading ? (
-                <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-              ) : (
-                <Price
-                  value={exchange.networkFee}
-                  isEth={exchange.mode === EXCHANGE_MODE.TO_SCRT}
-                  boxProps={{ pad: {} }}
-                />
-              )}
-            </Box>
+              <Text size="small" color="#748695" margin={{ top: 'xsmall' }}>
+                In order for the bridge to move your ERC20 tokens to Secret Network it first needs your approval. This is
+                only <b>required once</b> per ERC20 token!
+              </Text>
+              <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
+                <Text bold size="small" color="#00ADE8">
+                  Fee
+                </Text>
+                {exchange.isFeeLoading ? (
+                  <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+                ) : (
+                  <Price
+                    value={exchange.networkFee}
+                    isEth={exchange.mode === EXCHANGE_MODE.TO_SCRT}
+                    boxProps={{ pad: {} }}
+                  />
+                )}
+              </Box>
 
-            <Box className={styles.follow_transaction} style={{ height: 25 }} margin={{ top: 'medium' }}>
-              {exchange.txHash && (
+              <Box className={styles.follow_transaction} style={{ height: 25 }} margin={{ top: 'medium' }}>
+                {exchange.txHash && (
+                  <HeadShake bottom>
+                    <Text>
+                      View in{' '}
+                      <a
+                        href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${exchange.txHash}`}
+                        style={{ textDecoration: 'none' }}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Explorer
+                      </a>
+                    </Text>
+                  </HeadShake>
+                )}
+              </Box>
+
+              {exchange.transaction.error && (
                 <HeadShake bottom>
-                  <Text>
-                    View in{' '}
-                    <a
-                      href={`${chainPropToString(chainProps.explorerUrl, exchange.network)}/tx/${exchange.txHash}`}
-                      style={{ textDecoration: 'none' }}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Explorer
-                    </a>
-                  </Text>
+                  <Box margin={{ top: 'xsmall' }}>
+                    <Text color="red">{exchange.transaction.error}</Text>
+                  </Box>
                 </HeadShake>
               )}
-            </Box>
 
-            {exchange.transaction.error && (
-              <HeadShake bottom>
-                <Box margin={{ top: 'xsmall' }}>
-                  <Text color="red">{exchange.transaction.error}</Text>
-                </Box>
-              </HeadShake>
-            )}
-
-            <Box fill align="center" margin={{ top: 'large' }}>
-              <Button
-                className={styles.fill}
-                style={{ height: 50, width: '100%', background: '#00ADE8', color: 'white' }}
-                onClick={() => {
-                  if (exchange.transaction.loading) return '';
-                  if (exchange.isTokenApproved) return (exchange.stepNumber = EXCHANGE_STEPS.BASE);
-                  return exchange.step.onClick();
-                }}
-              >
-                {exchange.transaction.loading ? (
-                  <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" />
-                ) : exchange.isTokenApproved ? (
-                  <span>
-                    <b>Approved!</b> Bridge Your Tokens
-                  </span>
-                ) : (
-                  'Confirm'
-                )}
-              </Button>
+              <Box fill align="center" margin={{ top: 'large' }}>
+                <Button
+                  className={styles.fill}
+                  style={{ height: 50, width: '100%', background: '#00ADE8', color: 'white' }}
+                  onClick={() => {
+                    if (exchange.transaction.loading) return '';
+                    if (exchange.isTokenApproved) return (exchange.stepNumber = EXCHANGE_STEPS.BASE);
+                    return exchange.step.onClick();
+                  }}
+                >
+                  {exchange.transaction.loading ? (
+                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" />
+                  ) : exchange.isTokenApproved ? (
+                    <span>
+                      <b>Approved!</b> Bridge Your Tokens
+                    </span>
+                  ) : (
+                    'Confirm'
+                  )}
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        </Modal.Content>
+          </Modal.Content>
+        </div>
       </React.Fragment>
     </Modal>
   );

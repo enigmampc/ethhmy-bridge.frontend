@@ -143,14 +143,17 @@ export const SwapConfirmation = observer(() => {
       style={{ width: '600px', display: 'flex' }}
     >
       <React.Fragment>
-        <Modal.Header>
-          <div style={{ padding: '12 32', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title bold>Confirm Transaction!</Title>
-            <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
-              <Icon size="23" glyph="Close" />
-            </span>
-          </div>
-        </Modal.Header>
+        <div className={styles.modalHeader}>
+          <Modal.Header>
+            <div style={{ padding: '12 32', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Title bold>Confirm Transaction!</Title>
+              <span style={{ cursor: 'pointer' }} onClick={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}>
+                <Icon size="23" glyph="Close" />
+              </span>
+            </div>
+          </Modal.Header>
+        </div>
+        <div className={styles.modal}>
         <Modal.Content>
           <Box direction="column" fill={true} style={{ padding: '0 32' }}>
             <Box direction="row" fill={true} justify="between" align="center">
@@ -359,6 +362,7 @@ export const SwapConfirmation = observer(() => {
             )}
           </Box>
         </Modal.Content>
+        </div>
       </React.Fragment>
     </Modal>
   );

@@ -78,7 +78,7 @@ export const NetworkSelect = observer(
       wallet: 'Keplr',
       symbol: formatSymbol(EXCHANGE_MODE.FROM_SCRT, exchange.transaction.tokenSelected.symbol),
       amount: balance.scrt.maxAmount,
-      image: exchange.transaction.tokenSelected.image,
+      image: `${exchange.transaction.tokenSelected.image.split('.')[0]}-scrt.png`,
       health: fromSecretHealth,
       networkImage: '/static/networks/secret-scrt-logo-dark.svg',
     };

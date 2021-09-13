@@ -91,6 +91,7 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { value, erc20Address } = props;
 
   let tokenName = '';
+  let tokenImage = '';
 
   if (value === TOKEN.ERC20) {
     const token = tokens.allData.find(
@@ -101,14 +102,17 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
       token.display_props.proxy_symbol
         ? (tokenName = token.display_props.proxy_symbol)
         : (tokenName = token.display_props.symbol);
+      tokenImage = token.display_props.image;
     }
+
   } else if (value === TOKEN.NATIVE) {
     tokenName = chainPropToString(chainProps.currency_symbol, props.network);
+    tokenImage = chainPropToString(chainProps.image_logo, props.network);
   }
 
   return (
     <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-      <img className={styles.imgToken} src={chainPropToString(chainProps.image_logo, props.network)} />
+      <img className={styles.imgToken} src={tokenImage} />
       {tokenName}
     </Box>
   );
@@ -119,7 +123,7 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
   const { value, secretAddress } = props;
 
   let tokenName = '';
-
+  let tokenImage = '';
   if (value === TOKEN.ERC20 || value === TOKEN.S20) {
     const token = tokens.allData.find(
       t =>
@@ -132,15 +136,17 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
     if (token && token.display_props) {
       token.display_props.proxy_symbol
         ? (tokenName = token.display_props.symbol)
-        : (tokenName = `secret${token.display_props.symbol}`);
+        : (tokenName = `s${token.display_props.symbol}`);
+      tokenImage = `${token.display_props.image.split('.')[0]}-scrt.png`
     }
   } else if (value === TOKEN.NATIVE) {
     tokenName = userMetamask.getCurrencySymbol();
+    tokenImage = '/static/scrt.svg';
   }
 
   return (
     <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-      <img className={styles.imgToken} src="/static/scrt.svg" />
+      <img className={styles.imgToken} src={tokenImage}/>
       {tokenName}
     </Box>
   );

@@ -32,6 +32,7 @@ import { EXTERNAL_LINKS } from '../../../blockchain-bridge/eth/networks';
 import { Button as SemanticButton, Header, Icon as SemanticIcon, Modal, Progress } from 'semantic-ui-react';
 
 const DEFAULT_TOKEN = '0xa47c8bf37f92aBed4A126BDA807A7b7498661acD';
+const MINIMUM_DISPLAY = 1372465;
 
 interface Errors {
   amount: string;
@@ -732,6 +733,7 @@ export const Base = observer(() => {
             </Box>
           </Box>
         </Form>
+        {Number(tokenAmountLocked) > MINIMUM_DISPLAY && (
         <Box
           style={{
             width: 1024,
@@ -747,11 +749,10 @@ export const Base = observer(() => {
             </Box>
             <Box fill className={styles.depositBarTextRight}>
               <Text>
-                {tokenAmountLocked}/{tokenLimit}
+                {Number(tokenAmountLocked).toFixed(0)}/{tokenLimit}
               </Text>
             </Box>
           </Box>
-
           <Progress
             percent={(Number(tokenAmountLocked) / Number(tokenLimit)) * 100}
             style={{ width: 500 }}
@@ -760,6 +761,7 @@ export const Base = observer(() => {
             //progress
           />
         </Box>
+          )}
         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
           <Box style={{ maxWidth: '50%' }}>
             {isTokenLocked && (
