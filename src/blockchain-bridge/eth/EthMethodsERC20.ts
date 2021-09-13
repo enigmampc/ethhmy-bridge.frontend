@@ -69,9 +69,9 @@ export class EthMethodsERC20 {
         {
           from: accounts[0],
           gas: process.env.ETH_GAS_LIMIT,
-          // gasPrice: await getGasPrice(this.web3),
-          maxFeePerGas: eip1559gas.maxFeePerGas,
-          maxPriorityFeePerGas: eip1559gas.maxPriorityFeePerGas,
+          gasPrice: await getGasPrice(this.web3),
+          // maxFeePerGas: eip1559gas.maxFeePerGas,
+          //maxPriorityFeePerGas: eip1559gas.maxPriorityFeePerGas,
           amount: amount,
         },
         callback,
