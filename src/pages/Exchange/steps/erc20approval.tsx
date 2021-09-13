@@ -53,7 +53,7 @@ export const ERC20ApprovalModal = observer(() => {
               </Text>
               <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
                 <Text bold size="small" color="#00ADE8">
-                  Fee
+                  Max Fee
                 </Text>
                 {exchange.isFeeLoading ? (
                   <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />

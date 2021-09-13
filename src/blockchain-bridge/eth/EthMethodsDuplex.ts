@@ -73,6 +73,7 @@ export class EthMethodsDuplex {
           gas: process.env.ETH_GAS_LIMIT,
           // maxFeePerGas: gasPrices[0],
           // maxPriorityFeePerGas: gasPrices[1],
+          gasPrice: await getGasPrice(this.web3),
           amount: amount,
         },
         callback,
@@ -104,7 +105,7 @@ export class EthMethodsDuplex {
       {
         from: accounts[0],
         gas: new BN(gasLimit),
-        //gasPrice: await getGasPrice(this.web3),
+        gasPrice: await getGasPrice(this.web3),
       },
       callback,
     );
