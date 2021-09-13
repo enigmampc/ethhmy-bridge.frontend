@@ -87,14 +87,14 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Bridge</Text>
             </Box>
 
-            <Box
-              className={cn(styles.itemToken, isTokens ? styles.selected : '')}
-              onClick={() => {
-                routing.push(`/tokens`);
-              }}
-            >
-              <Text>Assets</Text>
-            </Box>
+            {/*<Box*/}
+            {/*  className={cn(styles.itemToken, isTokens ? styles.selected : '')}*/}
+            {/*  onClick={() => {*/}
+            {/*    routing.push(`/tokens`);*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Text>Assets</Text>*/}
+            {/*</Box>*/}
 
             <Box
               className={cn(styles.itemToken, isExplorer ? styles.selected : '')}

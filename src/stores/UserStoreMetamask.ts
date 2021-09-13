@@ -181,17 +181,22 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   async isCorrectNetworkSelected() {
+    console.log(`chain-id ${this.chainId}`)
+
     if (process.env.ENV === 'MAINNET') {
-      let result = chainIdMap[this.chainId]?.mainnet && chainIdMap[this.chainId]?.network === this.network;
+      //let result = chainIdMap[this.chainId]?.mainnet && chainIdMap[this.chainId]?.network === this.network;
+      let result = this.chainId === "0x1";
       if (!result) {
-        if (this.network === NETWORKS.ETH) {
-          // this doesn't actually work - metamask thing
-          await this.setupNetwork(1);
-        }
+        // if (this.network === NETWORKS.ETH) {
+        //
+        //
+        // }
+        await this.setupNetwork(1);
         // else if (this.network === NETWORKS.BSC) {
         //           this.setupNetwork(56);
         //         }
       }
+      console.log(`chain-id result ${result}`)
       return result;
     }
 

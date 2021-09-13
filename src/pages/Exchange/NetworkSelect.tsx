@@ -84,6 +84,7 @@ export const NetworkSelect = observer(
     };
 
     // just hard code Ethereum for now. No need for a selector
+
     const EthereumTemplate: NetworkTemplateInterface = {
       name: chainPropToString(chainProps.full_name, NETWORKS.ETH),
       wallet: chainPropToString(chainProps.wallet, NETWORKS.ETH),

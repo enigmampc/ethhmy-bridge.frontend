@@ -48,7 +48,7 @@ export const UnlockWalletButton = (props: { style?: any; user: any; callback?: F
         createViewingKey(props.user, props.callback);
       }}
     >
-      Unlock Wallet
+      Locked
     </Box>
   );
 };
@@ -57,11 +57,11 @@ export const TokenLocked = (props: { user: any; onFinish: Function }) => {
   return (
     <HeadShake bottom>
       <Box direction="column">
-        <Text bold color="#c5bb2e">
+        <Text bold color="#E1C442">
           Warning
         </Text>
         <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>
-          SecretTokens are privacy tokens. In order to see your token balance, you will need to{' '}
+          Secret Tokens are privacy tokens. In order to see your token balance, you will need to{' '}
           <span
             style={{ textDecoration: 'underline', cursor: 'pointer' }}
             onClick={async () => {
@@ -80,24 +80,24 @@ export const WrongNetwork = (props: { networkSelected: NETWORKS }) => {
   return (
     <HeadShake bottom>
       <Box direction="column">
-        <Text bold color="#c5bb2e">
+        <Text bold color="#E56868">
           Wrong Network
         </Text>
         <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>
           It seems your Metamask Wallet is connected to the wrong network!{' '}
-          {props.networkSelected === NETWORKS.BSC && (
-            <span>
-              If you are trying to use Binance Smart Chain please make sure you have it added on your wallet as
-              explained
-              <a
-                style={{ textDecoration: 'none', color: '#00BFFF', marginLeft: 5 }}
-                href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain"
-                target="_blank"
-              >
-                here
-              </a>
-            </span>
-          )}
+          {/*{props.networkSelected === NETWORKS.BSC && (*/}
+          {/*  <span>*/}
+          {/*    If you are trying to use Binance Smart Chain please make sure you have it added on your wallet as*/}
+          {/*    explained*/}
+          {/*    <a*/}
+          {/*      style={{ textDecoration: 'none', color: '#00BFFF', marginLeft: 5 }}*/}
+          {/*      href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain"*/}
+          {/*      target="_blank"*/}
+          {/*    >*/}
+          {/*      here*/}
+          {/*    </a>*/}
+          {/*  </span>*/}
+          {/*)}*/}
         </Text>
       </Box>
     </HeadShake>
@@ -234,7 +234,7 @@ export const NetworkTemplate = (props: { template: NetworkTemplateInterface; use
             ) : (
               <Text bold size="medium" style={{ margin: '0 5' }}>
                 <span style={{ color: props.template.amount === wrongNetwork ? '#c5bb2e' : '#FAF9FA' }}>
-                  {(new BigNumber(props.template.amount)).toFixed(2, BigNumber.ROUND_DOWN)}
+                  {props.template.amount === wrongNetwork ? "N/A" : (new BigNumber(props.template.amount)).toFixed(2, BigNumber.ROUND_DOWN)}
                 </span>
               </Text>
             )}

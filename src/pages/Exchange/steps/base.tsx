@@ -281,7 +281,9 @@ export const Base = observer(() => {
 
   useEffect(() => {
     async function asyncRun() {
-      setCorrectNetwork(await userMetamask.isCorrectNetworkSelected());
+      if (userMetamask.chainId) {
+        setCorrectNetwork(await userMetamask.isCorrectNetworkSelected());
+      }
     }
 
     asyncRun();
@@ -661,14 +663,14 @@ export const Base = observer(() => {
                 <Box style={{ minHeight: 38, marginTop: -5 }} direction="column">
                   {errors.amount && (
                     <HeadShake bottom>
-                      <Text margin={{ bottom: 'xxsmall' }} color="red">
+                      <Text margin={{ bottom: 'xxsmall' }} color="#E56868">
                         {errors.amount}
                       </Text>
                     </HeadShake>
                   )}
                   {warningAmount && (
                     <HeadShake bottom>
-                      <Text color="#97a017">{warningAmount}</Text>
+                      <Text color="#E56868">{warningAmount}</Text>
                     </HeadShake>
                   )}
                 </Box>
@@ -727,7 +729,7 @@ export const Base = observer(() => {
               <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
                 {errors.address && (
                   <HeadShake>
-                    <Text color="red">{errors.address}</Text>
+                    <Text color="#E56868">{errors.address}</Text>
                   </HeadShake>
                 )}
               </Box>
