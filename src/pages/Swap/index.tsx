@@ -462,7 +462,7 @@ export class SwapRouter extends React.Component<
     const tokens: ITokenInfo[] = [...(await this.props.tokens.tokensUsage('SWAP'))];
 
     // convert to token map for swap
-    const swapTokens: SwapTokenMap = TokenMapfromITokenInfo(tokens); // [...TokenMapfromITokenInfo(tokens), ...loadTokensFromList('secret-2')];
+    const swapTokens: SwapTokenMap = TokenMapfromITokenInfo(tokens); // [...TokenMapfromITokenInfo(tokens), ...loadTokensFromList('secret-3')];
 
     // load custom tokens
     const customTokens = LocalStorageTokens.get();
@@ -602,7 +602,7 @@ export class SwapRouter extends React.Component<
     if (type === 'errorWithHash') {
       cogoType = 'warn';
       onClick = () => {
-        const url = `https://secretnodes.com/secret/chains/secret-2/transactions/${txHash}`;
+        const url = `https://secretnodes.com/secret/chains/secret-3/transactions/${txHash}`;
         const win = window.open(url, '_blank');
         win.focus();
         hide();
