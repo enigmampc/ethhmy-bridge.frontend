@@ -743,8 +743,7 @@ export const Base = observer(() => {
               )}
 
               <Button
-                // disabled for now
-                disabled={true}
+                disabled={!readyToSend}
                 margin={{ left: 'medium' }}
                 bgColor={!toApprove ? '#00ADE8' : '#E4E4E4'}
                 color={!toApprove ? 'white' : '#748695'}
