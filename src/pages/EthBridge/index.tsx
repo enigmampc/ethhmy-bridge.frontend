@@ -60,6 +60,7 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message success>
               <Message.Header>Welcome back! We missed you.</Message.Header>
+              
               {/* <Message.Content>
                 We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
                 <a
@@ -72,13 +73,14 @@ export const EthBridge = observer((props: any) => {
                 </a>
               </Message.Content> */}
             </Message>
-            {/*<Message info>*/}
-            {/*  <Message.Header>Warning</Message.Header>*/}
-            {/*  <Message.Content>*/}
+            <Message info>
+            <Message.Header>Warning</Message.Header>
+            <Message.Content>
+              <p>Issues swapping in the ETH/BSC->SCRT direction are being investigated. Thank you for your patience</p>
             {/*    <p>Binance-pegged assets from Binance Smart Chain are different than assets coming from Ethereum.</p>*/}
             {/*    <p>You will not be able to directly withdraw BSC assets to Ethereum, or vice-versa</p>*/}
             {/*    <p>Assets can be converted using SecretSwap</p>*/}
-            {/*  </Message.Content>*/}
+            </Message.Content>
             {/*  <p></p>*/}
             {/*  /!*<Message.Header>Known Issues</Message.Header>*!/*/}
             {/*  /!*<Message.Content>*!/*/}
@@ -87,7 +89,7 @@ export const EthBridge = observer((props: any) => {
             {/*  /!*    Edge) - make sure extension site access is set to "On all sites"*!/*/}
             {/*  /!*  </p>*!/*/}
             {/*  /!*</Message.Content>*!/*/}
-            {/*</Message>*/}
+            </Message>
             {/*<Message success>*/}
             {/*  <p>No current issues </p>*/}
             {/*</Message>*/}
