@@ -76,7 +76,9 @@ export const EthBridge = observer((props: any) => {
             <Message info>
             <Message.Header>Warning</Message.Header>
             <Message.Content>
-              <p>{"Issues swapping in the ETH/BSC to SCRT direction are being investigated. Thank you for your patience"}</p>
+              <p>{"Issues swapping in the ETH/BSC to SCRT direction have been resolved"}</p>
+              <p>{"However, we are still working on restoring full capacity. During this time service may be interrupted"}</p>
+
             {/*    <p>Binance-pegged assets from Binance Smart Chain are different than assets coming from Ethereum.</p>*/}
             {/*    <p>You will not be able to directly withdraw BSC assets to Ethereum, or vice-versa</p>*/}
             {/*    <p>Assets can be converted using SecretSwap</p>*/}
