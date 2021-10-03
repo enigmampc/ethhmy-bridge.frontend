@@ -48,7 +48,7 @@ export const EarnRewards = observer((props: any) => {
       }
       setFilteredTokens(await tokens.tokensUsage('REWARDS'));
     };
-    asyncWrapper().then(() => { });
+    asyncWrapper().then(() => {});
   }, [tokens, tokens.data]);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export const EarnRewards = observer((props: any) => {
       }
     };
 
-    resolveSushiAPY().then(() => { });
+    resolveSushiAPY().then(() => {});
     //refreshAllTokens().then(() => {});
   }, [filteredTokens]);
 
@@ -126,8 +126,8 @@ export const EarnRewards = observer((props: any) => {
               display: 'inline-block',
             }}
           >
-            If you have created viewing keys for secretTokens and secretSCRT, you should be able to see secretTokens
-            locked in the rewards contract and your rewards. If you can't see these figures please refresh your browser.
+            Currently bridge earn rewards are not being distributed due to a bug caused by the block height restarting
+            from 0. We will update when we have further information on this issue
           </p>
         </div>
         {/* <div
@@ -206,17 +206,21 @@ export const EarnRewards = observer((props: any) => {
                   remainingLockedRewards: rewardToken.pending_rewards,
                   deadline: Number(rewardToken.deadline),
                 };
-              }).filter(function (el) {
+              })
+              .filter(function(el) {
                 return el != null;
               })
               .slice()
               .sort((a, b) => {
-                const rewards_a = zeroDecimalsFormatter.format(Number(calculateAPY(a, Number(a.rewardsPrice), Number(a.price))));
-                const rewards_b = zeroDecimalsFormatter.format(Number(calculateAPY(b, Number(b.rewardsPrice), Number(b.price))));
+                const rewards_a = zeroDecimalsFormatter.format(
+                  Number(calculateAPY(a, Number(a.rewardsPrice), Number(a.price))),
+                );
+                const rewards_b = zeroDecimalsFormatter.format(
+                  Number(calculateAPY(b, Number(b.rewardsPrice), Number(b.price))),
+                );
                 return Number(rewards_b) - Number(rewards_a);
               })
               .map(rewardToken => {
-
                 return (
                   <EarnRow
                     notify={notify}
