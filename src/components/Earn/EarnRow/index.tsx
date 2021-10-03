@@ -33,13 +33,9 @@ export const calculateAPY = (token: RewardsToken, price: number, priceUnderlying
 };
 
 export const apyString = (token: RewardsToken) => {
-  const apy = Number(calculateAPY(token, Number(token.rewardsPrice), Number(token.price)));
-  if (isNaN(apy) || 0 > apy) {
-    return '0%';
-  }
-
+  // Bridge Earn rewards have been disabled
+  const apy = Number(0)
   const apyStr = zeroDecimalsFormatter.format(apy);
-
   return `${apyStr}%`;
 };
 interface RewardsToken {
