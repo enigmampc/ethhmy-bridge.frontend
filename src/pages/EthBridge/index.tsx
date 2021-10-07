@@ -60,7 +60,7 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message success>
               <Message.Header>Welcome back! We missed you.</Message.Header>
-              
+
               {/* <Message.Content>
                 We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
                 <a
@@ -74,23 +74,26 @@ export const EthBridge = observer((props: any) => {
               </Message.Content> */}
             </Message>
             <Message info>
-            <Message.Header>Warning</Message.Header>
-            <Message.Content>
-              <p>{"Issues swapping in the ETH/BSC to SCRT direction have been resolved"}</p>
-              <p>{"However, we are still working on restoring full capacity. During this time service may be interrupted"}</p>
+              <Message.Header>Warning</Message.Header>
+              <Message.Content>
+                <p>
+                  {
+                    'There are larger than usual delays when swapping SCRT->ETH. We are working on restoring service. Thank you for your patience'
+                  }
+                </p>
 
-            {/*    <p>Binance-pegged assets from Binance Smart Chain are different than assets coming from Ethereum.</p>*/}
-            {/*    <p>You will not be able to directly withdraw BSC assets to Ethereum, or vice-versa</p>*/}
-            {/*    <p>Assets can be converted using SecretSwap</p>*/}
-            </Message.Content>
-            {/*  <p></p>*/}
-            {/*  /!*<Message.Header>Known Issues</Message.Header>*!/*/}
-            {/*  /!*<Message.Content>*!/*/}
-            {/*  /!*  <p>*!/*/}
-            {/*  /!*    Some users may experience issues with viewing keys when using Chromium v91 browsers (Chrome, Brave,*!/*/}
-            {/*  /!*    Edge) - make sure extension site access is set to "On all sites"*!/*/}
-            {/*  /!*  </p>*!/*/}
-            {/*  /!*</Message.Content>*!/*/}
+                {/*    <p>Binance-pegged assets from Binance Smart Chain are different than assets coming from Ethereum.</p>*/}
+                {/*    <p>You will not be able to directly withdraw BSC assets to Ethereum, or vice-versa</p>*/}
+                {/*    <p>Assets can be converted using SecretSwap</p>*/}
+              </Message.Content>
+              {/*  <p></p>*/}
+              {/*  /!*<Message.Header>Known Issues</Message.Header>*!/*/}
+              {/*  /!*<Message.Content>*!/*/}
+              {/*  /!*  <p>*!/*/}
+              {/*  /!*    Some users may experience issues with viewing keys when using Chromium v91 browsers (Chrome, Brave,*!/*/}
+              {/*  /!*    Edge) - make sure extension site access is set to "On all sites"*!/*/}
+              {/*  /!*  </p>*!/*/}
+              {/*  /!*</Message.Content>*!/*/}
             </Message>
             {/*<Message success>*/}
             {/*  <p>No current issues </p>*/}
