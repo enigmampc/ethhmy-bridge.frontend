@@ -743,7 +743,7 @@ export const Base = observer(() => {
               )}
 
               <Button
-                disabled={!readyToSend && !(EXCHANGE_MODE.FROM_SCRT && userMetamask.network === NETWORKS.ETH)}
+                disabled={!readyToSend || (EXCHANGE_MODE.FROM_SCRT && userMetamask.network === NETWORKS.ETH)}
                 margin={{ left: 'medium' }}
                 bgColor={!toApprove ? '#00ADE8' : '#E4E4E4'}
                 color={!toApprove ? 'white' : '#748695'}
