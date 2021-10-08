@@ -78,7 +78,7 @@ export const EthBridge = observer((props: any) => {
               <Message.Content>
                 <p>
                   {
-                    'There are larger than usual delays when swapping SCRT->ETH. We are working on restoring service. Thank you for your patience'
+                    'There are ongoing issues when bridging SCRT->ETH. We are working on restoring service. Thank you for your patience'
                   }
                 </p>
 
