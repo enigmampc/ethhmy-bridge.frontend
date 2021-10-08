@@ -66,6 +66,17 @@ export const notify = (type: 'success' | 'error', msg: string, hideAfterSec: num
   });
 };
 
+const disableBridge = {
+  [EXCHANGE_MODE.FROM_SCRT]: {
+    [NETWORKS.ETH]: false,
+    [NETWORKS.BSC]: false,
+  },
+  [EXCHANGE_MODE.TO_SCRT]: {
+    [NETWORKS.ETH]: false,
+    [NETWORKS.BSC]: false,
+  },
+};
+
 const validateTokenInput = (token: any) => {
   if (!token || !token.symbol) return 'This field is required.';
   return '';
@@ -743,7 +754,7 @@ export const Base = observer(() => {
               )}
 
               <Button
-                disabled={!readyToSend || (EXCHANGE_MODE.FROM_SCRT && userMetamask.network === NETWORKS.ETH)}
+                disabled={!readyToSend || disableBridge[exchange.mode][userMetamask.network]}
                 margin={{ left: 'medium' }}
                 bgColor={!toApprove ? '#00ADE8' : '#E4E4E4'}
                 color={!toApprove ? 'white' : '#748695'}
