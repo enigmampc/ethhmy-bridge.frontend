@@ -58,8 +58,8 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message success>
-              <Message.Header>Service has been restored. Happy Bridging!</Message.Header>
+            <Message info>
+              <Message.Header>BSC bridge has been disabled for maintenance. Service will resume shortly</Message.Header>
 
               {/* <Message.Content>
                 We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
