@@ -16,14 +16,14 @@ export class DuplexServicesStore extends ListStoreConstructor<ITokenLimits> {
 
   getLocked(symbol: string): string {
     if (this.allData.length > 0) {
-      return divDecimals(this.allData[0].UST.locked, 18);
+      return divDecimals(this.allData[0]?.UST.locked, 18);
     }
     return '0';
   }
 
   getLimit(symbol: string): string {
     if (this.allData.length > 0) {
-      return this.allData[0].UST.limit;
+      return this.allData[0]?.UST.limit;
     }
     return '5000000';
   }
