@@ -77,6 +77,12 @@ export const EthBridge = observer((props: any) => {
                 </a>
               </Message.Content> */}
             </Message>
+            <Message info>
+              <Message.Header>
+                ETH bridge is disabled for maintenance. We expect this to last no longer than 1 hour. Thank you for your
+                patience
+              </Message.Header>
+            </Message>
             {/*<Message info>*/}
             {/*  <Message.Header>Warning</Message.Header>*/}
             {/*  <Message.Content>*/}
