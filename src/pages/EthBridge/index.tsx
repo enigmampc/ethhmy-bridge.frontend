@@ -60,8 +60,9 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
               <Message.Header>
-                BSC bridge is enabled but may experience interrupted service. Thank you for your patience while we work
-                to resolve all issues
+                BSC bridge service has been restored, and pending transactions have been completed. BSC bridge is
+                enabled but may experience interrupted service. Thank you for your patience while we work to resolve all
+                issues
               </Message.Header>
 
               {/* <Message.Content>
