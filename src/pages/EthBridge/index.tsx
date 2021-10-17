@@ -60,9 +60,8 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
               <Message.Header>
-                BSC bridge service has been restored, and pending transactions have been completed. BSC bridge is
-                enabled but may experience interrupted service. Thank you for your patience while we work to resolve all
-                issues
+                BSC Bridge has been disabled for maintenance. We expect this to last for about an hour. Thank you for
+                your patience
               </Message.Header>
 
               {/* <Message.Content>
@@ -77,9 +76,9 @@ export const EthBridge = observer((props: any) => {
                 </a>
               </Message.Content> */}
             </Message>
-            <Message info>
-              <Message.Header>ETH bridge maintenance has been completed, and bridge is back up!</Message.Header>
-            </Message>
+            {/*<Message info>*/}
+            {/*  <Message.Header>ETH bridge maintenance has been completed, and bridge is back up!</Message.Header>*/}
+            {/*</Message>*/}
             {/*<Message info>*/}
             {/*  <Message.Header>Warning</Message.Header>*/}
             {/*  <Message.Content>*/}
