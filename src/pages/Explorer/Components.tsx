@@ -35,12 +35,12 @@ import { networkFromToken, NETWORKS } from '../../blockchain-bridge';
 
 export const Price = observer(
   (props: { value: number | string; valueUsd?: number; isEth?: boolean; boxProps?: BoxProps; token?: string }) => {
-    const { user, userMetamask } = useStores();
+    const { userSecret, userMetamask } = useStores();
 
     const tokenName = props.token || (props.isEth ? userMetamask.getCurrencySymbol() : 'SCRT');
     const valueUsd = props.valueUsd
       ? props.valueUsd
-      : Number(props.value) * (props.isEth ? userMetamask.getNetworkPrice() : user.scrtRate);
+      : Number(props.value) * (props.isEth ? userMetamask.getNetworkPrice() : userSecret.scrtRate);
     return (
       <Box direction="column" align="end" justify="center" pad={{ right: 'medium' }} {...props.boxProps}>
         <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 3 }}>{`${props.value} ${tokenName}`}</Text>
@@ -74,7 +74,7 @@ export const FormatWithDecimals = observer((props: ITokenParams) => {
   const { type, amount, address } = props;
 
   if (type === TOKEN.ERC721 || type === TOKEN.S20) {
-    const token = tokens.allData.find(t => t.src_address.toLowerCase() === address.toLowerCase());
+    const token = tokens.allData.find(t => t.address.toLowerCase() === address.toLowerCase());
 
     if (token) {
       return <Box>{divDecimals(amount, token.decimals)}</Box>;

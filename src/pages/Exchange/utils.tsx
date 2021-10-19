@@ -178,7 +178,7 @@ export type NetworkTemplateInterface = {
   wallet: string;
   image: string;
   symbol: string;
-  amount: string;
+  token_id: string;
   health: HealthStatusDetailed;
   networkImage: string;
 };
@@ -225,16 +225,16 @@ export const NetworkTemplate = (props: { template: NetworkTemplateInterface; use
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
           <div>
-            {props.template.amount === 'loading' ? (
+            {props.template.token_id === 'loading' ? (
               <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1.5em" style={{ margin: '0 10' }} />
-            ) : props.template.amount === unlockToken ? (
+            ) : props.template.token_id === unlockToken ? (
               <Box direction="row" style={{ margin: '0 5' }}>
                 <UnlockWalletButton user={props.user} />
               </Box>
             ) : (
               <Text bold size="medium" style={{ margin: '0 5' }}>
-                <span style={{ color: props.template.amount === wrongNetwork ? '#c5bb2e' : '#FAF9FA' }}>
-                  {props.template.amount === wrongNetwork ? "N/A" : (new BigNumber(props.template.amount)).toFixed(2, BigNumber.ROUND_DOWN)}
+                <span style={{ color: props.template.token_id === wrongNetwork ? '#c5bb2e' : '#FAF9FA' }}>
+                  {props.template.token_id === wrongNetwork ? "N/A" : (new BigNumber(props.template.token_id)).toFixed(2, BigNumber.ROUND_DOWN)}
                 </span>
               </Text>
             )}

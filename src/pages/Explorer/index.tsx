@@ -124,7 +124,7 @@ const getColumns = (): IColumn<ISwap>[] => [
 ];
 
 export const Explorer = observer((props: any) => {
-  const { operations, user, tokens, userMetamask } = useStores();
+  const { swaps, userSecret, tokens, userMetamask } = useStores();
 
   const [columns, setColumns] = useState(getColumns());
   const [search, setSearch] = useState('');
@@ -137,7 +137,7 @@ export const Explorer = observer((props: any) => {
     //   src_network: userMetamask.getNetworkFullName(),
     // };
     tokens.fetch();
-    operations.init({
+    swaps.init({
       isLocal: true,
       sorter: 'created_on, desc',
       //paginationData: { pageSize: 10 },
@@ -147,18 +147,18 @@ export const Explorer = observer((props: any) => {
       //   src_network: userMetamask.getNetworkFullName(),
       // },
     });
-    operations.fetch();
+    swaps.fetch();
   }, []);
 
   useEffect(() => {
     setColumns(getColumns());
-  }, [user.scrtRate, currentPrice, tokens.data, tokens.fetchStatus]);
+  }, [userSecret.scrtRate, currentPrice, tokens.data, tokens.fetchStatus]);
 
   const onChangeDataFlow = (props: any) => {
-    operations.onChangeDataFlow(props);
+    swaps.onChangeDataFlow(props);
   };
 
-  const filteredData = operations.allData.slice().sort((opA, opB) => (opA.created_on > opB.created_on ? -1 : 1));
+  const filteredData = swaps.allData.slice().sort((opA, opB) => (opA.created_on > opB.created_on ? -1 : 1));
 
   // search filter by network (if we want to make this work)
   // .filter(value => {
@@ -202,10 +202,10 @@ export const Explorer = observer((props: any) => {
           {/*</Box>*/}
 
           <Table
-            data={search ? filteredDataSearch : operations.data}
+            data={search ? filteredDataSearch : swaps.data}
             columns={columns}
-            isPending={operations.isPending}
-            dataLayerConfig={operations.dataFlow}
+            isPending={swaps.isPending}
+            dataLayerConfig={swaps.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
             onRowClicked={() => {}}
             tableParams={{

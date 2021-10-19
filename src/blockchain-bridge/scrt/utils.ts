@@ -46,7 +46,7 @@ export function extractValueFromLogs(txResult: ExecuteResult, key: string, lastV
 const gasPriceUscrt = 0.25;
 export function getFeeForExecute(gas: number): StdFee {
   return {
-    token_id: [{ token_id: String(Math.floor(gas * gasPriceUscrt) + 1), denom: 'uscrt' }],
+    amount: [{ amount: String(Math.floor(gas * gasPriceUscrt) + 1), denom: 'uscrt' }],
     gas: String(gas),
   };
 }

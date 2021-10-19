@@ -20,7 +20,7 @@ export const NetworkSelect = observer(
     toSecretHealth: HealthStatusDetailed;
     fromSecretHealth: HealthStatusDetailed;
   }) => {
-    const { user, userMetamask, exchange } = useStores();
+    const { userSecret, userMetamask, exchange } = useStores();
     const { secret, onChange, balance, toSecretHealth, fromSecretHealth, value } = props;
 
     const [networks, setNetworks] = useState<NetworkTemplateInterface[]>([]);
@@ -98,7 +98,7 @@ export const NetworkSelect = observer(
     if (secret) {
       return (
         <div style={{ padding: 10, minWidth: 300 }}>
-          <NetworkTemplate template={SecretTemplate} user={user} />
+          <NetworkTemplate template={SecretTemplate} user={userSecret} />
         </div>
       );
     }
@@ -126,7 +126,7 @@ export const NetworkSelect = observer(
     //const selectedOption = networks.find(n => n.id === value);
     return (
       <div style={{ padding: 10, minWidth: 300 }}>
-        <NetworkTemplate template={EthereumTemplate} user={user} />
+        <NetworkTemplate template={EthereumTemplate} user={userSecret} />
       </div>
     );
     // return (

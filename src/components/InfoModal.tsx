@@ -6,7 +6,7 @@ import { Info } from './Info';
 import { useHistory } from 'react-router';
 
 export const InfoModal = observer(() => {
-  const { user, actionModals } = useStores();
+  const { userSecret, actionModals } = useStores();
   const history = useHistory();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export const InfoModal = observer(() => {
     //     },
     //   );
     // }
-  }, [user.isInfoReading]);
+  }, [userSecret.isInfoReading]);
 
   return <></>;
 });
