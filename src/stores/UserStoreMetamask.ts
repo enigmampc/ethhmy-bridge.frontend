@@ -9,6 +9,7 @@ import Web3 from 'web3';
 import { IOperation, TOKEN } from './interfaces';
 import { chainProps, chainPropToString } from '../blockchain-bridge/eth/chainProps';
 import * as agent from 'superagent';
+import { NftDetails } from '../blockchain-bridge/eth/EthMethodsNftBridge';
 
 const defaults = {};
 
@@ -63,13 +64,14 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable public chainName: string;
   @observable public ethAddress: string;
   @observable public nativeBalance: string = '';
-  @observable public nativeBalanceMin: string = '';
   @observable public balanceToken: { [key: string]: string } = {};
-  @observable public balanceTokenMin: { [key: string]: string } = {};
+  //@observable public balanceTokenMin: { [key: string]: string } = {};
   @observable public rates: Record<NETWORKS, number>;
+  @observable public availableNfts: NftDetails[] = [];
 
-  @observable erc20Address: string = '';
-  @observable erc20TokenDetails: IERC20Token;
+
+  @observable erc721Address: string = '';
+  @observable erc721TokenDetails: IERC20Token;
   @observable erc20Balance: string = '';
   @observable erc20BalanceMin: string = '';
 
@@ -113,17 +115,17 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @action public async getRates() {
-    this.rates = Object.assign(
-      {},
-      ...this.stores.tokens.allData
-        .filter(token => token.src_address === 'native')
-        .map(token => {
-          let network = networkFromToken(token);
-          return {
-            [network]: Number(token.price),
-          };
-        }),
-    );
+    // this.rates = Object.assign(
+    //   {},
+    //   ...this.stores.tokens.allData
+    //     .filter(token => token.src_address === 'native')
+    //     .map(token => {
+    //       let network = networkFromToken(token);
+    //       return {
+    //         [network]: Number(token.price),
+    //       };
+    //     }),
+    // );
 
     if (isNaN(this.rates?.BSC) || this.rates?.BSC === 0) {
       const bnbUSDT = await agent.get<{ body: IOperation }>(
@@ -266,7 +268,6 @@ export class UserStoreMetamask extends StoreConstructor {
   public async signOut() {
     this.isAuthorized = false;
     this.nativeBalance = '';
-    this.nativeBalanceMin = '';
     this.ethAddress = '';
     this.balanceToken = {};
 
@@ -385,7 +386,7 @@ export class UserStoreMetamask extends StoreConstructor {
       'metamask_session',
       JSON.stringify({
         ethAddress: this.ethAddress,
-        erc20Address: this.erc20Address,
+        erc721Address: this.erc721Address,
       }),
     );
   }
@@ -397,59 +398,62 @@ export class UserStoreMetamask extends StoreConstructor {
 
     this.balancesLoading = true;
 
-    while (this.stores.tokens.isPending) {
-      await sleep(50);
-    }
+    // while (this.stores.tokens.isPending) {
+    //   await sleep(50);
+    // }
     // always load native balance, because why not? And this bypasses race conditions with this.stores.tokens
     this.nativeBalance = await getEthBalance(this.ethAddress);
 
-    this.nativeBalanceMin = this.balanceTokenMin[this.getNetworkFullName()];
+    this.availableNfts = await contract.evmMethods[this.network][TOKEN.ERC721].enumerateUserTokens(this.ethAddress);
 
-    for (const token of this.stores.tokens.allData.filter(t => networkFromToken(t) === this.network)) {
-      if (token.src_address === 'native') {
-        continue;
-      }
-      getErc20Balance(this.ethAddress, token.src_address).then(b => {
-        this.balanceToken[token.src_coin] = b;
-        //console.log(`hello from ${token.display_props.symbol} - ${JSON.stringify(this.balanceToken[token.src_coin])}`)
-      });
-      this.balanceTokenMin[token.src_coin] = token.display_props.min_to_scrt;
-    }
+    //
+    // this.nativeBalanceMin = this.balanceTokenMin[this.getNetworkFullName()];
+    //
+    // for (const token of this.stores.tokens.allData.filter(t => networkFromToken(t) === this.network)) {
+    //   if (token.src_address === 'native') {
+    //     continue;
+    //   }
+    //   getErc20Balance(this.ethAddress, token.src_address).then(b => {
+    //     this.balanceToken[token.src_coin] = b;
+    //     //console.log(`hello from ${token.display_props.symbol} - ${JSON.stringify(this.balanceToken[token.src_coin])}`)
+    //   });
+    //   this.balanceTokenMin[token.src_coin] = token.display_props.min_to_scrt;
+    // }
 
     this.balancesLoading = false;
   };
 
-  @action.bound public setToken = async (erc20Address: string, tokens?) => {
-    this.erc20TokenDetails = null;
-    this.erc20Address = '';
+  @action.bound public setToken = async (tokens?) => {
+    this.erc721TokenDetails = null;
+    this.erc721Address = '';
     this.erc20Balance = '';
-    this.erc20BalanceMin = '';
-    this.stores.user.snip20Address = '';
-    this.stores.user.snip20Balance = '';
-    this.stores.user.snip20BalanceMin = '';
+    //this.erc20BalanceMin = '';
+    this.stores.userSecret.snip721Address = '';
+    // this.stores.userSecret.snip20Balance = '';
+    // this.stores.userSecret.snip20BalanceMin = '';
 
-    this.erc20TokenDetails = await contract.fromScrtMethods[this.network][TOKEN.ERC20].tokenDetails(erc20Address);
+    this.erc721TokenDetails = await contract.evmMethods[this.network][TOKEN.ERC721].tokenDetails();
 
-    this.erc20Address = erc20Address;
-    this.erc20Balance = divDecimals(
-      await getErc20Balance(this.ethAddress, erc20Address),
-      this.erc20TokenDetails.decimals,
-    );
+    this.erc721Address = '';
+    // this.erc20Balance = divDecimals(
+    //   await getErc20Balance(this.ethAddress, erc20Address),
+    //   this.erc721TokenDetails.decimals,
+    // );
 
-    this.erc20BalanceMin = this.stores.tokens.allData.find(
-      t => t.src_address === erc20Address,
-    ).display_props.min_to_scrt;
+    // this.erc20BalanceMin = this.stores.tokens.allData.find(
+    //   t => t.src_address === erc20Address,
+    // ).display_props.min_to_scrt;
 
-    if (tokens) {
-      const token = tokens.allData.find(t => t.src_address === this.erc20Address);
-      if (token.dst_address) {
-        await this.stores.user.updateBalanceForSymbol(token.display_props.symbol);
-
-        this.stores.user.snip20Address = token.dst_address;
-        this.stores.user.snip20Balance = this.stores.user.balanceToken[token.src_coin];
-        this.stores.user.snip20BalanceMin = this.stores.user.balanceTokenMin[token.src_coin];
-      }
-    }
+    // if (tokens) {
+    //   const token = tokens.allData.find(t => t.src_address === this.erc721Address);
+    //   if (token.dst_address) {
+    //     await this.stores.userSecret.updateBalanceForSymbol(token.display_props.symbol);
+    //
+    //     this.stores.userSecret.snip20Address = token.dst_address;
+    //     this.stores.userSecret.snip20Balance = this.stores.userSecret.balanceToken[token.src_coin];
+    //     this.stores.userSecret.snip20BalanceMin = this.stores.userSecret.balanceTokenMin[token.src_coin];
+    //   }
+    // }
   };
 
   @action public reset() {

@@ -10,7 +10,7 @@ export const buildAssetInfo = (currency: Currency) => {
   if (currency.token.info.type === 'native_token') {
     return {
       info: { native_token: currency.token.info.native_token },
-      amount: currency.amount,
+      token_id: currency.amount,
     };
   } else {
     return {
@@ -21,7 +21,7 @@ export const buildAssetInfo = (currency: Currency) => {
           viewing_key: '',
         },
       },
-      amount: currency.amount,
+      token_id: currency.amount,
     };
   }
 };

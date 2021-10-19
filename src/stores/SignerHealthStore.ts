@@ -1,4 +1,4 @@
-import { INetworkBridgeHealth, ISecretSwapPair, ISignerHealth } from './interfaces';
+import { INetworkBridgeHealth } from './interfaces';
 import { IStores } from './index';
 import * as services from '../services';
 import { ListStoreConstructor } from './core/ListStoreConstructor';

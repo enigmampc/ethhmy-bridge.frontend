@@ -3,21 +3,30 @@ import { divDecimals, unlockToken } from '../../utils';
 import { StdFee } from 'secretjs/types/types';
 import { AsyncSender } from './asyncSender';
 
-export const Snip20SwapHash = (params: { tx_id: string; address: string }): string => {
-  return `${params.tx_id}|${params.address}`;
+export const Snip721SwapHash = (params: { address: string; token_id: string }): string => {
+  return `${params.address}|${params.token_id}`;
 };
 
-export interface Snip20TokenInfo {
+export interface Snip721TokenInfo {
   name: string;
   symbol: string;
   decimals: number;
   total_supply?: string;
 }
 
-export const GetSnip20Params = async (params: {
+interface _TokenList {
+  tokens: string[]
+}
+
+export interface Snip721GetTokensResponse {
+  token_list: _TokenList
+}
+
+
+export const GetSnip721Params = async (params: {
   secretjs: CosmWasmClient;
   address: string;
-}): Promise<Snip20TokenInfo> => {
+}): Promise<Snip721TokenInfo> => {
   const { secretjs, address } = params;
 
   try {
@@ -34,45 +43,35 @@ export const GetSnip20Params = async (params: {
   }
 };
 
-export const Snip20GetBalance = async (params: {
+export const Snip721GetTokens = async (params: {
   secretjs: CosmWasmClient;
   token: string;
   address: string;
   key: string;
-}) => {
+}): Promise<Snip721GetTokensResponse> => {
   const { secretjs, address, token, key } = params;
 
   let balanceResponse;
-  try {
-    balanceResponse = await secretjs.queryContractSmart(token, {
-      balance: {
-        address: address,
-        key,
-      },
-    });
-  } catch (e) {
-    console.log(e);
-    return unlockToken;
-  }
+  balanceResponse = await secretjs.queryContractSmart(token, {
+    tokens: {
+      owner: address,
+      // viewer: "address_of_the_querier_if_different_from_owner",
+      viewing_key: key,
+      // limit: 10
+    }
+  });
 
-  if (balanceResponse.viewing_key_error) {
-    return 'Fix Unlock';
-  }
-
-  if (Number(balanceResponse.balance.amount) === 0) {
-    return '0';
-  }
-  return balanceResponse.balance.amount;
+  return balanceResponse;
 };
 
-export const Snip20SendToBridge = async (params: {
+export const Snip721SendToBridge = async (params: {
   secretjs: AsyncSender;
   address: string;
   token_id: string;
   msg: string;
   recipient?: string;
 }): Promise<string> => {
-  const tx = await Snip20Send({
+  const tx = await Snip721Send({
     recipient: params.recipient || process.env.SCRT_SWAP_CONTRACT,
     ...params,
   });
@@ -88,7 +87,7 @@ export const Snip20SendToBridge = async (params: {
   return tx_id;
 };
 
-export const Snip20Send = async (params: {
+export const Snip721Send = async (params: {
   secretjs: AsyncSender;
   address: string;
   token_id: string;
@@ -111,14 +110,4 @@ export const Snip20Send = async (params: {
     [],
     fee,
   );
-};
-
-export const GetContractCodeHash = async ({
-  secretjs,
-  address,
-}: {
-  secretjs: CosmWasmClient;
-  address: string;
-}): Promise<string> => {
-  return await secretjs.getCodeHashByContractAddr(address);
 };

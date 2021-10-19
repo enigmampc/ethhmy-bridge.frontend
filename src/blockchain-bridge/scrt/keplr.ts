@@ -1,6 +1,9 @@
 import { sleep } from '../../utils';
 // todo: clean this shit up
-import { ERROR_WRONG_VIEWING_KEY } from '../../pages/Swap/utils';
+
+
+const ERROR_WRONG_VIEWING_KEY = "Viewing Key Error";
+
 
 export const getViewingKey = async (params: {
   keplr: any;

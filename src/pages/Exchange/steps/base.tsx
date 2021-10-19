@@ -6,10 +6,9 @@ import * as styles from '../styles.styl';
 import { Box } from 'grommet';
 import Web3 from 'web3';
 import * as bech32 from 'bech32';
-import { divDecimals, sleep, unlockToken } from 'utils';
+import { sleep } from 'utils';
 import { EXCHANGE_MODE, ITokenInfo, TOKEN } from 'stores/interfaces';
-import { Form, Input, NumberInput } from 'components/Form';
-import { ERC20Select } from '../ERC20Select';
+import { Form, Input } from 'components/Form';
 import { NetworkSelect } from '../NetworkSelect';
 import { AuthWarning } from '../../../components/AuthWarning';
 import { Exchange, EXCHANGE_STEPS } from '../../../stores/Exchange';
@@ -18,25 +17,21 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import HeadShake from 'react-reveal/HeadShake';
 import ProgressBar from '@ramonak/react-progress-bar';
 import { HealthStatus, HealthStatusDetailed, Signer, signerAddresses, TokenLocked, WrongNetwork } from '../utils';
-import { formatSymbol, wrongNetwork } from '../../../utils';
 import { ISignerHealth } from '../../../stores/interfaces';
 import { useStores } from '../../../stores';
-import { getDuplexNetworkFee } from '../../../blockchain-bridge/eth/helpers';
-import { toInteger } from 'lodash';
 import cogoToast from 'cogo-toast';
-import { UserStoreEx } from '../../../stores/UserStore';
+import { UserStoreSecret } from '../../../stores/UserStoreNft';
 import { UserStoreMetamask } from '../../../stores/UserStoreMetamask';
 import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
 import { EXTERNAL_NETWORKS, NETWORKS } from '../../../blockchain-bridge';
 import { EXTERNAL_LINKS } from '../../../blockchain-bridge/eth/networks';
 import { Button as SemanticButton, Header, Icon as SemanticIcon, Modal, Progress } from 'semantic-ui-react';
-import { BigNumber } from 'bignumber.js';
 
 const DEFAULT_TOKEN = '0xa47c8bf37f92aBed4A126BDA807A7b7498661acD';
 const MINIMUM_DISPLAY = 1372465;
 
 interface Errors {
-  amount: string;
+  token_id: string;
   token: any;
   address: string;
 }
@@ -63,26 +58,34 @@ export const notify = (type: 'success' | 'error', msg: string, hideAfterSec: num
 };
 
 const validateTokenInput = (token: any) => {
-  if (!token || !token.symbol) return 'This field is required.';
+  if (!token || !token.symbol) {
+    return 'This field is required.';
+  }
   return '';
 };
 
-const validateAmountInput = (value: string, minAmount: any, maxAmount: any) => {
-  if (!value || !value.trim() || Number(value) <= 0) return 'This field is required.';
-  if (Number(value) < Number(minAmount)) return 'Below the minimum amount.';
-  if (Number(value) > Number(maxAmount) || !Number(maxAmount)) return 'Exceeded the maximum amount.';
+const validateAmountInput = (value: string) => {
+  if (!value || !value.trim() || Number(value) <= 0) {
+    return 'This field is required.';
+  }
+  // if (Number(value) < Number(minAmount)) {
+  //   return 'Below the minimum amount.';
+  // }
+  // if (Number(value) > Number(maxAmount) || !Number(maxAmount)) {
+  //   return 'Exceeded the maximum amount.';
+  // }
 
   return '';
 };
 
 const validateAddressInput = (mode: EXCHANGE_MODE, value: string) => {
-  if (!value) return 'Field required.';
+  if (!value) {return 'Field required.';}
   if (mode === EXCHANGE_MODE.FROM_SCRT) {
     const web3 = new Web3();
-    if (!web3.utils.isAddress(value) || !web3.utils.checkAddressChecksum(value)) return 'Not a valid Ethereum Address.';
+    if (!web3.utils.isAddress(value) || !web3.utils.checkAddressChecksum(value)) {return 'Not a valid Ethereum Address.';}
   }
   if (mode === EXCHANGE_MODE.TO_SCRT) {
-    if (!value.startsWith('secret')) return 'Not a valid Secret Address.';
+    if (!value.startsWith('secret')) {return 'Not a valid Secret Address.';}
 
     try {
       bech32.decode(value);
@@ -96,40 +99,40 @@ const validateAddressInput = (mode: EXCHANGE_MODE, value: string) => {
 const getBalance = async (
   exchange: Exchange,
   userMetamask: UserStoreMetamask,
-  user: UserStoreEx,
+  user: UserStoreSecret,
   isLocked: boolean,
   token: ITokenInfo,
-  maxRemaining?: number,
+  //maxRemaining?: number,
 ): Promise<BalanceInterface> => {
   const eth = { minAmount: '0', maxAmount: '0', maxAllowed: '0' };
   const scrt = { minAmount: '0', maxAmount: '0' };
 
-  const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
-  const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
-  const swapFeeToken = (((swapFeeUsd / Number(token.price)) * 0.9) / 8).toFixed(`${toInteger(token.price)}`.length);
-
-  const src_coin = exchange.transaction.tokenSelected.src_coin;
-  console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
-  const src_address = exchange.transaction.tokenSelected.src_address;
-  eth.maxAmount = userMetamask.balanceToken[src_coin]
-    ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
-    : wrongNetwork;
-
-  if (maxRemaining) {
-    eth.maxAllowed = String(maxRemaining);
-  }
-
-  eth.minAmount = userMetamask.balanceTokenMin[src_coin] || '0';
-  scrt.maxAmount = user.balanceToken[src_coin] || '0';
-  scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
-  if (src_address === 'native') {
-    eth.maxAmount = (await userMetamask.isCorrectNetworkSelected()) ? userMetamask.nativeBalance || '0' : wrongNetwork;
-    eth.minAmount = userMetamask.nativeBalanceMin || '0';
-  }
-
-  if (isLocked) {
-    scrt.maxAmount = unlockToken;
-  }
+  // const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
+  // const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
+  // const swapFeeToken = (((swapFeeUsd / Number(token.price)) * 0.9) / 8).toFixed(`${toInteger(token.price)}`.length);
+  //
+  // const src_coin = exchange.transaction.tokenSelected.src_coin;
+  // console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
+  // const src_address = exchange.transaction.tokenSelected.src_address;
+  // eth.maxAmount = userMetamask.balanceToken[src_coin]
+  //   ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
+  //   : wrongNetwork;
+  //
+  // if (maxRemaining) {
+  //   eth.maxAllowed = String(maxRemaining);
+  // }
+  //
+  // eth.minAmount = userMetamask.balanceTokenMin[src_coin] || '0';
+  // scrt.maxAmount = user.balanceToken[src_coin] || '0';
+  // scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
+  // if (src_address === 'native') {
+  //   eth.maxAmount = (await userMetamask.isCorrectNetworkSelected()) ? userMetamask.nativeBalance || '0' : wrongNetwork;
+  //   eth.minAmount = userMetamask.nativeBalanceMin || '0';
+  // }
+  //
+  // if (isLocked) {
+  //   scrt.maxAmount = unlockToken;
+  // }
 
   return { eth, scrt };
 };
@@ -139,15 +142,15 @@ function isNativeToken(selectedToken) {
 }
 
 export const Base = observer(() => {
-  const { user, userMetamask, actionModals, exchange, tokens, duplexServices } = useStores();
-  const [errors, setErrors] = useState<Errors>({ token: '', address: '', amount: '' });
+  const { userSecret, userMetamask, actionModals, exchange, tokens, duplexServices } = useStores();
+  const [errors, setErrors] = useState<Errors>({ token: '', address: '', token_id: '' });
   const [open, setOpen] = useState<boolean>(false);
   const [externalUrl, setExternalUrl] = useState<string>('');
   const [correctNetwork, setCorrectNetwork] = useState<boolean>(true);
   const [selectedToken, setSelectedToken] = useState<any>({});
   const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
-  const [minAmount, setMinAmount] = useState<string>('');
-  const [maxAmount, setMaxAmount] = useState<string>('');
+  // const [minAmount, setMinAmount] = useState<string>('');
+  // const [maxAmount, setMaxAmount] = useState<string>('');
   const [warningAmount, setWarningAmount] = useState<string>('');
   const [progress, setProgress] = useState<number>(0);
   const [metamaskNetwork, setMetamaskNetwork] = useState<NETWORKS>(NETWORKS.ETH);
@@ -178,10 +181,10 @@ export const Base = observer(() => {
   useEffect(() => {
     const testRateLimit = async () => {
       try {
-        while (!user.secretjs) {
+        while (!userSecret.secretjs) {
           await sleep(100);
         }
-        await user.secretjs.getBlock();
+        await userSecret.secretjs.getBlock();
       } catch (e) {
         console.log(e?.message);
         if (e?.message.includes('(')) {
@@ -255,29 +258,92 @@ export const Base = observer(() => {
     //     signers.filter(s => s.to_scrt),
     //   ),
     // );
-  }, [signerHealth.allData, userMetamask.network]);
+  }, [metamaskNetwork, signerHealth.allData, userMetamask.network]);
 
   useEffect(() => {
     setSelectedToken(exchange.transaction.tokenSelected);
   }, [exchange.transaction.tokenSelected]);
 
-  useEffect(() => {
-    const fromNetwork = exchange.mode === EXCHANGE_MODE.TO_SCRT ? 'eth' : 'scrt'; //userMetamask.getCurrencySymbol();
-    const min = balance[fromNetwork].minAmount;
-    const max = balance[fromNetwork].maxAmount;
-    setMinAmount(min);
+  // useEffect(() => {
+  //   const fromNetwork = exchange.mode === EXCHANGE_MODE.TO_SCRT ? 'eth' : 'scrt'; //userMetamask.getCurrencySymbol();
+  //   const min = balance[fromNetwork].minAmount;
+  //   const max = balance[fromNetwork].maxAmount;
+  //   setMinAmount(min);
+  //
+  //   if (balance[fromNetwork]?.maxAllowed) {
+  //     setMaxAmount(String(Math.min(Number(max), Number(balance[fromNetwork].maxAllowed))));
+  //   } else {
+  //     setMaxAmount(max);
+  //   }
+  //
+  //   if (exchange.transaction.token_id && Number(min) >= 0 && Number(max) >= 0) {
+  //     const error = validateAmountInput(exchange.transaction.amount, min, max);
+  //     setErrors({ ...errors, token_id: error });
+  //   }
+  // }, [exchange.mode, balance]);
+  const onSelectedToken = async value => {
+    const token = (await tokens?.allData.find(t => t.address === value));
+    setProgress(1);
+    const newerrors = errors;
+    setBalance({
+      eth: { minAmount: 'loading', maxAmount: 'loading' },
+      scrt: { minAmount: 'loading', maxAmount: 'loading' },
+    });
+    exchange.setToken(TOKEN.ERC721);
 
-    if (balance[fromNetwork]?.maxAllowed) {
-      setMaxAmount(String(Math.min(Number(max), Number(balance[fromNetwork].maxAllowed))));
+    if (token.symbol !== exchange.transaction.tokenSelected.symbol) {
+      exchange.transaction.token_id = '';
+      newerrors.token_id = '';
+    }
+    exchange.transaction.confirmed = false;
+    exchange.transaction.tokenSelected = {
+      symbol: token.symbol,
+      value: value,
+      image: token.display_props.image,
+      src_coin: token.address,
+      src_address: token.address,
+    };
+
+    if (!isNativeToken(token)) {
+      exchange.transaction.erc721Address = value;
+      await exchange.checkTokenApproved();
+    }
+
+    newerrors.token = '';
+    setTokenLocked(false);
+
+    const isLocked = false;
+    setTokenLocked(isLocked);
+
+    while (userMetamask.balancesLoading) {
+      await sleep(50);
+    }
+
+    const balance = await getBalance(exchange, userMetamask, userSecret, isLocked, token);
+
+    setBalance(balance);
+    console.log(`set balances ${JSON.stringify(balance)}`);
+    setErrors(newerrors);
+  };
+
+
+  const onSelectNetwork = async (network: NETWORKS) => {
+    if (EXTERNAL_NETWORKS.includes(network)) {
+      setExternalUrl(EXTERNAL_LINKS[network]);
+      setOpen(true);
     } else {
-      setMaxAmount(max);
+      userMetamask.setNetwork(network);
+      setMetamaskNetwork(network);
+      exchange.clear();
+      setErrors({ token: '', address: '', token_id: '' });
+      setProgress(0);
+      setTokenLocked(false);
+      // eslint-disable-next-line no-restricted-globals
+      if (!location.pathname.startsWith('/operations')) {exchange.stepNumber = EXCHANGE_STEPS.BASE;}
+      await onSelectedToken('native');
     }
+  };
 
-    if (exchange.transaction.amount && Number(min) >= 0 && Number(max) >= 0) {
-      const error = validateAmountInput(exchange.transaction.amount, min, max);
-      setErrors({ ...errors, amount: error });
-    }
-  }, [exchange.mode, balance]);
 
   useEffect(() => {
     async function asyncRun() {
@@ -293,7 +359,7 @@ export const Base = observer(() => {
     if (exchange.step.id === EXCHANGE_STEPS.BASE && exchange.transaction.tokenSelected.value) {
       onSelectedToken(exchange.transaction.tokenSelected.value);
     }
-  }, [exchange.step.id]);
+  }, [exchange.step.id, exchange.transaction.tokenSelected.value, onSelectedToken]);
 
   useEffect(() => {
     const selectNetwork = async () => {
@@ -302,14 +368,13 @@ export const Base = observer(() => {
       }
     };
     selectNetwork();
-  }, [userMetamask.network, userMetamask.chainId, userMetamask.ethAddress]);
+  }, [userMetamask.network, userMetamask.chainId, userMetamask.ethAddress, onSelectNetwork]);
 
   useEffect(() => {
     if (
-      Number(exchange.transaction.amount) > 0 &&
       selectedToken.symbol === userMetamask.getCurrencySymbol() &&
       exchange.mode === EXCHANGE_MODE.TO_SCRT &&
-      exchange.transaction.amount >= maxAmount
+      exchange.transaction.token_id
     ) {
       setWarningAmount(
         `Remember to leave some ${chainPropToString(
@@ -320,39 +385,39 @@ export const Base = observer(() => {
     } else {
       setWarningAmount('');
     }
-  }, [exchange.transaction.amount, maxAmount, selectedToken, exchange.mode]);
+  }, [exchange.transaction.token_id, selectedToken, exchange.mode, userMetamask]);
 
   useEffect(() => {
     const approve =
       exchange.mode === EXCHANGE_MODE.TO_SCRT &&
       !exchange.isTokenApproved &&
-      exchange.transaction.erc20Address !== '' &&
+      exchange.transaction.erc721Address !== '' &&
       !isNativeToken(selectedToken);
 
     setToApprove(approve);
     if (approve) {
       setProgress(1);
     }
-  }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc20Address]);
+  }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc721Address]);
 
   useEffect(() => {
-    const unlock = exchange.mode === EXCHANGE_MODE.FROM_SCRT && maxAmount === unlockToken;
+    const unlock = exchange.mode === EXCHANGE_MODE.FROM_SCRT;
 
     setToUnlock(unlock);
     if (unlock) {
       setProgress(1);
     }
-  }, [selectedToken, exchange.mode, maxAmount, exchange.transaction.snip20Address]);
+  }, [selectedToken, exchange.mode, exchange.transaction.snip721Address]);
 
   useEffect(() => {
     if (exchange.mode === EXCHANGE_MODE.TO_SCRT) {
       if (exchange.isTokenApproved && !toApprove && !isNativeToken(selectedToken)) {
         setProgress(2);
       }
-    } else if (maxAmount !== unlockToken && !toUnlock) {
+    } else if (!toUnlock) {
       setProgress(2);
     }
-  }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode, toUnlock, maxAmount]);
+  }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode, toUnlock]);
 
   useEffect(() => {
     const address =
@@ -361,9 +426,9 @@ export const Base = observer(() => {
     const step1Done = exchange.mode === EXCHANGE_MODE.TO_SCRT ? !toApprove : !toUnlock;
     const value =
       errors.token === '' &&
-      errors.amount === '' &&
+      errors.token_id === '' &&
       errors.address === '' &&
-      exchange.transaction.amount !== '' &&
+      exchange.transaction.token_id !== '' &&
       selectedToken !== '' &&
       address !== '' &&
       step1Done;
@@ -373,106 +438,19 @@ export const Base = observer(() => {
     toApprove,
     toUnlock,
     errors,
-    exchange.transaction.amount,
+    exchange.transaction.token_id,
     selectedToken,
     exchange.mode,
     exchange.transaction.ethAddress,
     exchange.transaction.scrtAddress,
   ]);
 
-  const onSelectedToken = async value => {
-    const token = (await tokens.tokensUsage('BRIDGE', NETWORKS.ETH)).find(t => t.src_address === value);
-    setProgress(1);
-    const newerrors = errors;
-    setBalance({
-      eth: { minAmount: 'loading', maxAmount: 'loading' },
-      scrt: { minAmount: 'loading', maxAmount: 'loading' },
-    });
 
-    if (isNativeToken(token)) {
-      exchange.setToken(TOKEN.NATIVE);
-      user.snip20Address = token.dst_address;
-    } else {
-      exchange.setToken(TOKEN.ERC20);
-    }
-
-    if (token.display_props.symbol !== exchange.transaction.tokenSelected.symbol) {
-      exchange.transaction.amount = '';
-      newerrors.amount = '';
-    }
-    exchange.transaction.confirmed = false;
-    exchange.transaction.tokenSelected = {
-      symbol: token.display_props.symbol,
-      value: value,
-      image: token.display_props.image,
-      src_coin: token.src_coin,
-      src_address: token.src_address,
-    };
-
-    if (!isNativeToken(token)) {
-      exchange.transaction.erc20Address = value;
-      await exchange.checkTokenApprove(value);
-    }
-
-    const update = async () => {
-      const amount = user.balanceToken[token.src_coin];
-      console.log(`updated balance to ${amount}`);
-      const isLocked = amount === unlockToken;
-      console.log(`is ${isLocked}`);
-
-      while (userMetamask.balancesLoading) {
-        await sleep(50);
-      }
-      console.log(`done loading metamask balances`);
-
-      let total_locked = duplexServices.getLocked('UST');
-      let limit = duplexServices.getLimit('UST');
-
-      let maxRemaining = Number(limit) - Number(total_locked);
-
-      const balance = await getBalance(exchange, userMetamask, user, isLocked, token, maxRemaining);
-
-      setBalance(balance);
-      console.log(`set balances ${JSON.stringify(balance)}`);
-
-      setTokenLocked(amount === unlockToken);
-      setErrors(newerrors);
-    };
-
-    newerrors.token = '';
-    setTokenLocked(false);
-
-    try {
-      if (token.src_address !== 'native') {
-        await userMetamask.setToken(value, tokens);
-      }
-      await user.updateBalanceForSymbol(token.display_props.symbol);
-      await update();
-    } catch (e) {
-      await update();
-    }
-  };
-
-  const onSelectNetwork = async (network: NETWORKS) => {
-    if (EXTERNAL_NETWORKS.includes(network)) {
-      setExternalUrl(EXTERNAL_LINKS[network]);
-      setOpen(true);
-    } else {
-      userMetamask.setNetwork(network);
-      setMetamaskNetwork(network);
-      exchange.clear();
-      setErrors({ token: '', address: '', amount: '' });
-      setProgress(0);
-      setTokenLocked(false);
-      if (!location.pathname.startsWith('/operations')) exchange.stepNumber = EXCHANGE_STEPS.BASE;
-      await onSelectedToken('native');
-    }
-  };
 
   const onClickHandler = async (callback: () => void) => {
-    if (!user.isAuthorized) {
+    if (!userSecret.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) {
-        if (!user.isKeplrWallet) {
+        if (!userSecret.isKeplrWallet) {
           return actionModals.open(() => <AuthWarning />, {
             title: '',
             applyText: 'Got it',
@@ -485,7 +463,7 @@ export const Base = observer(() => {
             },
           });
         } else {
-          await user.signIn();
+          await userSecret.signIn();
         }
       }
     }
@@ -532,8 +510,8 @@ export const Base = observer(() => {
             size="60"
             glyph="Reverse"
             onClick={async () => {
-              exchange.transaction.amount = '';
-              setErrors({ token: '', address: '', amount: '' });
+              exchange.transaction.token_id = '';
+              setErrors({ token: '', address: '', token_id: '' });
               setSwap(!onSwap);
               setProgress(0);
 
@@ -559,7 +537,7 @@ export const Base = observer(() => {
           <Box className={styles.baseContainer}>
             <Box className={styles.baseRightSide} gap="2px">
               <Box width="100%" margin={{ right: 'medium' }} direction="column">
-                <ERC20Select value={selectedToken.value} onSelectToken={value => onSelectedToken(value)} />
+                {/*<ERC20Select value={selectedToken.value} onSelectToken={value => onSelectedToken(value)} />*/}
 
                 <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
                   {errors.token && (
@@ -583,88 +561,52 @@ export const Base = observer(() => {
                 >
                   <>
                     <Box width="40%" style={{ flex: 1 }}>
-                      <NumberInput
-                        name="amount"
-                        type="decimal"
-                        precision="18"
-                        delimiter="."
-                        placeholder="0"
+                      <Input
+                        label={"Token ID"}
                         margin={{ bottom: 'none' }}
-                        value={exchange.transaction.amount}
+                        value={exchange.transaction.token_id}
                         className={styles.input}
                         style={{ borderColor: 'transparent', height: 44 }}
                         onChange={async value => {
-                          exchange.transaction.amount = value;
-                          const error = validateAmountInput(value, minAmount, maxAmount);
-                          setErrors({ ...errors, amount: error });
+                          exchange.transaction.token_id = value;
+                          const error = validateAmountInput(value);
+                          setErrors({ ...errors, token_id: error });
                         }}
                       />
-                    </Box>
-                    <Box direction="row" align="center" justify="end">
-                      {/*<Box className={styles.maxAmountInput} direction="row">*/}
-                      {/*  <Text bold margin={{ right: 'xxsmall' }}>*/}
-                      {/*    /*/}
-                      {/*  </Text>*/}
-                      {/*  {maxAmount === 'loading' ? (*/}
-                      {/*    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />*/}
-                      {/*  ) : (*/}
-                      {/*    <Text bold className={styles.maxAmountInput}>*/}
-                      {/*      {maxAmount}*/}
-                      {/*    </Text>*/}
-                      {/*  )}*/}
-                      {/*</Box>*/}
-                      <Button
-                        margin={{ left: 'xsmall', right: 'xsmall' }}
-                        //bgColor="#E1C442"
-                        //bgColor="#E1C442"
-                        bgColor={'transparent'}
-                        bgHoverColor={'#0A1C34'}
-                        pad="xxsmall"
-                        onClick={() => {
-                          if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
-                          if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
-
-                          exchange.transaction.amount = (new BigNumber(maxAmount)).toFixed(2, BigNumber.ROUND_DOWN);
-                        }}
-                      >
-                        <Text size="xxsmall" bold color={'#E1C442'}>
-                          MAX
-                        </Text>
-                      </Button>
                     </Box>
                   </>
                 </Box>
-                <Box margin={{ top: 'xxsmall', bottom: 'xxsmall' }} direction="row" align="center" justify="between">
-                  <Box direction="row">
-                    <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>
-                      Minimum:
-                    </Text>
-                    {minAmount === 'loading' ? (
-                      <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-                    ) : (
-                      <Text size="small" color="#E1C442">
-                        {`${minAmount} ${formatSymbol(exchange.mode, selectedToken.symbol)}`}
-                      </Text>
-                    )}
-                  </Box>
-                  {exchange.transaction.tokenSelected.value && (
-                    <Box margin={{ right: 'xxsmall' }}>
-                      <Icon
-                        size="15"
-                        glyph="Refresh"
-                        onClick={async () => {
-                          onSelectedToken(exchange.transaction.tokenSelected.value);
-                        }}
-                      />
-                    </Box>
-                  )}
-                </Box>
+                {/*<Box margin={{ top: 'xxsmall', bottom: 'xxsmall' }} direction="row" align="center" justify="between">*/}
+                {/*  <Box direction="row">*/}
+                {/*    <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>*/}
+                {/*      Minimum:*/}
+                {/*    </Text>*/}
+                {/*    {minAmount === 'loading' ? (*/}
+                {/*      <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />*/}
+                {/*    ) : (*/}
+                {/*      <Text size="small" color="#E1C442">*/}
+                {/*        {`${minAmount} ${formatSymbol(exchange.mode, selectedToken.symbol)}`}*/}
+                {/*      </Text>*/}
+                {/*    )}*/}
+                {/*  </Box>*/}
+                {/*  {exchange.transaction.tokenSelected.value && (*/}
+                {/*    <Box margin={{ right: 'xxsmall' }}>*/}
+                {/*      <Icon*/}
+                {/*        size="15"*/}
+                {/*        glyph="Refresh"*/}
+                {/*        onClick={async () => {*/}
+                {/*          onSelectedToken(exchange.transaction.tokenSelected.value);*/}
+                {/*        }}*/}
+                {/*      />*/}
+                {/*    </Box>*/}
+                {/*  )}*/}
+                {/*</Box>*/}
 
                 <Box style={{ minHeight: 38, marginTop: -5 }} direction="column">
-                  {errors.amount && (
+                  {errors.token_id && (
                     <HeadShake bottom>
                       <Text margin={{ bottom: 'xxsmall' }} color="#E56868">
-                        {errors.amount}
+                        {errors.token_id}
                       </Text>
                     </HeadShake>
                   )}
@@ -679,7 +621,7 @@ export const Base = observer(() => {
 
             <Box className={styles.addressInput}>
               {((exchange.mode === EXCHANGE_MODE.FROM_SCRT && userMetamask.isAuthorized) ||
-                (exchange.mode === EXCHANGE_MODE.TO_SCRT && user.isAuthorized)) && (
+                (exchange.mode === EXCHANGE_MODE.TO_SCRT && userSecret.isAuthorized)) && (
                 <Box
                   style={{
                     fontWeight: 'bold',
@@ -694,8 +636,8 @@ export const Base = observer(() => {
                       exchange.transaction.ethAddress = userMetamask.ethAddress;
                       setErrors({ ...errors, address: validateAddressInput(exchange.mode, userMetamask.ethAddress) });
                     } else {
-                      exchange.transaction.scrtAddress = user.address;
-                      setErrors({ ...errors, address: validateAddressInput(exchange.mode, user.address) });
+                      exchange.transaction.scrtAddress = userSecret.address;
+                      setErrors({ ...errors, address: validateAddressInput(exchange.mode, userSecret.address) });
                     }
                   }}
                 >
@@ -720,8 +662,8 @@ export const Base = observer(() => {
                     : exchange.transaction.scrtAddress
                 }
                 onChange={value => {
-                  if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) exchange.transaction.ethAddress = value;
-                  if (exchange.mode === EXCHANGE_MODE.TO_SCRT) exchange.transaction.scrtAddress = value;
+                  if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) {exchange.transaction.ethAddress = value;}
+                  if (exchange.mode === EXCHANGE_MODE.TO_SCRT) {exchange.transaction.scrtAddress = value;}
                   const error = validateAddressInput(exchange.mode, value);
                   setErrors({ ...errors, address: error });
                 }}
@@ -769,7 +711,7 @@ export const Base = observer(() => {
           <Box style={{ maxWidth: '50%' }}>
             {isTokenLocked && (
               <TokenLocked
-                user={user}
+                user={userSecret}
                 onFinish={value => {
                   setTokenLocked(!value);
                   onSelectedToken(exchange.transaction.tokenSelected.value);
@@ -813,9 +755,9 @@ export const Base = observer(() => {
                   onClick={() => {
                     const tokenError = validateTokenInput(selectedToken);
                     setErrors({ ...errors, token: '' });
-                    if (tokenError) return setErrors({ ...errors, token: tokenError });
+                    if (tokenError) {return setErrors({ ...errors, token: tokenError });}
 
-                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
+                    if (exchange.step.id === EXCHANGE_STEPS.BASE) {onClickHandler(exchange.step.onClickApprove);}
                   }}
                 >
                   {exchange.tokenApprovedLoading ? (
@@ -836,22 +778,21 @@ export const Base = observer(() => {
                   onClick={async () => {
                     const tokenError = validateTokenInput(selectedToken);
                     setErrors({ ...errors, token: '' });
-                    if (tokenError) return setErrors({ ...errors, token: tokenError });
+                    if (tokenError) {return setErrors({ ...errors, token: tokenError });}
                     if (exchange.step.id === EXCHANGE_STEPS.BASE)
-                      onClickHandler(async () => {
-                        await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
+                      {onClickHandler(async () => {
+                        await userSecret.keplrWallet.suggestToken(userSecret.chainId, userSecret.snip721Address);
                         await sleep(500);
                         //await user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol);
                         await onSelectedToken(exchange.transaction.tokenSelected.src_address);
-                        if (maxAmount !== unlockToken) {
-                          setProgress(2);
-                        }
-                      });
+                        // is loading?
+                        setProgress(2);
+                      });}
                   }}
                 >
-                  {maxAmount === 'loading' ? (
+                  { false ? (
                     <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />
-                  ) : user.snip20Balance !== unlockToken ? (
+                  ) : !userSecret.isLocked ? (
                     'Unlocked!'
                   ) : (
                     'Unlock Token'

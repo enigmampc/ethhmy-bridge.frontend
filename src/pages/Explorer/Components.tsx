@@ -73,7 +73,7 @@ export const FormatWithDecimals = observer((props: ITokenParams) => {
   const { tokens, userMetamask } = useStores();
   const { type, amount, address } = props;
 
-  if (type === TOKEN.ERC20 || type === TOKEN.S20) {
+  if (type === TOKEN.ERC721 || type === TOKEN.S20) {
     const token = tokens.allData.find(t => t.src_address.toLowerCase() === address.toLowerCase());
 
     if (token) {
@@ -93,7 +93,7 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
   let tokenName = '';
   let tokenImage = '';
 
-  if (value === TOKEN.ERC20) {
+  if (value === TOKEN.ERC721) {
     const token = tokens.allData.find(
       t => t.src_address.toLowerCase() === erc20Address.toLowerCase() && networkFromToken(t) === props.network,
     );
@@ -124,7 +124,7 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
 
   let tokenName = '';
   let tokenImage = '';
-  if (value === TOKEN.ERC20 || value === TOKEN.S20) {
+  if (value === TOKEN.ERC721 || value === TOKEN.S20) {
     const token = tokens.allData.find(
       t =>
         t.dst_address?.toLowerCase() === secretAddress.toLowerCase() ||

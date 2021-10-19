@@ -19,7 +19,7 @@ const WithdrawButton = ({ props, value, changeValue }) => {
         await Redeem({
           secretjs: props.userStore.secretjsSend,
           address: props.token.rewardsContract,
-          amount: valueToDecimals(amount, props.token.decimals),
+          token_id: valueToDecimals(amount, props.token.decimals),
         })
           .then(_ => {
             props.notify('success', `Removed ${amount} s${props.token.display_props.symbol} from the rewards contract`);

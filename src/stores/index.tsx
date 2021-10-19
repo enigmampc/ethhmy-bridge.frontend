@@ -1,28 +1,22 @@
 import RouterStore from 'stores/RouterStore';
 import { ActionModalsStore } from './ActionModalsStore';
-import { UserStoreEx } from './UserStore';
 import { UserStoreMetamask } from './UserStoreMetamask';
 import { Exchange } from './Exchange';
-import { Operations } from './Operations';
+import { Swaps } from './Swaps';
 import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
-import { Rewards } from './RewardsStore';
-import { SecretSwapPairs } from './SecretSwapPairs';
 import { SignerHealthStore } from './SignerHealthStore';
-import { SecretSwapPools } from './SecretSwapPools';
 import { DuplexServicesStore } from './DuplexServicesStore';
+import { UserStoreSecret } from './UserStoreNft';
 
 export interface IStores {
   routing?: RouterStore;
   actionModals?: ActionModalsStore;
-  user?: UserStoreEx;
+  userSecret?: UserStoreSecret;
   userMetamask?: UserStoreMetamask;
   exchange?: Exchange;
-  operations?: Operations;
+  swaps?: Swaps;
   tokens?: Tokens;
-  rewards?: Rewards;
-  secretSwapPairs?: SecretSwapPairs;
-  secretSwapPools?: SecretSwapPools;
   signerHealth?: SignerHealthStore;
   duplexServices?: DuplexServicesStore;
 }
@@ -31,14 +25,11 @@ const stores: IStores = {};
 
 stores.routing = new RouterStore();
 stores.exchange = new Exchange(stores);
-stores.operations = new Operations(stores);
+stores.swaps = new Swaps(stores);
 stores.tokens = new Tokens(stores);
 stores.actionModals = new ActionModalsStore();
-stores.user = new UserStoreEx(stores);
+stores.userSecret = new UserStoreSecret(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
-stores.rewards = new Rewards(stores);
-stores.secretSwapPairs = new SecretSwapPairs(stores);
-stores.secretSwapPools = new SecretSwapPools(stores);
 stores.signerHealth = new SignerHealthStore(stores);
 stores.duplexServices = new DuplexServicesStore(stores);
 

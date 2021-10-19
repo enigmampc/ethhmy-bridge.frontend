@@ -21,7 +21,7 @@ import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/ch
 type NetworkTemplateInterface = {
   image: string;
   symbol: string;
-  amount: number;
+  token_id: string;
 };
 
 const renderNetworkTemplate = (template: NetworkTemplateInterface, justify: any) => (
@@ -36,7 +36,7 @@ const renderNetworkTemplate = (template: NetworkTemplateInterface, justify: any)
     {template.image && <img src={template.image} style={{ width: 20, marginRight: 10 }} alt={template.symbol} />}
     {template.symbol && (
       <Text bold color="#30303D" size="small">
-        {formatWithSixDecimals(template.amount)}
+        {formatWithSixDecimals(template.token_id)}
       </Text>
     )}
     <Text bold margin={{ left: 'xxsmall' }} color="#235a58" size="small">
@@ -46,48 +46,48 @@ const renderNetworkTemplate = (template: NetworkTemplateInterface, justify: any)
 );
 
 export const SwapConfirmation = observer(() => {
-  const { exchange, user, userMetamask } = useStores();
+  const { exchange, userSecret, userMetamask } = useStores();
   const [hash, setHash] = useState<string>(null);
   const [correctNetwork, setCorrectNetwork] = useState<boolean>(true);
   const [calculated, setCalculated] = useState<number>(null);
-  const [feePercentage, setFeePercentage] = useState<number>(0);
+  //const [feePercentage, setFeePercentage] = useState<number>(0);
   const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
 
   const symbol = formatSymbol(exchange.mode, exchange.transaction.tokenSelected.symbol);
   const tokenImage = exchange.transaction.tokenSelected.image;
-  const amount = exchange.transaction.amount;
+  const token_id = exchange.transaction.token_id;
 
-  const isFeeTooHigh = (): boolean => {
-    return feePercentage >= 0.9;
-  };
+  // const isFeeTooHigh = (): boolean => {
+  //   return feePercentage >= 0.9;
+  // };
 
-  const getFeePercentageText = (): string => {
-    if (feePercentage >= 0.9) {
-      return 'Cannot swap less than 90% of estimated fee';
-    } else if (feePercentage >= 0.4) {
-      return 'High fee estimated for this swap - Swap Anyway';
-    } else {
-      return 'Confirm';
-    }
-  };
+  // const getFeePercentageText = (): string => {
+  //   if (feePercentage >= 0.9) {
+  //     return 'Cannot swap less than 90% of estimated fee';
+  //   } else if (feePercentage >= 0.4) {
+  //     return 'High fee estimated for this swap - Swap Anyway';
+  //   } else {
+  //     return 'Confirm';
+  //   }
+  // };
 
-  const getColorForFee = (): string => {
-    if (feePercentage >= 0.9) {
-      return '#f37373';
-    } else if (feePercentage >= 0.4) {
-      return '#f5e169';
-    } else {
-      return '#00ADE8';
-    }
-  };
+  // const getColorForFee = (): string => {
+  //   if (feePercentage >= 0.9) {
+  //     return '#f37373';
+  //   } else if (feePercentage >= 0.4) {
+  //     return '#f5e169';
+  //   } else {
+  //     return '#00ADE8';
+  //   }
+  // };
 
   useEffect(() => {
     exchange.transaction.error = '';
     try {
-      user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol).then(() => {
-        const balance = user.balanceToken[exchange.transaction.tokenSelected.src_coin];
-        setTokenLocked(balance === unlockToken);
-      });
+      // userSecret.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol).then(() => {
+      //   const balance = userSecret.balanceToken[exchange.transaction.tokenSelected.src_coin];
+      //   setTokenLocked(balance === unlockToken);
+      // });
     } catch (e) {}
   }, []);
 
@@ -109,32 +109,32 @@ export const SwapConfirmation = observer(() => {
     }
   }, [exchange.txHash]);
 
-  useEffect(() => {
-    let calculatedAmount = Number(exchange.transaction.amount) - Number(exchange.swapFeeToken);
-    if (Number(calculatedAmount) < 0) {
-      calculatedAmount = 0;
-    }
-    setCalculated(calculatedAmount);
-    setFeePercentage(Number(exchange.swapFeeToken) / Number(exchange.transaction.amount));
-  }, [exchange.transaction.amount, exchange.swapFeeToken]);
+  // useEffect(() => {
+  //   let calculatedAmount = Number(exchange.transaction.token_id) - Number(exchange.swapFeeToken);
+  //   if (Number(calculatedAmount) < 0) {
+  //     calculatedAmount = 0;
+  //   }
+  //   setCalculated(calculatedAmount);
+  //   setFeePercentage(Number(exchange.swapFeeToken) / Number(exchange.transaction.amount));
+  // }, [exchange.transaction.amount, exchange.swapFeeToken]);
 
   const NTemplate1: NetworkTemplateInterface = {
     symbol: formatSymbol(
       exchange.mode === EXCHANGE_MODE.TO_SCRT ? EXCHANGE_MODE.TO_SCRT : EXCHANGE_MODE.FROM_SCRT,
       exchange.transaction.tokenSelected.symbol,
     ),
-    amount: Number(amount),
+    token_id: token_id,
     image: tokenImage,
   };
 
-  const NTemplate2: NetworkTemplateInterface = {
-    symbol: formatSymbol(
-      exchange.mode === EXCHANGE_MODE.TO_SCRT ? EXCHANGE_MODE.FROM_SCRT : EXCHANGE_MODE.TO_SCRT,
-      exchange.transaction.tokenSelected.symbol,
-    ),
-    amount: calculated,
-    image: tokenImage,
-  };
+  // const NTemplate2: NetworkTemplateInterface = {
+  //   symbol: formatSymbol(
+  //     exchange.mode === EXCHANGE_MODE.TO_SCRT ? EXCHANGE_MODE.FROM_SCRT : EXCHANGE_MODE.TO_SCRT,
+  //     exchange.transaction.tokenSelected.symbol,
+  //   ),
+  //   token_id: token_id,
+  //   image: tokenImage,
+  // };
 
   return (
     <Modal
@@ -161,13 +161,13 @@ export const SwapConfirmation = observer(() => {
               <Box style={{ margin: '0 15' }}>
                 <Icon size="60" glyph="Right" />
               </Box>
-              {renderNetworkTemplate(NTemplate2, 'center')}
+              {/*{renderNetworkTemplate(NTemplate2, 'center')}*/}
             </Box>
 
             <Text size="small" color="#748695" margin={{ top: 'xsmall', bottom: 'medium' }}>
               You are about to bridge{' '}
               <b>
-                {amount} {symbol}
+                {userSecret.snip721Address} ( {symbol} ) - [{token_id}]
               </b>{' '}
               to <b>{exchange.mode === EXCHANGE_MODE.TO_SCRT ? 'Secret Network' : userMetamask.getNetworkFullName()}</b>
               , please be patient as the transaction may take a few minutes. You can follow each step of the transaction
@@ -206,7 +206,7 @@ export const SwapConfirmation = observer(() => {
               <Box direction="row" margin={{ top: 'small' }} justify="between">
                 <Text>Amount:</Text>
                 <Box direction="row">
-                  <Text bold>{formatWithSixDecimals(exchange.transaction.amount)}</Text>
+                  <Text bold>{exchange.transaction.token_id}</Text>
 
                   <img
                     src={exchange.transaction.tokenSelected.image}
@@ -286,7 +286,7 @@ export const SwapConfirmation = observer(() => {
             )}
 
             {isTokenLocked && exchange.mode === EXCHANGE_MODE.TO_SCRT && (
-              <TokenLocked user={user} onFinish={value => setTokenLocked(!value)} />
+              <TokenLocked user={userSecret} onFinish={value => setTokenLocked(!value)} />
             )}
 
             {exchange.transaction.error && (
@@ -312,22 +312,24 @@ export const SwapConfirmation = observer(() => {
               {!exchange.transaction.confirmed ? (
                 <Button
                   className={styles.fill}
-                  disabled={isFeeTooHigh()}
+                  disabled={false}
                   style={{
                     height: 50,
                     width: '100%',
-                    background: getColorForFee(),
+                    background: 'white',
                     color: 'white',
                   }}
                   onClick={() => {
-                    if (exchange.transaction.loading || isFeeTooHigh()) return;
+                    if (exchange.transaction.loading) {
+                      return;
+                    }
                     return exchange.step.onClick();
                   }}
                 >
                   {exchange.transaction.loading ? (
                     <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" />
                   ) : (
-                    getFeePercentageText()
+                    '50 SCRT'
                   )}
                 </Button>
               ) : (

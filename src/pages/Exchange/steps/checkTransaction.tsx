@@ -28,7 +28,9 @@ export const CheckTransaction = observer(() => {
   const [progressBar, setProgressBar] = useState<number>(0);
 
   useEffect(() => {
-    if (!exchange.operation) return;
+    if (!exchange.operation) {
+      return;
+    }
     if (exchange.operation.type === EXCHANGE_MODE.FROM_SCRT) {
       setConfirmationsMessage(
         'You will have your Ethereum Tokens in your Metamask wallet within 6 network confirmations',
@@ -36,10 +38,11 @@ export const CheckTransaction = observer(() => {
     } else {
       setConfirmationsMessage('You will have your secretTokens in your Keplr wallet within 6 network confirmations');
     }
-  }, [exchange.operation.type]);
+  }, [exchange.operation, exchange.operation.type]);
 
   useEffect(() => {
-    let status = 'Pending';
+    let status;
+
     switch (exchange.operation.status) {
       case SwapStatus.SWAP_UNSIGNED:
         status = 'Unsigned';
@@ -76,14 +79,18 @@ export const CheckTransaction = observer(() => {
     setStatusMessage(status);
     let progress = 0;
 
-    if (exchange.operation.status <= 4) progress = (exchange.operation.status / 4) * 100;
+    if (exchange.operation.status <= 4) {
+      progress = (exchange.operation.status / 4) * 100;
+    }
     setProgressBar(progress);
   }, [exchange.operation.status, exchange.operation.swap]);
 
   const swap = exchange.operation.swap || { dst_address: '', src_tx_hash: '', dst_tx_hash: '', amount: '' };
 
   let color = '#00BFFF';
-  if (exchange.operation.status === SwapStatus.SWAP_CONFIRMED) color = '#65d180';
+  if (exchange.operation.status === SwapStatus.SWAP_CONFIRMED) {
+    color = '#65d180';
+  }
   return (
     <Modal
       onClose={() => (exchange.stepNumber = EXCHANGE_STEPS.BASE)}

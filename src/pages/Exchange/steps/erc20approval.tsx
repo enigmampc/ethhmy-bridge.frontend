@@ -14,12 +14,12 @@ import HeadShake from 'react-reveal/HeadShake';
 import { useStores } from '../../../stores';
 import { chainProps, chainPropToString } from '../../../blockchain-bridge/eth/chainProps';
 
-export const ERC20ApprovalModal = observer(() => {
+export const ERC721ApprovalModal = observer(() => {
   const { exchange } = useStores();
 
   useEffect(() => {
     exchange.transaction.error = '';
-  }, []);
+  }, [exchange.transaction.error]);
 
   return (
     <Modal
@@ -48,8 +48,8 @@ export const ERC20ApprovalModal = observer(() => {
                 Why am I doing this?
               </Text>
               <Text size="small" color="#748695" margin={{ top: 'xsmall' }}>
-                In order for the bridge to move your ERC20 tokens to Secret Network it first needs your approval. This is
-                only <b>required once</b> per ERC20 token!
+                In order for the bridge to move your ERC721 tokens to Secret Network it first needs your approval. This is
+                only required once!
               </Text>
               <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
                 <Text bold size="small" color="#00ADE8">
@@ -97,8 +97,12 @@ export const ERC20ApprovalModal = observer(() => {
                   className={styles.fill}
                   style={{ height: 50, width: '100%', background: '#00ADE8', color: 'white' }}
                   onClick={() => {
-                    if (exchange.transaction.loading) return '';
-                    if (exchange.isTokenApproved) return (exchange.stepNumber = EXCHANGE_STEPS.BASE);
+                    if (exchange.transaction.loading) {
+                      return '';
+                    }
+                    if (exchange.isTokenApproved) {
+                      return (exchange.stepNumber = EXCHANGE_STEPS.BASE);
+                    }
                     return exchange.step.onClick();
                   }}
                 >

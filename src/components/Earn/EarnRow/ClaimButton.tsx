@@ -28,7 +28,7 @@ const ClaimButton = (props: {
           await Redeem({
             secretjs: props.secretjs,
             address: props.contract,
-            amount: '0',
+            token_id: '0',
           });
 
           props.notify('success', `Claimed ${props.available} s${props.symbol}`);

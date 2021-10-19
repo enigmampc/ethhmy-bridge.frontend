@@ -24,7 +24,7 @@ export const claimInfoErc = async (address): Promise<ClaimInfoResponse> => {
   if (!info?.index) {
     return {
       address,
-      amount: new BigNumber(0),
+      token_id: new BigNumber(0),
       isClaimed: false,
     };
   }
@@ -33,7 +33,7 @@ export const claimInfoErc = async (address): Promise<ClaimInfoResponse> => {
     const isClaimed = await ethMethodsSefi.checkAvailableToClaim(info.index);
     return {
       address,
-      amount: new BigNumber(info.amount),
+      token_id: new BigNumber(info.amount),
       isClaimed,
     };
   } catch (e) {
@@ -48,7 +48,7 @@ export const claimInfoScrt = async (secretjs, address): Promise<ClaimInfoRespons
   if (!info?.index) {
     return {
       address,
-      amount: new BigNumber(0),
+      token_id: new BigNumber(0),
       isClaimed: false,
     };
   }
@@ -57,7 +57,7 @@ export const claimInfoScrt = async (secretjs, address): Promise<ClaimInfoRespons
 
     return {
       address,
-      amount: new BigNumber(info.amount),
+      token_id: new BigNumber(info.amount),
       isClaimed,
     };
   } catch (e) {

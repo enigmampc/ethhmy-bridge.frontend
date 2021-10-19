@@ -7,12 +7,8 @@ import { ActionModals } from './components/ActionModals';
 import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
 import { Tokens } from './pages/Tokens';
-import { SwapPageWrapper } from './pages/Swap';
 import { InfoModal } from './components/InfoModal';
-import { EarnRewards } from './pages/Earn';
 import { FAQPage } from './pages/FAQ';
-import { FinancePage } from './pages/Finance';
-import { SeFiPage } from './pages/SeFi';
 
 // import { InfoPage } from './pages/Info';
 
@@ -20,14 +16,9 @@ export const App: React.FC = () => (
   <Providers>
     <Suspense fallback={<div />}>
       <Switch>
-        {/*<Route exact path="/swap" component={SwapPageWrapper} />*/}
-        {/*<Route exact path="/sefi" component={SeFiPage} />*/}
         <Route exact path="/tokens" component={Tokens} />
         <Route exact path="/faq" component={FAQPage} />
-        <Route exact path="/finance" component={FinancePage} />
-        {/* <Route exact path="/info" component={InfoPage} /> */}
         <Route exact path="/explorer" component={Explorer} />
-        {/*<Route exact path="/earn" component={EarnRewards} />*/}
         <Route exact path="/" component={EthBridge} />
         <Route exact path="/operations/:operationId" component={EthBridge} />
         <Redirect to="/" />

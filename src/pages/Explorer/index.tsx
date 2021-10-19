@@ -83,7 +83,7 @@ const getColumns = (): IColumn<ISwap>[] => [
     width: 180,
     render: (value, data) => {
       return data.dst_network === 'secret20' ? (
-        <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin} network={networkFromToken(data)} />
+        <ERC20Token value={TOKEN.ERC721} erc20Address={data.src_coin} network={networkFromToken(data)} />
       ) : (
         <SecretToken value={TOKEN.S20} secretAddress={data.src_coin} />
       );
@@ -96,7 +96,7 @@ const getColumns = (): IColumn<ISwap>[] => [
     width: 180,
     render: (value, data) => {
       return data.dst_network !== 'secret20' ? (
-        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} network={networkFromToken(data)} />
+        <ERC20Token value={TOKEN.ERC721} erc20Address={data.dst_coin} network={networkFromToken(data)} />
       ) : (
         <SecretToken value={TOKEN.S20} secretAddress={data.dst_coin} />
       );
@@ -109,9 +109,9 @@ const getColumns = (): IColumn<ISwap>[] => [
     width: 120,
     render: (value, data) =>
       data.src_network !== 'Secret' ? (
-        <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.src_coin} />
+        <FormatWithDecimals type={TOKEN.ERC721} amount={value} address={data.src_coin} />
       ) : (
-        <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.dst_coin} />
+        <FormatWithDecimals type={TOKEN.ERC721} amount={value} address={data.dst_coin} />
       ),
   },
   {

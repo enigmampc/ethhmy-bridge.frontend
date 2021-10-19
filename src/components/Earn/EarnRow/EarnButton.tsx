@@ -23,7 +23,7 @@ const EarnButton = ({ props, value, changeValue, togglePulse, setPulseInterval }
           recipient: props.token.rewardsContract,
           address: props.token.lockedAssetAddress,
           // maximum precision for the contract is 6 decimals
-          amount: valueToDecimals(amount, props.token.decimals),
+          token_id: valueToDecimals(amount, props.token.decimals),
         })
           .then(_ => {
             changeValue({

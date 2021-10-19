@@ -46,7 +46,7 @@ export function extractValueFromLogs(txResult: ExecuteResult, key: string, lastV
 const gasPriceUscrt = 0.25;
 export function getFeeForExecute(gas: number): StdFee {
   return {
-    amount: [{ amount: String(Math.floor(gas * gasPriceUscrt) + 1), denom: 'uscrt' }],
+    token_id: [{ token_id: String(Math.floor(gas * gasPriceUscrt) + 1), denom: 'uscrt' }],
     gas: String(gas),
   };
 }
@@ -60,6 +60,6 @@ export const secretTokenName = (mode: EXCHANGE_MODE, token: TOKEN, label: string
   } else if (label === 'WSIENNA') {
     return mode === EXCHANGE_MODE.FROM_SCRT ? 'SIENNA' : 'WSIENNA';
   } else {
-    return (mode === EXCHANGE_MODE.FROM_SCRT && token === TOKEN.ERC20 ? 'secret' : '') + label;
+    return (mode === EXCHANGE_MODE.FROM_SCRT && token === TOKEN.ERC721 ? 'secret' : '') + label;
   }
 };

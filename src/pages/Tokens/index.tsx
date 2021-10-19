@@ -83,58 +83,58 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
     dataIndex: 'name',
     width: 160,
   },
-  {
-    title: 'Asset Address',
-    key: 'src_address',
-    dataIndex: 'src_address',
-    width: 220,
-    render: (value, data) =>
-      value === 'native' ? nativeWithLogo(networkFromToken(data)) : ethAddress(value, 8, networkFromToken(data)),
-  },
+  // {
+  //   title: 'Asset Address',
+  //   key: 'address',
+  //   dataIndex: 'address',
+  //   width: 220,
+  //   render: (value, data) =>
+  //     value === 'native' ? nativeWithLogo(networkFromToken(data)) : ethAddress(value, 8, networkFromToken(data)),
+  // },
   {
     title: 'Secret Network Address',
-    key: 'dst_address',
-    dataIndex: 'dst_address',
+    key: 'address',
+    dataIndex: 'address',
     width: 220,
     render: value => secretContractAddress(getScrtAddress(value), 8),
   },
-  {
-    title: 'Decimals',
-    key: 'decimals',
-    dataIndex: 'decimals',
-    width: 100,
-    className: styles.centerHeader,
-    align: 'center',
-  },
-  {
-    title: 'Minimum Withdraw',
-    key: 'display_props',
-    dataIndex: 'display_props',
-    width: 120,
-    className: styles.centerHeader,
-    align: 'center',
-    render: value => value.min_from_scrt,
-  },
-  {
-    title: 'Total Locked',
-    sortable: true,
-    key: 'totalLocked',
-    dataIndex: 'totalLocked',
-    width: 200,
-    render: value => (
-      <Box direction="column" justify="center">
-        {value}
-      </Box>
-    ),
-    className: styles.centerHeader,
-    align: 'center',
-  },
+  // {
+  //   title: 'Decimals',
+  //   key: 'decimals',
+  //   dataIndex: 'decimals',
+  //   width: 100,
+  //   className: styles.centerHeader,
+  //   align: 'center',
+  // },
+  // {
+  //   title: 'Minimum Withdraw',
+  //   key: 'display_props',
+  //   dataIndex: 'display_props',
+  //   width: 120,
+  //   className: styles.centerHeader,
+  //   align: 'center',
+  //   render: value => value.min_from_scrt,
+  // },
+  // {
+  //   title: 'Total Locked',
+  //   sortable: true,
+  //   key: 'totalLocked',
+  //   dataIndex: 'totalLocked',
+  //   width: 200,
+  //   render: value => (
+  //     <Box direction="column" justify="center">
+  //       {value}
+  //     </Box>
+  //   ),
+  //   className: styles.centerHeader,
+  //   align: 'center',
+  // },
 ];
 
 export const Tokens = observer((props: any) => {
   const { tokens } = useStores();
   const [search, setSearch] = useState<string>('');
-  const [tvl, setTVL] = useState<number>(tokens.totalLockedUSD);
+  //const [tvl, setTVL] = useState<number>(tokens.totalLockedUSD);
   const [allColumns, setColumns] = useState<Array<any>>(getColumns());
 
   let columns = allColumns;
@@ -155,12 +155,12 @@ export const Tokens = observer((props: any) => {
     tokens.init({ sorters: {}, sorter: 'none' });
     //tokens.fetch();
   }, []);
-
-  useEffect(() => {
-    if (tokens.allData.length > 0) {
-      setTVL(tokens.totalLockedUSD);
-    }
-  }, [tokens.allData?.length]);
+  //
+  // useEffect(() => {
+  //   if (tokens.allData.length > 0) {
+  //     setTVL(tokens.totalLockedUSD);
+  //   }
+  // }, [tokens.allData?.length]);
 
   const onChangeDataFlow = (props: any) => {
     tokens.onChangeDataFlow(props);
@@ -177,8 +177,7 @@ export const Tokens = observer((props: any) => {
   // });
 
   const filteredData = tokens
-    .tokensUsageSync('BRIDGE')
-    ?.filter(token => {
+    .allData?.filter(token => {
       if (search) {
         // todo: check dst_network
         return (
@@ -189,64 +188,27 @@ export const Tokens = observer((props: any) => {
                 .toString()
                 .toLowerCase()
                 .includes(search.toLowerCase()),
-          ) || getScrtAddress(token.dst_address).toLowerCase() === search.toLowerCase()
+          ) || getScrtAddress(token.address).toLowerCase() === search.toLowerCase()
         );
       }
 
       return true;
-    })
-    .map(token => {
-      try {
-        token.symbol = token.display_props.symbol;
-      } catch (error) {
-        if (token.src_coin === 'Ethereum') {
-          token.symbol = 'ETH';
-        } else {
-          token.symbol = '--';
-        }
-      }
-      (token as any).key = token.symbol; // make react not sad
-      return token;
-    })
-    .slice()
-    .sort((t1, t2) => (Number(t1.totalLockedUSD) > Number(t2.totalLockedUSD) ? -1 : 1))
-    .map(token => {
-      try {
-        token.totalLocked = `${formatWithTwoDecimals(token.totalLockedNormal)} ($${formatWithTwoDecimals(
-          token.totalLockedUSD,
-        )})`;
-      } catch (error) {}
-
-      return token;
     });
 
   return (
     <BaseContainer>
       <PageContainer>
         <Box direction="row" justify="between" align="center" margin={{ top: 'medium' }} pad={{ horizontal: 'medium' }}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: '100%',
-            }}
-          >
-            <span style={{ fontSize: '1.5em', fontWeight: 'bolder', paddingBottom: "1em" }}>
-              {isMobile ? 'TVL' : 'Total Value Locked'} (USD)
-              <span
-                style={{
-                  marginLeft: 5,
-                  color: '#47b8eb',
-                  fontWeight: 600,
-                  letterSpacing: 0.2,
-                }}
-              >
-                ${formatWithTwoDecimals(tvl)}
-              </span>
-            </span>
-          </div>
+          {/*<div*/}
+          {/*  style={{*/}
+          {/*    display: 'flex',*/}
+          {/*    flexDirection: 'row',*/}
+          {/*    alignItems: 'center',*/}
+          {/*    justifyContent: 'center',*/}
+          {/*    minWidth: '100%',*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*</div>*/}
           {lastUpdateAgo ? <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text> : <Text> </Text> // this makes sure the TVL is sort of in the middle of the page
           }
         </Box>

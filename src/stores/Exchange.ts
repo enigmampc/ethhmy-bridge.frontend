@@ -1,15 +1,13 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching, SwapStatus } from '../constants';
-import { ACTION_TYPE, EXCHANGE_MODE, IOperation, ITokenInfo, TOKEN } from './interfaces';
+import { EXCHANGE_MODE, IOperation, ITokenInfo, TOKEN } from './interfaces';
 import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
-import { NETWORKS, Snip20SendToBridge, Snip20SwapHash, web3 } from '../blockchain-bridge';
-import { balanceNumberFormat, divDecimals, formatSymbol, mulDecimals, uuid } from '../utils';
+import { NETWORKS, Snip20SwapHash, Snip721SendToBridge, web3 } from '../blockchain-bridge';
+import { balanceNumberFormat, formatSymbol, uuid } from '../utils';
 import { getDuplexNetworkFee, getNetworkFee } from '../blockchain-bridge/eth/helpers';
-import { proxyContracts, ProxyTokens } from '../blockchain-bridge/eth/proxyTokens';
 import { chainProps, chainPropToString } from '../blockchain-bridge/eth/chainProps';
-import { DUPLEX_TOKENS } from '../blockchain-bridge/eth/EthMethodsDuplex';
 
 export const LOCAL_STORAGE_OPERATIONS_KEY = 'operationskey';
 
@@ -58,9 +56,9 @@ export class Exchange extends StoreConstructor {
   defaultTransaction = {
     scrtAddress: '',
     ethAddress: '',
-    amount: '',
-    erc20Address: '',
-    snip20Address: '',
+    token_id: '',
+    erc721Address: '',
+    snip721Address: '',
     loading: false,
     confirmed: null,
     error: '',
@@ -74,13 +72,11 @@ export class Exchange extends StoreConstructor {
   };
 
   defaultOperation: IOperation = {
-    actions: undefined,
-    amount: 0,
+    token_id: '',
     ethAddress: '',
     transactionHash: '',
     fee: 0,
     id: '',
-    oneAddress: '',
     status: null,
     timestamp: 0,
     token: undefined,
@@ -125,8 +121,8 @@ export class Exchange extends StoreConstructor {
       id: EXCHANGE_STEPS.BASE,
       modal: false,
       onClickSend: async () => {
-        this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
-        this.transaction.snip20Address = this.stores.user.snip20Address;
+        this.transaction.erc721Address = this.stores.userMetamask.erc721Address;
+        this.transaction.snip721Address = this.stores.userSecret.snip721Address;
         this.transaction.loading = false;
         this.stepNumber = EXCHANGE_STEPS.CONFIRMATION;
 
@@ -140,15 +136,9 @@ export class Exchange extends StoreConstructor {
             this.swapFeeToken = 0;
             break;
           case EXCHANGE_MODE.FROM_SCRT:
-            this.transaction.scrtAddress = this.stores.user.address;
+            this.transaction.scrtAddress = this.stores.userSecret.address;
             this.isFeeLoading = true;
             this.ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
-            let token: ITokenInfo;
-            if (this.token === TOKEN.NATIVE) {
-              token = this.tokens.find(t => t.src_address === 'native');
-            } else {
-              token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
-            }
             this.swapFeeUsd = this.ethSwapFee * this.stores.userMetamask.getNetworkPrice();
             this.swapFeeToken = 50; //this.swapFeeUsd / Number(token.price) / 8;
             this.isFeeLoading = false;
@@ -156,7 +146,9 @@ export class Exchange extends StoreConstructor {
         }
       },
       onClickApprove: async () => {
-        if (this.mode !== EXCHANGE_MODE.TO_SCRT || this.token === TOKEN.NATIVE) return;
+        if (this.mode !== EXCHANGE_MODE.TO_SCRT) {
+          return;
+        }
         this.stepNumber = EXCHANGE_STEPS.APPROVE_CONFIRMATION;
         this.isFeeLoading = true;
         this.ethNetworkFee = await getNetworkFee(Number(process.env.ETH_GAS_LIMIT));
@@ -180,16 +172,13 @@ export class Exchange extends StoreConstructor {
   };
 
   @action.bound
-  async checkTokenApprove(address: string) {
+  async checkTokenApproved() {
     this.isTokenApproved = false;
     this.tokenApprovedLoading = true;
     try {
-      const allowanceMethod = DUPLEX_TOKENS.includes(this.transaction.erc20Address)
-        ? contract.fromScrtMethods[this.network][TOKEN.DUPLEX].getAllowance
-        : contract.fromScrtMethods[this.network][TOKEN.ERC20].getAllowance;
+      const allowanceMethod = contract.evmMethods[this.network][TOKEN.ERC721].isApprovedForAll
 
-      const allowance = await allowanceMethod(address);
-      if (Number(allowance) > 0) this.isTokenApproved = true;
+      this.isTokenApproved = await allowanceMethod();
       this.tokenApprovedLoading = false;
     } catch (error) {
       this.tokenApprovedLoading = false;
@@ -203,7 +192,7 @@ export class Exchange extends StoreConstructor {
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
     } else if (this.mode === EXCHANGE_MODE.FROM_SCRT) {
       this.transaction.ethAddress = '';
-      this.transaction.scrtAddress = this.stores.user.address;
+      this.transaction.scrtAddress = this.stores.userSecret.address;
     }
   }
 
@@ -253,7 +242,7 @@ export class Exchange extends StoreConstructor {
   }
 
   async setTokens(network: NETWORKS) {
-    this.tokens = await this.stores.tokens.tokensUsage('BRIDGE', network);
+    this.tokens = this.stores.tokens.allData;
   }
 
   @action.bound
@@ -272,48 +261,35 @@ export class Exchange extends StoreConstructor {
         return /^0x([A-Fa-f0-9]{64})$/.test(addr);
       }
 
-      if (result.operation.transactionHash && isEthHash(result.operation.transactionHash))
-        this.operation.transactionHash = result.operation.transactionHash;
+      if (result.operation.transactionHash && isEthHash(result.operation.transactionHash)) {
+          this.operation.transactionHash = result.operation.transactionHash;
+      }
 
       if (swap) {
         this.operation.status = swap.status;
 
-        if (isEthHash(swap.src_tx_hash)) this.operation.transactionHash = swap.src_tx_hash;
-        if (isEthHash(swap.dst_tx_hash)) this.operation.transactionHash = swap.dst_tx_hash;
+        if (isEthHash(swap.src_tx_hash)) {
+          this.operation.transactionHash = swap.src_tx_hash;
+        }
+        if (isEthHash(swap.dst_tx_hash)) {
+          this.operation.transactionHash = swap.dst_tx_hash;
+        }
 
         this.operation.swap = swap;
 
         this.operation.type = swap.src_network !== 'Secret' ? EXCHANGE_MODE.TO_SCRT : EXCHANGE_MODE.FROM_SCRT;
 
         if (this.operation.type === EXCHANGE_MODE.TO_SCRT) {
-          const token = this.tokens.find(t => t.dst_address === swap.dst_address);
-          if (token) {
-            this.operation.image = token.display_props.image;
-            this.operation.symbol = formatSymbol(EXCHANGE_MODE.TO_SCRT, token.display_props.symbol);
-            this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
-          } else {
-            const proxy = proxyContracts.find(p => p.contract === swap.dst_address);
-            if (proxy) {
-              const token = this.stores.tokens.allData.find(t => t.display_props.symbol === proxy.symbol);
-              this.operation.image = token.display_props.image;
-              this.operation.symbol = formatSymbol(EXCHANGE_MODE.FROM_SCRT, token.display_props.symbol);
-              this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
-            }
-          }
+          const token = this.tokens.find(t => t.address === swap.dst_address);
+          this.operation.image = token.display_props.image;
+          this.operation.symbol = formatSymbol(EXCHANGE_MODE.TO_SCRT, token.symbol);
+          this.operation.swap.amount = swap.amount;
         } else {
-          const token = this.tokens.find(t => t.dst_address === swap.src_coin);
+          const token = this.tokens.find(t => t.address === swap.src_coin);
           if (token) {
             this.operation.image = token.display_props.image;
-            this.operation.symbol = formatSymbol(EXCHANGE_MODE.TO_SCRT, token.display_props.symbol);
-            this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
-          } else {
-            const proxy = proxyContracts.find(p => p.contract === swap.src_coin);
-            if (proxy) {
-              const token = this.stores.tokens.allData.find(t => t.display_props.symbol === proxy.symbol);
-              this.operation.image = token.display_props.image;
-              this.operation.symbol = formatSymbol(EXCHANGE_MODE.FROM_SCRT, token.display_props.symbol);
-              this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
-            }
+            this.operation.symbol = formatSymbol(EXCHANGE_MODE.TO_SCRT, token.symbol);
+            this.operation.swap.amount = swap.amount;
           }
         }
 
@@ -321,8 +297,8 @@ export class Exchange extends StoreConstructor {
           const etherHash = swap.src_network === 'Secret' ? swap.dst_tx_hash : swap.src_tx_hash;
           const blockNumber = await web3.eth.getBlockNumber();
           const tx = await web3.eth.getTransaction(etherHash);
-          if (tx.blockNumber) this.confirmations = blockNumber - tx.blockNumber;
-          if (this.confirmations < 0) this.confirmations = 0;
+          if (tx.blockNumber) {this.confirmations = blockNumber - tx.blockNumber;}
+          if (this.confirmations < 0) {this.confirmations = 0;}
         } catch (error) {}
       }
     };
@@ -359,7 +335,7 @@ export class Exchange extends StoreConstructor {
     this.addLocalstorageOperation({
       id: params.id,
       tokenImage: this.transaction.tokenSelected.image,
-      amount: this.transaction.amount,
+      token_id: this.transaction.token_id,
       fromToken: this.transaction.tokenSelected.symbol,
       toToken: this.transaction.tokenSelected.symbol,
       mode: this.mode,
@@ -387,14 +363,14 @@ export class Exchange extends StoreConstructor {
     });
   }
 
-  getActionByType = (type: ACTION_TYPE) => this.operation.actions.find(a => a.type === type);
+  // getActionByType = (type: ACTION_TYPE) => this.operation.actions.find(a => a.type === type);
 
   @action.bound
   async sendOperation(id: string = '') {
     try {
       this.actionStatus = 'fetching';
       this.confirmations = 0;
-      this.transaction.erc20Address = this.transaction.erc20Address.trim();
+      this.transaction.erc721Address = this.transaction.erc721Address.trim();
       this.transaction.scrtAddress = this.transaction.scrtAddress.trim();
       this.transaction.ethAddress = this.transaction.ethAddress.trim();
       this.txHash = '';
@@ -402,17 +378,13 @@ export class Exchange extends StoreConstructor {
       this.transaction.error = '';
 
       if (this.mode === EXCHANGE_MODE.FROM_SCRT) {
-        await this.swapSnip20ToEth(this.token === TOKEN.NATIVE);
+        await this.swapSnip721ToEth();
       } else if (this.mode === EXCHANGE_MODE.TO_SCRT) {
-        if (this.token === TOKEN.ERC20) {
-          await this.checkTokenApprove(this.transaction.erc20Address);
-          if (!this.isTokenApproved) {
-            await this.approveErc20();
-          } else {
-            await this.swapErc20ToScrt();
-          }
+        await this.checkTokenApproved();
+        if (!this.isTokenApproved) {
+          await this.approveErc721();
         } else {
-          await this.swapEthToScrt();
+          await this.swapErc721ToScrt();
         }
       }
 
@@ -428,19 +400,18 @@ export class Exchange extends StoreConstructor {
     }
   }
 
-  async approveErc20() {
+  async approveErc721() {
     this.operation = this.defaultOperation;
     //await this.createOperation();
     //this.stores.routing.push('/operations/' + this.operation.id);
 
-    let approveMethod = DUPLEX_TOKENS.includes(this.transaction.erc20Address)
-      ? contract.fromScrtMethods[this.network][TOKEN.DUPLEX].callApprove
-      : contract.fromScrtMethods[this.network][TOKEN.ERC20].callApprove;
+    // let approveMethod = DUPLEX_TOKENS.includes(this.transaction.erc721Address)
+    //   ? contract.fromScrtMethods[this.network][TOKEN.DUPLEX].callApprove
+    //   : contract.fromScrtMethods[this.network][TOKEN.ERC20].callApprove;
+
+    let approveMethod = contract.evmMethods[this.network][TOKEN.ERC721].callApproveForAll;
 
     approveMethod(
-      this.transaction.erc20Address,
-      this.transaction.amount,
-      this.stores.userMetamask.erc20TokenDetails.decimals,
       async result => {
         if (result.hash) {
           this.updateOperation(this.operation.id, result.hash);
@@ -464,155 +435,62 @@ export class Exchange extends StoreConstructor {
     );
   }
 
-  async swapErc20ToScrt() {
+  async swapErc721ToScrt() {
     this.operation = this.defaultOperation;
 
-    if (DUPLEX_TOKENS.includes(this.transaction.erc20Address)) {
-      contract.fromScrtMethods[this.network][TOKEN.DUPLEX].swapToken(
-        this.transaction.erc20Address,
-        this.transaction.scrtAddress,
-        this.transaction.amount,
-        0,
-        this.stores.userMetamask.erc20TokenDetails.decimals,
-        async result => {
-          if (result.hash) {
-            await this.createOperation(result.hash);
-            this.transaction.loading = false;
-            this.txHash = result.hash;
-            this.transaction.confirmed = true;
-            this.stores.routing.push('/operations/' + this.operation.id);
-            this.fetchStatus(this.operation.id);
-          }
+    contract.evmMethods[this.network][TOKEN.ERC721].swapToken(
+      this.transaction.erc721Address,
+      this.transaction.token_id,
+      this.transaction.token_id,
+      0,
+      this.stores.userMetamask.erc721TokenDetails.decimals,
+      async result => {
+        if (result.hash) {
+          await this.createOperation(result.hash);
+          this.transaction.loading = false;
+          this.txHash = result.hash;
+          this.transaction.confirmed = true;
+          this.stores.routing.push('/operations/' + this.operation.id);
+          this.fetchStatus(this.operation.id);
+        }
 
-          if (result.receipt) {
-            this.transaction.loading = false;
-            this.transaction.confirmed = result.receipt;
-          }
+        if (result.receipt) {
+          this.transaction.loading = false;
+          this.transaction.confirmed = result.receipt;
+        }
 
-          if (result.error) {
-            this.transaction.error = result.error.message;
-            this.transaction.loading = false;
-            this.operation.status = SwapStatus.SWAP_FAILED;
-          }
-        },
-      );
-    } else {
-      contract.fromScrtMethods[this.network][TOKEN.ERC20].swapToken(
-        this.transaction.erc20Address,
-        this.transaction.scrtAddress,
-        this.transaction.amount,
-        this.stores.userMetamask.erc20TokenDetails.decimals,
-        async result => {
-          if (result.hash) {
-            await this.createOperation(result.hash);
-            this.transaction.loading = false;
-            this.txHash = result.hash;
-            this.transaction.confirmed = true;
-            this.stores.routing.push('/operations/' + this.operation.id);
-            this.fetchStatus(this.operation.id);
-          }
-
-          if (result.receipt) {
-            this.transaction.loading = false;
-            this.transaction.confirmed = result.receipt;
-          }
-
-          if (result.error) {
-            this.transaction.error = result.error.message;
-            this.transaction.loading = false;
-            this.operation.status = SwapStatus.SWAP_FAILED;
-          }
-        },
-      );
-    }
+        if (result.error) {
+          this.transaction.error = result.error.message;
+          this.transaction.loading = false;
+          this.operation.status = SwapStatus.SWAP_FAILED;
+        }
+      },
+    );
 
     return;
   }
 
-  async swapEthToScrt() {
+  async swapSnip721ToEth() {
     this.operation = this.defaultOperation;
 
-    try {
-      contract.fromScrtMethods[this.network][TOKEN.NATIVE].swapEth(
-        this.transaction.scrtAddress,
-        this.transaction.amount,
-        async result => {
-          if (result.hash) {
-            await this.createOperation(result.hash);
-            this.transaction.loading = false;
-            this.txHash = result.hash;
-            this.transaction.confirmed = true;
-            this.stores.routing.push('/operations/' + this.operation.id);
-            this.fetchStatus(this.operation.id);
-          }
-
-          if (result.receipt) {
-            this.transaction.loading = false;
-            this.transaction.confirmed = true;
-          }
-
-          if (result.error) {
-            this.transaction.error = result.error.message;
-            this.transaction.loading = false;
-            this.operation.status = SwapStatus.SWAP_FAILED;
-          }
-        },
-      );
-    } catch (error) {
-      console.log('error', error);
-    }
-    return;
-  }
-
-  async swapSnip20ToEth(isNative: boolean) {
-    this.operation = this.defaultOperation;
-
-    let proxyContract: string;
-    let decimals: number | string;
     let recipient = chainPropToString(chainProps.swap_contract, this.network);
     //let price: string;
-    if (isNative) {
-      const token = this.tokens.find(t => t.src_address === 'native');
-      decimals = token.decimals;
+    const token = this.tokens.find(t => t.address === this.transaction.snip721Address);
+    if (token) {
+      // decimals = token.decimals;
       //price = token.price;
-      this.transaction.snip20Address = token.dst_address;
-    } else {
-      const token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
-      if (token) {
-        decimals = token.decimals;
-        //price = token.price;
-        this.transaction.snip20Address = token.dst_address;
-        // todo: fix this up - proxy token
-        if (token.display_props.proxy) {
-          proxyContract = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.proxy;
-          recipient = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.proxy;
-          this.transaction.snip20Address = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.token;
-
-          // if (
-          //   token.display_props.symbol.toUpperCase() === 'WSCRT' ||
-          //   token.display_props.symbol.toUpperCase() === 'SSCRT'
-          // ) {
-          //   proxyContract = process.env.WSCRT_PROXY_CONTRACT;
-          //   recipient = process.env.WSCRT_PROXY_CONTRACT;
-          //   this.transaction.snip20Address = process.env.SSCRT_CONTRACT;
-          // } else if (token.display_props.symbol === 'SIENNA') {
-          //   proxyContract = process.env.SIENNA_PROXY_CONTRACT;
-          //   recipient = process.env.SIENNA_PROXY_CONTRACT;
-          //   this.transaction.snip20Address = process.env.SIENNA_CONTRACT;
-          // }
-        }
-      }
+      this.transaction.snip721Address = token.address;
     }
 
-    const amount = mulDecimals(this.transaction.amount, decimals).toString();
-
+    // const amount = mulDecimals(this.transaction.token_id, decimals).toString();
+    const token_id = this.transaction.token_id;
     let tx_id = '';
     try {
-      tx_id = await Snip20SendToBridge({
+      tx_id = await Snip721SendToBridge({
         recipient,
-        secretjs: this.stores.user.secretjsSend,
-        address: this.transaction.snip20Address,
-        amount,
+        secretjs: this.stores.userSecret.secretjsSend,
+        address: this.transaction.snip721Address,
+        token_id: token_id,
         msg: btoa(this.transaction.ethAddress),
       });
       this.transaction.confirmed = true;
@@ -620,7 +498,7 @@ export class Exchange extends StoreConstructor {
       await this.createOperation(
         Snip20SwapHash({
           tx_id,
-          address: proxyContract || this.transaction.snip20Address,
+          address: this.transaction.snip721Address,
         }),
       );
       this.stores.routing.push('/operations/' + this.operation.id);

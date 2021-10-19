@@ -1,6 +1,5 @@
 import { Contract } from 'web3-eth-contract';
 import Web3 from 'web3';
-import { mulDecimals } from '../../utils';
 import { getGasPrice } from './helpers';
 
 const BN = require('bn.js');
@@ -17,24 +16,24 @@ interface IEthMethodsInitParams {
   ethManagerAddress: string;
 }
 
-type NftDetails = {
+export type NftDetails = {
   name: string;
   tokenURI: string;
   symbol: string;
   previewImage?: string;
 };
 
-export class EthMethodsDuplex {
+export class EthMethodsNftBridge {
   private readonly web3: Web3;
   private ethManagerContract: Contract;
   private ethManagerAddress: string;
-  private erc20: any;
+  private erc721: any;
 
   constructor(params: IEthMethodsInitParams) {
     this.web3 = params.web3;
     this.ethManagerContract = params.ethManagerContract;
     this.ethManagerAddress = params.ethManagerAddress;
-    this.erc20 = require('../out/NftToken.json');
+    this.erc721 = require('../out/NftToken.json');
   }
 
   sendHandler = async (method: any, args: Object, callback: Function) => {
@@ -55,7 +54,7 @@ export class EthMethodsDuplex {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const erc721Contract = new this.web3.eth.Contract(this.erc20.abi, NFT_TOKEN_ADDRESS);
+    const erc721Contract = new this.web3.eth.Contract(this.erc721.abi, NFT_TOKEN_ADDRESS);
 
     return await erc721Contract.methods.isApprovedForAll(accounts[0], this.ethManagerAddress).call();
   };
@@ -64,7 +63,7 @@ export class EthMethodsDuplex {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const erc721Contract = new this.web3.eth.Contract(this.erc20.abi, NFT_TOKEN_ADDRESS);
+    const erc721Contract = new this.web3.eth.Contract(this.erc721.abi, NFT_TOKEN_ADDRESS);
 
     const isApproved = await this.isApprovedForAll();
 
@@ -110,24 +109,27 @@ export class EthMethodsDuplex {
   };
 
   checkTokensInWallet = async (addr: string): Promise<number> => {
-    const erc721Contract = new this.web3.eth.Contract(this.erc20.abi, NFT_TOKEN_ADDRESS);
+    const erc721Contract = new this.web3.eth.Contract(this.erc721.abi, NFT_TOKEN_ADDRESS);
 
     return await erc721Contract.methods.balanceOf(addr).call();
   };
 
-  enumerateUserTokens = async (addr: string): Promise<Any> => {
-    const erc721Contract = new this.web3.eth.Contract(this.erc20.abi, NFT_TOKEN_ADDRESS);
+  enumerateUserTokens = async (addr: string): Promise<NftDetails[]> => {
+    const erc721Contract = new this.web3.eth.Contract(this.erc721.abi, NFT_TOKEN_ADDRESS);
     const amount_owned = await this.checkTokensInWallet(addr);
 
     const promises = [];
     for (let i = 0; i < amount_owned; i++) {
-      promises.push(this.tokenURI());
+      promises.push(this.tokenDetails(await erc721Contract.methods.tokenOfOwnerByIndex(addr, i)));
     }
 
-    Promise.all(promises);
+    await Promise.all(promises);
+
+    return [];
+    // todo: return this
   };
 
-  tokenURI = async (token_id: number): Promise<NftDetails> => {
+  tokenDetails = async (token_id: number): Promise<NftDetails> => {
     // if (!this.web3.utils.isAddress(erc20Address)) {
     //   throw new Error('Invalid token address');
     // }
@@ -135,13 +137,19 @@ export class EthMethodsDuplex {
     // const MyERC20Json = require('../out/MyERC20.json');
     // const erc721Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
 
-    const erc721Contract = new this.web3.eth.Contract(this.erc20.abi, NFT_TOKEN_ADDRESS);
+    const erc721Contract = new this.web3.eth.Contract(this.erc721.abi, NFT_TOKEN_ADDRESS);
 
     const tokenURI = await erc721Contract.methods.tokenURI(token_id).call();
     const name = await erc721Contract.methods.name(token_id).call();
     const symbol = await erc721Contract.methods.symbol(token_id).call();
 
-    const previewImageUrl = 
+    // const previewImageUrl = "";
+
+    return {
+      tokenURI,
+      name,
+      symbol,
+    }
 
 
     // let name = '';
