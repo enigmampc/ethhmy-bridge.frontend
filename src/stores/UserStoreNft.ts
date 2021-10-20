@@ -6,11 +6,10 @@ import * as agent from 'superagent';
 import { divDecimals, fixUnlockToken, sleep, unlockToken } from '../utils';
 import { BroadcastMode, CosmWasmClient } from 'secretjs';
 import { BigNumber } from 'bignumber.js';
-import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge';
+import { getViewingKey, Snip20GetBalance } from '../blockchain-bridge';
 import { AsyncSender } from '../blockchain-bridge/scrt/asyncSender';
 import { NftDetails } from '../blockchain-bridge/eth/EthMethodsNftBridge';
 import { Snip721GetTokens } from '../blockchain-bridge/scrt/snip721';
-
 
 export const rewardsKey = key => `${key}Rewards`;
 
@@ -31,7 +30,7 @@ export class UserStoreSecret extends StoreConstructor {
   @observable public address: string;
   @observable public balanceSCRT: BigNumber;
 
-  @observable public availableNfts: { [key: string]: NftDetails[] }  = {};
+  @observable public availableNfts: { [key: string]: NftDetails[] } = {};
   @observable public selectedAddress: string = process.env.SECRET_NFT_ADDRESS || 'secret1wisdadsfjasdfjasfdj';
   @observable public isLocked: boolean = true;
   // @observable public balanceToken: { [key: string]: string } = {};
@@ -240,7 +239,6 @@ export class UserStoreSecret extends StoreConstructor {
   //   };
   // }
 
-
   @action public async signIn(wait?: boolean) {
     this.error = '';
 
@@ -385,77 +383,77 @@ export class UserStoreSecret extends StoreConstructor {
     return rawBalance;
   };
 
-  @action public getBridgeRewardsBalance = async (snip20Address: string, noheight): Promise<string> => {
-    if (!this.secretjs) {
-      return '0';
-    }
-
-    let height = noheight ? undefined : String(await this.secretjs.getHeight());
-
-    const viewingKey = await getViewingKey({
-      keplr: this.keplrWallet,
-      chainId: this.chainId,
-      address: snip20Address,
-    });
-    if (!viewingKey) {
-      throw new Error('Failed to get viewing key');
-    }
-
-    try {
-      return await QueryRewards({
-        cosmJS: this.secretjs,
-        contract: snip20Address,
-        address: this.address,
-        key: viewingKey,
-        height: height,
-      });
-    } catch (e) {
-      try {
-        height = String(await this.secretjs.getHeight());
-        return await QueryRewards({
-          cosmJS: this.secretjs,
-          contract: snip20Address,
-          address: this.address,
-          key: viewingKey,
-          height: height,
-        });
-      } catch (e) {
-        console.error(`failed to query rewards: ${e}`);
-        throw new Error('failed to query rewards');
-      }
-    }
-  };
-
-  @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
-    if (!this.secretjs) {
-      return '0';
-    }
-
-    const viewingKey = await getViewingKey({
-      keplr: this.keplrWallet,
-      chainId: this.chainId,
-      address: snip20Address,
-    });
-    if (!viewingKey) {
-      throw new Error('Failed to get viewing key');
-    }
-
-    try {
-      return await QueryDeposit({
-        cosmJS: this.secretjs,
-        contract: snip20Address,
-        address: this.address,
-        key: viewingKey,
-      });
-    } catch (e) {
-      return await Snip20GetBalance({
-        secretjs: this.secretjs,
-        address: this.address,
-        token: snip20Address,
-        key: viewingKey,
-      });
-    }
-  };
+  // @action public getBridgeRewardsBalance = async (snip20Address: string, noheight): Promise<string> => {
+  //   if (!this.secretjs) {
+  //     return '0';
+  //   }
+  //
+  //   let height = noheight ? undefined : String(await this.secretjs.getHeight());
+  //
+  //   const viewingKey = await getViewingKey({
+  //     keplr: this.keplrWallet,
+  //     chainId: this.chainId,
+  //     address: snip20Address,
+  //   });
+  //   if (!viewingKey) {
+  //     throw new Error('Failed to get viewing key');
+  //   }
+  //
+  //   try {
+  //     return await QueryRewards({
+  //       cosmJS: this.secretjs,
+  //       contract: snip20Address,
+  //       address: this.address,
+  //       key: viewingKey,
+  //       height: height,
+  //     });
+  //   } catch (e) {
+  //     try {
+  //       height = String(await this.secretjs.getHeight());
+  //       return await QueryRewards({
+  //         cosmJS: this.secretjs,
+  //         contract: snip20Address,
+  //         address: this.address,
+  //         key: viewingKey,
+  //         height: height,
+  //       });
+  //     } catch (e) {
+  //       console.error(`failed to query rewards: ${e}`);
+  //       throw new Error('failed to query rewards');
+  //     }
+  //   }
+  // };
+  //
+  // @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
+  //   if (!this.secretjs) {
+  //     return '0';
+  //   }
+  //
+  //   const viewingKey = await getViewingKey({
+  //     keplr: this.keplrWallet,
+  //     chainId: this.chainId,
+  //     address: snip20Address,
+  //   });
+  //   if (!viewingKey) {
+  //     throw new Error('Failed to get viewing key');
+  //   }
+  //
+  //   try {
+  //     return await QueryDeposit({
+  //       cosmJS: this.secretjs,
+  //       contract: snip20Address,
+  //       address: this.address,
+  //       key: viewingKey,
+  //     });
+  //   } catch (e) {
+  //     return await Snip20GetBalance({
+  //       secretjs: this.secretjs,
+  //       address: this.address,
+  //       token: snip20Address,
+  //       key: viewingKey,
+  //     });
+  //   }
+  // };
 
   @action public getSecretNfts = async () => {
     await this.updateScrtNfts(); //, this.updateBalanceForSymbol('sSCRT')
@@ -483,7 +481,12 @@ export class UserStoreSecret extends StoreConstructor {
       address: this.snip721Address,
     });
     try {
-      const resp = await Snip721GetTokens({ secretjs: this.secretjs, token: this.snip721Address, key: viewingKey, address: this.address });
+      const resp = await Snip721GetTokens({
+        secretjs: this.secretjs,
+        token: this.snip721Address,
+        key: viewingKey,
+        address: this.address,
+      });
     } catch (e) {
       // todo: probably viewing key not working, but also could be other stuff. handle here
     }
@@ -493,9 +496,8 @@ export class UserStoreSecret extends StoreConstructor {
 
     const tokenDetails = [];
 
-    this.availableNfts = {[this.snip721Address]:tokenDetails};
+    this.availableNfts = { [this.snip721Address]: tokenDetails };
   };
-
 
   @action public signOut() {
     this.isAuthorized = false;
@@ -526,24 +528,17 @@ export class UserStoreSecret extends StoreConstructor {
     }
   }
 
-
   @action public async getRates() {
-
     // fallback to binance prices
     if (isNaN(this.scrtRate) || this.scrtRate === 0) {
-      const scrtbtc = await agent.get(
-        'https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC',
-      );
-      const btcusdt = await agent.get(
-        'https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT',
-      );
+      const scrtbtc = await agent.get('https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC');
+      const btcusdt = await agent.get('https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT');
 
       this.scrtRate = scrtbtc.body.lastPrice * btcusdt.body.lastPrice;
     }
   }
 
   //@action public async get
-
 
   // this.rates = {
   //   BSC: ,

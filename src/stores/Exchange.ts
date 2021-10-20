@@ -176,7 +176,7 @@ export class Exchange extends StoreConstructor {
     this.isTokenApproved = false;
     this.tokenApprovedLoading = true;
     try {
-      const allowanceMethod = contract.evmMethods[this.network][TOKEN.ERC721].isApprovedForAll
+      const allowanceMethod = contract.evmMethods[this.network][TOKEN.ERC721].isApprovedForAll;
 
       this.isTokenApproved = await allowanceMethod();
       this.tokenApprovedLoading = false;
@@ -262,7 +262,7 @@ export class Exchange extends StoreConstructor {
       }
 
       if (result.operation.transactionHash && isEthHash(result.operation.transactionHash)) {
-          this.operation.transactionHash = result.operation.transactionHash;
+        this.operation.transactionHash = result.operation.transactionHash;
       }
 
       if (swap) {
@@ -297,8 +297,12 @@ export class Exchange extends StoreConstructor {
           const etherHash = swap.src_network === 'Secret' ? swap.dst_tx_hash : swap.src_tx_hash;
           const blockNumber = await web3.eth.getBlockNumber();
           const tx = await web3.eth.getTransaction(etherHash);
-          if (tx.blockNumber) {this.confirmations = blockNumber - tx.blockNumber;}
-          if (this.confirmations < 0) {this.confirmations = 0;}
+          if (tx.blockNumber) {
+            this.confirmations = blockNumber - tx.blockNumber;
+          }
+          if (this.confirmations < 0) {
+            this.confirmations = 0;
+          }
         } catch (error) {}
       }
     };
@@ -411,28 +415,26 @@ export class Exchange extends StoreConstructor {
 
     let approveMethod = contract.evmMethods[this.network][TOKEN.ERC721].callApproveForAll;
 
-    approveMethod(
-      async result => {
-        if (result.hash) {
-          this.updateOperation(this.operation.id, result.hash);
-          this.tokenApprovedLoading = true;
-          this.transaction.loading = true;
-          this.txHash = result.hash;
-        }
+    approveMethod(async result => {
+      if (result.hash) {
+        this.updateOperation(this.operation.id, result.hash);
+        this.tokenApprovedLoading = true;
+        this.transaction.loading = true;
+        this.txHash = result.hash;
+      }
 
-        if (result.receipt) {
-          this.isTokenApproved = true;
-          this.tokenApprovedLoading = false;
-          this.transaction.loading = false;
-        }
+      if (result.receipt) {
+        this.isTokenApproved = true;
+        this.tokenApprovedLoading = false;
+        this.transaction.loading = false;
+      }
 
-        if (result.error) {
-          this.tokenApprovedLoading = false;
-          this.transaction.loading = false;
-          this.transaction.error = result.error.message;
-        }
-      },
-    );
+      if (result.error) {
+        this.tokenApprovedLoading = false;
+        this.transaction.loading = false;
+        this.transaction.error = result.error.message;
+      }
+    });
   }
 
   async swapErc721ToScrt() {

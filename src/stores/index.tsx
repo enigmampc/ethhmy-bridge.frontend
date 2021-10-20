@@ -6,7 +6,6 @@ import { Swaps } from './Swaps';
 import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
 import { SignerHealthStore } from './SignerHealthStore';
-import { DuplexServicesStore } from './DuplexServicesStore';
 import { UserStoreSecret } from './UserStoreNft';
 
 export interface IStores {
@@ -18,7 +17,6 @@ export interface IStores {
   swaps?: Swaps;
   tokens?: Tokens;
   signerHealth?: SignerHealthStore;
-  duplexServices?: DuplexServicesStore;
 }
 
 const stores: IStores = {};
@@ -31,7 +29,6 @@ stores.actionModals = new ActionModalsStore();
 stores.userSecret = new UserStoreSecret(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
 stores.signerHealth = new SignerHealthStore(stores);
-stores.duplexServices = new DuplexServicesStore(stores);
 
 if (!process.env.production) {
   window.stores = stores;

@@ -1,13 +1,11 @@
 import { Box, BoxProps } from 'grommet';
-import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Text } from 'components/Base/components/Text';
 import * as React from 'react';
-import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
+import { TOKEN } from 'stores/interfaces';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
-import { divDecimals, formatWithSixDecimals } from '../../utils';
-import { chainProps, chainPropToString } from '../../blockchain-bridge/eth/chainProps';
+import { formatWithSixDecimals } from '../../utils';
 import { networkFromToken, NETWORKS } from '../../blockchain-bridge';
 
 // export const OperationType = (props: { type: EXCHANGE_MODE }) => {
@@ -77,12 +75,13 @@ export const FormatWithDecimals = observer((props: ITokenParams) => {
     const token = tokens.allData.find(t => t.address.toLowerCase() === address.toLowerCase());
 
     if (token) {
-      return <Box>{divDecimals(amount, token.decimals)}</Box>;
+      return (
+        <Box>
+          {token.address}-{amount}
+        </Box>
+      );
     }
-  } else if (type === TOKEN.NATIVE) {
-    return <Box>{divDecimals(amount, Number(userMetamask.getNativeDecimals()))}</Box>;
   }
-
   return <Box>{amount}</Box>;
 });
 
@@ -95,7 +94,7 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
 
   if (value === TOKEN.ERC721) {
     const token = tokens.allData.find(
-      t => t.src_address.toLowerCase() === erc20Address.toLowerCase() && networkFromToken(t) === props.network,
+      t => t.address.toLowerCase() === erc20Address.toLowerCase() && networkFromToken(token) === props.network,
     );
 
     if (token && token.display_props) {
@@ -104,10 +103,6 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
         : (tokenName = token.display_props.symbol);
       tokenImage = token.display_props.image;
     }
-
-  } else if (value === TOKEN.NATIVE) {
-    tokenName = chainPropToString(chainProps.currency_symbol, props.network);
-    tokenImage = chainPropToString(chainProps.image_logo, props.network);
   }
 
   return (
@@ -127,26 +122,19 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
   if (value === TOKEN.ERC721 || value === TOKEN.S20) {
     const token = tokens.allData.find(
       t =>
-        t.dst_address?.toLowerCase() === secretAddress.toLowerCase() ||
-        t.dst_coin?.toLowerCase() === secretAddress.toLowerCase() ||
-        t.name?.toLowerCase() === secretAddress.toLowerCase() ||
-        t.display_props?.proxy_address === secretAddress.toLowerCase(),
+        t.address?.toLowerCase() === secretAddress.toLowerCase() ||
+        t.name?.toLowerCase() === secretAddress.toLowerCase(),
     );
 
     if (token && token.display_props) {
-      token.display_props.proxy_symbol
-        ? (tokenName = token.display_props.symbol)
-        : (tokenName = `s${token.display_props.symbol}`);
-      tokenImage = `${token.display_props.image.split('.')[0]}-scrt.png`
+      tokenName = token.symbol;
+      tokenImage = `${token.display_props.image.split('.')[0]}-scrt.png`;
     }
-  } else if (value === TOKEN.NATIVE) {
-    tokenName = userMetamask.getCurrencySymbol();
-    tokenImage = '/static/scrt.svg';
   }
 
   return (
     <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-      <img className={styles.imgToken} src={tokenImage}/>
+      <img className={styles.imgToken} src={tokenImage} />
       {tokenName}
     </Box>
   );

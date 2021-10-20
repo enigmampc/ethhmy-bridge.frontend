@@ -1,19 +1,19 @@
 import React from 'react';
-import { Button, Image } from 'semantic-ui-react';
+import { Button } from 'semantic-ui-react';
 import { AuthWarning } from '../AuthWarning';
 import { useStores } from '../../stores';
 import { observer } from 'mobx-react';
-import { Icon, Text } from 'components/Base';
+import { Text } from 'components/Base';
 import { truncateAddressString } from '../../utils';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export const KeplrButton = observer((props: { disabled?: boolean; loading?: boolean; onClick?: any }) => {
-  const { actionModals, user } = useStores();
+  const { actionModals, userSecret } = useStores();
   return (
     <Button
       circular
       onClick={() => {
-        if (!user.isKeplrWallet) {
+        if (!userSecret.isKeplrWallet) {
           actionModals.open(() => <AuthWarning />, {
             title: '',
             applyText: 'Got it',
@@ -23,18 +23,18 @@ export const KeplrButton = observer((props: { disabled?: boolean; loading?: bool
             showOther: true,
             onApply: () => Promise.resolve(),
           });
-        } else if (!user.secretjs) {
-          user.signIn();
+        } else if (!userSecret.secretjs) {
+          userSecret.signIn();
         }
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <img src="/static/scrt.svg" style={{ height: '24px' }} alt={'scrt'} />
         <span style={{ margin: '0 0.3em' }}>
-          {user.secretjs ? (
-            <CopyToClipboard text={user.address}>
+          {userSecret.secretjs ? (
+            <CopyToClipboard text={userSecret.address}>
               <div>
-                <SecretAddress address={user.address} />
+                <SecretAddress address={userSecret.address} />
               </div>
             </CopyToClipboard>
           ) : (

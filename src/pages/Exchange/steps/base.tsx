@@ -79,13 +79,19 @@ const validateAmountInput = (value: string) => {
 };
 
 const validateAddressInput = (mode: EXCHANGE_MODE, value: string) => {
-  if (!value) {return 'Field required.';}
+  if (!value) {
+    return 'Field required.';
+  }
   if (mode === EXCHANGE_MODE.FROM_SCRT) {
     const web3 = new Web3();
-    if (!web3.utils.isAddress(value) || !web3.utils.checkAddressChecksum(value)) {return 'Not a valid Ethereum Address.';}
+    if (!web3.utils.isAddress(value) || !web3.utils.checkAddressChecksum(value)) {
+      return 'Not a valid Ethereum Address.';
+    }
   }
   if (mode === EXCHANGE_MODE.TO_SCRT) {
-    if (!value.startsWith('secret')) {return 'Not a valid Secret Address.';}
+    if (!value.startsWith('secret')) {
+      return 'Not a valid Secret Address.';
+    }
 
     try {
       bech32.decode(value);
@@ -142,7 +148,7 @@ function isNativeToken(selectedToken) {
 }
 
 export const Base = observer(() => {
-  const { userSecret, userMetamask, actionModals, exchange, tokens, duplexServices } = useStores();
+  const { userSecret, userMetamask, actionModals, exchange, tokens } = useStores();
   const [errors, setErrors] = useState<Errors>({ token: '', address: '', token_id: '' });
   const [open, setOpen] = useState<boolean>(false);
   const [externalUrl, setExternalUrl] = useState<string>('');
@@ -173,10 +179,10 @@ export const Base = observer(() => {
 
   const { signerHealth } = useStores();
 
-  useEffect(() => {
-    setTokenLimit(duplexServices.getLimit('UST'));
-    setAmountLocked(duplexServices.getLocked('UST'));
-  }, [duplexServices, duplexServices.data]);
+  // useEffect(() => {
+  //   setTokenLimit(duplexServices.getLimit('UST'));
+  //   setAmountLocked(duplexServices.getLocked('UST'));
+  // }, [duplexServices, duplexServices.data]);
 
   useEffect(() => {
     const testRateLimit = async () => {
@@ -282,7 +288,7 @@ export const Base = observer(() => {
   //   }
   // }, [exchange.mode, balance]);
   const onSelectedToken = async value => {
-    const token = (await tokens?.allData.find(t => t.address === value));
+    const token = await tokens?.allData.find(t => t.address === value);
     setProgress(1);
     const newerrors = errors;
     setBalance({
@@ -326,7 +332,6 @@ export const Base = observer(() => {
     setErrors(newerrors);
   };
 
-
   const onSelectNetwork = async (network: NETWORKS) => {
     if (EXTERNAL_NETWORKS.includes(network)) {
       setExternalUrl(EXTERNAL_LINKS[network]);
@@ -339,11 +344,12 @@ export const Base = observer(() => {
       setProgress(0);
       setTokenLocked(false);
       // eslint-disable-next-line no-restricted-globals
-      if (!location.pathname.startsWith('/operations')) {exchange.stepNumber = EXCHANGE_STEPS.BASE;}
+      if (!location.pathname.startsWith('/operations')) {
+        exchange.stepNumber = EXCHANGE_STEPS.BASE;
+      }
       await onSelectedToken('native');
     }
   };
-
 
   useEffect(() => {
     async function asyncRun() {
@@ -444,8 +450,6 @@ export const Base = observer(() => {
     exchange.transaction.ethAddress,
     exchange.transaction.scrtAddress,
   ]);
-
-
 
   const onClickHandler = async (callback: () => void) => {
     if (!userSecret.isAuthorized) {
@@ -562,7 +566,7 @@ export const Base = observer(() => {
                   <>
                     <Box width="40%" style={{ flex: 1 }}>
                       <Input
-                        label={"Token ID"}
+                        label={'Token ID'}
                         margin={{ bottom: 'none' }}
                         value={exchange.transaction.token_id}
                         className={styles.input}
@@ -662,8 +666,12 @@ export const Base = observer(() => {
                     : exchange.transaction.scrtAddress
                 }
                 onChange={value => {
-                  if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) {exchange.transaction.ethAddress = value;}
-                  if (exchange.mode === EXCHANGE_MODE.TO_SCRT) {exchange.transaction.scrtAddress = value;}
+                  if (exchange.mode === EXCHANGE_MODE.FROM_SCRT) {
+                    exchange.transaction.ethAddress = value;
+                  }
+                  if (exchange.mode === EXCHANGE_MODE.TO_SCRT) {
+                    exchange.transaction.scrtAddress = value;
+                  }
                   const error = validateAddressInput(exchange.mode, value);
                   setErrors({ ...errors, address: error });
                 }}
@@ -679,34 +687,34 @@ export const Base = observer(() => {
           </Box>
         </Form>
         {Number(tokenAmountLocked) > MINIMUM_DISPLAY && (
-        <Box
-          style={{
-            width: 1024,
-            paddingBottom: 100,
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: -30,
-          }}
-        >
-          <Box className={styles.depositBarText}>
-            <Box fill className={styles.depositBarTextLeft}>
-              <Text>Total UST deposited</Text>
+          <Box
+            style={{
+              width: 1024,
+              paddingBottom: 100,
+              display: 'flex',
+              alignItems: 'center',
+              marginTop: -30,
+            }}
+          >
+            <Box className={styles.depositBarText}>
+              <Box fill className={styles.depositBarTextLeft}>
+                <Text>Total UST deposited</Text>
+              </Box>
+              <Box fill className={styles.depositBarTextRight}>
+                <Text>
+                  {Number(tokenAmountLocked).toFixed(0)}/{tokenLimit}
+                </Text>
+              </Box>
             </Box>
-            <Box fill className={styles.depositBarTextRight}>
-              <Text>
-                {Number(tokenAmountLocked).toFixed(0)}/{tokenLimit}
-              </Text>
-            </Box>
+            <Progress
+              percent={(Number(tokenAmountLocked) / Number(tokenLimit)) * 100}
+              style={{ width: 500 }}
+              color={'yellow'}
+              inverted
+              //progress
+            />
           </Box>
-          <Progress
-            percent={(Number(tokenAmountLocked) / Number(tokenLimit)) * 100}
-            style={{ width: 500 }}
-            color={'yellow'}
-            inverted
-            //progress
-          />
-        </Box>
-          )}
+        )}
         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
           <Box style={{ maxWidth: '50%' }}>
             {isTokenLocked && (
@@ -755,9 +763,13 @@ export const Base = observer(() => {
                   onClick={() => {
                     const tokenError = validateTokenInput(selectedToken);
                     setErrors({ ...errors, token: '' });
-                    if (tokenError) {return setErrors({ ...errors, token: tokenError });}
+                    if (tokenError) {
+                      return setErrors({ ...errors, token: tokenError });
+                    }
 
-                    if (exchange.step.id === EXCHANGE_STEPS.BASE) {onClickHandler(exchange.step.onClickApprove);}
+                    if (exchange.step.id === EXCHANGE_STEPS.BASE) {
+                      onClickHandler(exchange.step.onClickApprove);
+                    }
                   }}
                 >
                   {exchange.tokenApprovedLoading ? (
@@ -778,19 +790,22 @@ export const Base = observer(() => {
                   onClick={async () => {
                     const tokenError = validateTokenInput(selectedToken);
                     setErrors({ ...errors, token: '' });
-                    if (tokenError) {return setErrors({ ...errors, token: tokenError });}
-                    if (exchange.step.id === EXCHANGE_STEPS.BASE)
-                      {onClickHandler(async () => {
+                    if (tokenError) {
+                      return setErrors({ ...errors, token: tokenError });
+                    }
+                    if (exchange.step.id === EXCHANGE_STEPS.BASE) {
+                      onClickHandler(async () => {
                         await userSecret.keplrWallet.suggestToken(userSecret.chainId, userSecret.snip721Address);
                         await sleep(500);
                         //await user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol);
                         await onSelectedToken(exchange.transaction.tokenSelected.src_address);
                         // is loading?
                         setProgress(2);
-                      });}
+                      });
+                    }
                   }}
                 >
-                  { false ? (
+                  {false ? (
                     <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />
                   ) : !userSecret.isLocked ? (
                     'Unlocked!'

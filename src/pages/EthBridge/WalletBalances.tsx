@@ -13,8 +13,8 @@ import { createNotification } from '../Exchange/utils';
 import Flip from 'react-reveal/Flip';
 import { BigNumber } from 'bignumber.js';
 
-const WalletTemplate = observer((props: { address: string; symbol: string; amount: string }) => {
-  console.log(`amount: ${props.amount}`)
+const WalletTemplate = observer((props: { address: string; symbol: string; amount: BigNumber }) => {
+  console.log(`amount: ${props.amount}`);
   return (
     <Box direction="row" background="#133665" style={{ borderRadius: 4 }}>
       <CopyToClipboard text={props.address} onCopy={() => createNotification('success', 'Copied to Clipboard!', 2)}>
@@ -28,7 +28,7 @@ const WalletTemplate = observer((props: { address: string; symbol: string; amoun
 
       <Box pad="xxsmall" background="#0C2545" align="center" direction="row" style={{ borderRadius: 4 }}>
         {props.amount ? (
-          <Text bold>{(new BigNumber(props.amount.replace(/,/g, ''))).toFixed(2, BigNumber.ROUND_DOWN)}</Text>
+          <Text bold>{props.amount.toFixed(2, BigNumber.ROUND_DOWN)}</Text>
         ) : (
           <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
         )}
@@ -41,17 +41,17 @@ const WalletTemplate = observer((props: { address: string; symbol: string; amoun
 });
 
 export const WalletBalances = observer(() => {
-  const { user, userMetamask, actionModals } = useStores();
+  const { userSecret, userMetamask, actionModals } = useStores();
   return (
     <Box className={styles.walletsContainer}>
       <Box margin={{ right: 'small' }}>
-        {!user.isAuthorized ? (
+        {!userSecret.isAuthorized ? (
           <Button
             bgColor={'transparent'}
             pad={'none'}
             className={styles.connectWalletButton}
             onClick={() => {
-              if (!user.isKeplrWallet) {
+              if (!userSecret.isKeplrWallet) {
                 actionModals.open(() => <AuthWarning />, {
                   title: '',
                   applyText: 'Got it',
@@ -62,7 +62,7 @@ export const WalletBalances = observer(() => {
                   onApply: () => Promise.resolve(),
                 });
               } else {
-                user.signIn();
+                userSecret.signIn();
               }
             }}
           >
@@ -74,7 +74,7 @@ export const WalletBalances = observer(() => {
             </Box>
           </Button>
         ) : (
-          <WalletTemplate address={user.address} amount={user.balanceSCRT || ''} symbol="SCRT" />
+          <WalletTemplate address={userSecret.address} amount={userSecret.balanceSCRT} symbol="SCRT" />
         )}
       </Box>
 
@@ -102,7 +102,7 @@ export const WalletBalances = observer(() => {
           <Flip spy={userMetamask.network} bottom>
             <WalletTemplate
               address={userMetamask.ethAddress}
-              amount={userMetamask.nativeBalance}
+              amount={new BigNumber(userMetamask.nativeBalance)}
               symbol={userMetamask.getCurrencySymbol()}
             />
           </Flip>
