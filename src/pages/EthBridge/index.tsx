@@ -60,7 +60,7 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
               <Message.Header>
-                ETH bridge has been restored, but is on reduced stability while we recover all signers
+                BSC bridge is down for maintenance. ETH bridge has been restored, but is on reduced stability while we recover all signers
               </Message.Header>
 
               {/* <Message.Content>
