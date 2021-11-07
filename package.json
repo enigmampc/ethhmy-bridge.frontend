@@ -55,7 +55,7 @@
     "react-router-dom": "5.1.2",
     "react-select": "^3.2.0",
     "react-switch": "^5.0.1",
-    "secretjs": "0.11.0",
+    "secretjs": "0.17.4-beta1",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.3",
     "style-it": "2.1.4",
