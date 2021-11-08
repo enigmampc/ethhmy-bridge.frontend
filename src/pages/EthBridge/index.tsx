@@ -60,7 +60,8 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
               <Message.Header>
-                ETH bridge has been restored, but is on reduced stability while we recover all signers
+                SUPERNOVA IS COMING Nov 10th. On the 10th, 10:00 AM UTC the Secret Bridge will be disabled in preparation.
+                We are expected to be back on the 12th after a successful network upgrade. See you all on the other side!
               </Message.Header>
 
               {/* <Message.Content>
