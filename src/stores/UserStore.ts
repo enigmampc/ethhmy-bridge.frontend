@@ -5,7 +5,7 @@ import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { canonicalizeBalance, divDecimals, fixUnlockToken, formatWithSixDecimals, sleep, unlockToken } from '../utils';
-import { BroadcastMode, CosmWasmClient, SigningCosmWasmClient } from 'secretjs';
+import { BroadcastMode, CosmWasmClient, EnigmaUtils, SigningCosmWasmClient } from 'secretjs';
 import {
   getFeeForExecute,
   getViewingKey,
@@ -384,7 +384,7 @@ export class UserStoreEx extends StoreConstructor {
           this.address,
           this.keplrOfflineSigner,
           // @ts-ignore
-          window.getEnigmaUtils(this.chainId),
+          new EnigmaUtils(process.env.SECRET_LCD),
           {
             init: {
               amount: [{ amount: '300000', denom: 'uscrt' }],
