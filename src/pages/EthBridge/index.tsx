@@ -60,8 +60,7 @@ export const EthBridge = observer((props: any) => {
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
               <Message.Header>
-                SUPERNOVA IS COMING Nov 10th. On the 10th, 10:00 AM UTC the Secret Bridge will be disabled in preparation.
-                We are expected to be back on the 12th after a successful network upgrade. See you all on the other side!
+                Bridge has been disabled for the Supernova upgrade. See you all on the other side!
               </Message.Header>
 
               {/* <Message.Content>
