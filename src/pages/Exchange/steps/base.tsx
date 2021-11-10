@@ -829,7 +829,7 @@ export const Base = observer(() => {
               )}
               {exchange.mode === EXCHANGE_MODE.FROM_SCRT && selectedToken.symbol !== '' && (
                 <Button
-                  disabled={!toUnlock}
+                  disabled={true || !toUnlock}
                   bgColor={'#E1C442'}
                   color={'#061222'}
                   style={{ minWidth: 180, height: 48, borderRadius: 15 }}
@@ -859,7 +859,7 @@ export const Base = observer(() => {
                 </Button>
               )}
               <Button
-                disabled={!readyToSend}
+                disabled={true || !readyToSend}
                 margin={{ left: 'medium' }}
                 bgColor={!toApprove ? '#E1C442' : '#E1C442'}
                 color={!toApprove ? '#061222' : '#061222'}
