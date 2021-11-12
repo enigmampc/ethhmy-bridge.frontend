@@ -41,8 +41,9 @@ export const EthBridge = observer((props: any) => {
   }, []);
 
   useEffect(() => {
-    if (exchange.step === EXCHANGE_STEPS.CHECK_TRANSACTION && exchange.operation)
+    if (exchange.step === EXCHANGE_STEPS.CHECK_TRANSACTION && exchange.operation) {
       exchange.fetchStatus(exchange.operation.id);
+    }
   }, [exchange.step]);
 
   // useEffect(() => {

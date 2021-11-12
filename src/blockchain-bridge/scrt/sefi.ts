@@ -1,4 +1,4 @@
-import { CosmWasmClient, ExecuteResult, SigningCosmWasmClient } from 'secretjs';
+import { CosmWasmClient, ExecuteResult } from 'secretjs';
 import { getScrtProof } from 'services';
 import { AsyncSender } from './asyncSender';
 

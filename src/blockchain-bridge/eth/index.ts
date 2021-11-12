@@ -3,6 +3,8 @@ import { EthMethodsERC20 } from './EthMethodsERC20';
 import { TOKEN } from '../../stores/interfaces';
 import { EthMethodsSefi } from './EthMethodsSefi';
 import { NETWORKS } from './networks';
+import { BscMethodsERC20 } from './bsc/BscMethodsERC20';
+import { BscMethods } from './bsc/BscMethods';
 
 const Web3 = require('web3');
 
@@ -43,12 +45,12 @@ export const fromScrtMethods: Record<NETWORKS, Record<TOKEN, any>> = {
     [TOKEN.S20]: null,
   },
   [NETWORKS.BSC]: {
-    [TOKEN.NATIVE]: new EthMethods({
+    [TOKEN.NATIVE]: new BscMethods({
       web3: web3,
       ethManagerContract: bscManagerContract,
     }),
 
-    [TOKEN.ERC20]: new EthMethodsERC20({
+    [TOKEN.ERC20]: new BscMethodsERC20({
       web3: web3,
       ethManagerContract: bscManagerContract,
       ethManagerAddress: process.env.BSC_MANAGER_CONTRACT,

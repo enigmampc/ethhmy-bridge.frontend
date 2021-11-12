@@ -123,7 +123,7 @@ const getBalance = async (
   const swapFeeToken = ((swapFeeUsd / Number(token.price)) * 0.9).toFixed(`${toInteger(token.price)}`.length);
 
   const src_coin = exchange.transaction.tokenSelected.src_coin;
-  console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
+  //console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
   const src_address = exchange.transaction.tokenSelected.src_address;
   eth.maxAmount = userMetamask.balanceToken[src_coin]
     ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
@@ -181,7 +181,7 @@ export const Base = observer(() => {
         }
         await user.secretjs.getBlock();
       } catch (e) {
-        console.log(e?.message);
+        //console.log(e?.message);
         if (e?.message.includes('(')) {
           let error = JSON.parse(e.message.split('(')[0]);
           if (error?.statusCode === 429) {
@@ -190,7 +190,7 @@ export const Base = observer(() => {
               error?.message || 'This IP address has performed too many requests. Please wait 60 seconds and try again',
             );
           }
-          console.log(error?.statusCode);
+          //console.log(error?.statusCode);
           if (error?.statusCode === 403) {
             notify(
               'error',

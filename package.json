@@ -52,14 +52,14 @@
     "react-scrollbars-custom": "^4.0.21",
     "react-select": "^3.2.0",
     "react-switch": "^5.0.1",
-    "secretjs": "0.17.4-beta1",
+    "secretjs": "0.17.2",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.3",
     "style-it": "2.1.4",
     "superagent": "^6.0.0",
     "tslib": "^1.10.0",
     "uuid": "8.3.1",
-    "web3": "1.2.11"
+    "web3": "1.6.0"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",
