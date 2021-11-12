@@ -62,7 +62,10 @@ export const EthBridge = observer((props: any) => {
               <Message.Header>
                 Bridge has been disabled for the Supernova upgrade. See you all on the other side!
               </Message.Header>
-
+              <Message.Content>
+                Maintenance has been extended to ensure compatibility with Supernova and to add support for EIP-1559. We hope to be
+                back up by Nov 14th. Thank you for your patience
+              </Message.Content>
               {/* <Message.Content>
                 We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
                 <a
