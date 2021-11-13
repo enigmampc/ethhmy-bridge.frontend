@@ -46,7 +46,7 @@ export class Exchange extends StoreConstructor {
   @observable error = '';
   @observable txHash = '';
   @observable confirmations = 0;
-  @observable fetchOperationInterval = 0;
+  @observable fetchOperationInterval: NodeJS.Timer;
   @observable actionStatus: statusFetching = 'init';
   @observable stepNumber = EXCHANGE_STEPS.BASE;
   @observable isFeeLoading = false;
