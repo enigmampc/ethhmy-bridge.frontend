@@ -1,8 +1,9 @@
 import { Contract } from 'web3-eth-contract';
 import Web3 from 'web3';
 import { mulDecimals } from '../../utils';
-import { EIP1559Gas, getEIP1559Prices, getGasPrice } from './helpers';
+import { EIP1559Gas, getEIP1559Prices } from './helpers';
 import { BigNumber } from 'bignumber.js';
+import detectEthereumProvider from '@metamask/detect-provider';
 
 const MAX_UINT = Web3.utils
   .toBN(2)
@@ -45,18 +46,29 @@ export class EthMethodsERC20 {
   };
 
   getAllowance = async erc20Address => {
-    // @ts-ignore
-    const accounts = await ethereum.enable();
+    const callerAddress = await EthMethodsERC20.getCallerAddress();
 
     const MyERC20Json = require('../out/MyERC20.json');
     const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
 
-    return await erc20Contract.methods.allowance(accounts[0], this.ethManagerAddress).call();
+    return await erc20Contract.methods.allowance(callerAddress, this.ethManagerAddress).call();
   };
 
-  callApprove = async (erc20Address, amount, decimals, callback) => {
+  private static async getCallerAddress() {
+    const provider = await detectEthereumProvider({ mustBeMetaMask: true });
+
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    if (provider !== window.ethereum) {
+      console.error('Do you have multiple wallets installed?');
+    }
+
+    // @ts-ignore
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
+    return accounts[0];
+  }
+
+  callApprove = async (erc20Address, amount, decimals, callback) => {
+    const callerAddress = await EthMethodsERC20.getCallerAddress();
 
     const MyERC20Json = require('../out/MyERC20.json');
     const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
@@ -66,7 +78,7 @@ export class EthMethodsERC20 {
     const allowance = await this.getAllowance(erc20Address);
     const gasLimit = await erc20Contract.methods
       .approve(this.ethManagerAddress, MAX_UINT)
-      .estimateGas({ from: accounts[0] });
+      .estimateGas({ from: callerAddress });
 
     const limit2 = (gasLimit * 1.2).toFixed(0);
 
@@ -77,7 +89,7 @@ export class EthMethodsERC20 {
         this.sendHandler(
           erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT),
           {
-            from: accounts[0],
+            from: callerAddress,
             gas: (gasLimit * 1.2).toFixed(0),
             //gasPrice: await getGasPrice(this.web3),
             // maxFeePerGas: gasPrices.maxFeePerGas.toString(),
@@ -89,7 +101,7 @@ export class EthMethodsERC20 {
         this.sendHandler(
           erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT),
           {
-            from: accounts[0],
+            from: callerAddress,
             gas: (gasLimit * 1.2).toFixed(0),
             gasPrice: gasPrices.toString(),
             // maxFeePerGas: eip1559gas.maxFeePerGas,
@@ -102,31 +114,45 @@ export class EthMethodsERC20 {
   };
 
   swapToken = async (erc20Address, userAddr, amount, decimals, callback) => {
-    // @ts-ignore
-    const accounts = await ethereum.enable();
+    const callerAddress = await EthMethodsERC20.getCallerAddress();
 
     const secretAddrHex = this.web3.utils.fromAscii(userAddr);
     // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods
       .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
-      .estimateGas({ from: accounts[0] });
+      .estimateGas({ from: callerAddress });
 
-    const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
+    const gasLimit = new BigNumber(Math.max(estimateGas * 1.3, Number(process.env.ETH_GAS_LIMIT))).toFixed(0);
 
     // let eip1559gas = await getEIP1559Prices();
+    let gasPrices = await this.getGasPrice();
 
-    this.sendHandler(
-      this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address),
-      {
-        from: accounts[0],
-        gas: new BigNumber(gasLimit),
-        gasPrice: await getGasPrice(this.web3),
-        // maxFeePerGas: GWeiToWei(eip1559gas.maxFeePerGas),
-        // maxPriorityFeePerGas: GWeiToWei(eip1559gas.maxPriorityFeePerGas),
-      },
-      callback,
-    );
+    if (gasPrices instanceof EIP1559Gas) {
+      this.sendHandler(
+        this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address),
+        {
+          from: callerAddress,
+          gas: gasLimit,
+          // gasPrice: (await getGasPrice(this.web3)),
+          // maxFeePerGas: GWeiToWei(eip1559gas.maxFeePerGas),
+          // maxPriorityFeePerGas: GWeiToWei(eip1559gas.maxPriorityFeePerGas),
+        },
+        callback,
+      );
+    } else {
+      this.sendHandler(
+        this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address),
+        {
+          from: callerAddress,
+          gas: gasLimit,
+          gasPrice: gasPrices.toString(),
+          // maxFeePerGas: GWeiToWei(eip1559gas.maxFeePerGas),
+          // maxPriorityFeePerGas: GWeiToWei(eip1559gas.maxPriorityFeePerGas),
+        },
+        callback,
+      );
+    }
   };
 
   checkEthBalance = async (erc20Address, addr) => {

@@ -24,7 +24,7 @@ export class EthMethodsSefi {
 
   claimToken = async (sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await ethereum.send('eth_requestAccounts');
 
     ////////
     const accountToClaim = accounts[0]; /*'0xe342c08eB93C1886B0c277936a2cc6B6FE5C1dB3';*/

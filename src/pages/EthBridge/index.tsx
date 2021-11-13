@@ -59,22 +59,13 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message info>
-              <Message.Header>
-                ETH bridge has been restored, but is on reduced stability while we recover all signers
-              </Message.Header>
-
-              {/* <Message.Content>
-                We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
-                <a
-                  href="https://scrt.network/blog/secret-monero-bridge-is-live-on-mainnet"
-                  style={{ textDecoration: 'underline' }}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  here
-                </a>
-              </Message.Content> */}
+            <Message success>
+              <Message.Header>The Secret Bridge is back!</Message.Header>
+              <Message.Content>
+                The bridge has been upgraded to support supernova and EIP-1559 gas prices on Ethereum. We will be
+                monitoring gas prices and estimates going forwards, which will hopefully result in cheaper and more
+                predictable bridge prices. Thank you for your patience and happy bridging!
+              </Message.Content>
             </Message>
             {/*<Message info>*/}
             {/*  <Message.Header>ETH bridge maintenance has been completed, and bridge is back up!</Message.Header>*/}

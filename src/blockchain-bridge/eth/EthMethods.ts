@@ -2,6 +2,7 @@ import { Contract } from 'web3-eth-contract';
 import Web3 from 'web3';
 import { EIP1559Gas, ethToWei, getEIP1559Prices } from './helpers';
 import { BigNumber } from 'bignumber.js';
+import detectEthereumProvider from '@metamask/detect-provider';
 
 export interface IEthMethodsInitParams {
   web3: Web3;
@@ -21,16 +22,28 @@ export class EthMethods {
     return await getEIP1559Prices();
   };
 
-  swapEth = async (userAddr, amount, sendTxCallback?) => {
+  private static async getCallerAddress() {
+    const provider = await detectEthereumProvider({ mustBeMetaMask: true });
+
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    if (provider !== window.ethereum) {
+      console.error('Do you have multiple wallets installed?');
+    }
+
+    // @ts-ignore
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
+    return accounts[0];
+  }
+
+  swapEth = async (userAddr, amount, sendTxCallback?) => {
+    const callerAddress = await EthMethods.getCallerAddress();
 
     const secretAddrHex = this.web3.utils.fromAscii(userAddr);
     // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods.swap(secretAddrHex).estimateGas({
       value: ethToWei(amount),
-      from: accounts[0],
+      from: callerAddress,
     });
 
     const gasLimit = Math.max(estimateGas + estimateGas * 0.2, Number(process.env.ETH_GAS_LIMIT));
@@ -45,7 +58,7 @@ export class EthMethods {
         .swap(secretAddrHex)
         .send({
           value: ethToWei(amount),
-          from: accounts[0],
+          from: callerAddress,
           gas: gasLimit.toString(),
           //maxFeePerGas: GWeiToWei(eip1559gas.maxFeePerGas),
           //maxPriorityFeePerGas: GWeiToWei(eip1559gas.maxPriorityFeePerGas),
@@ -67,7 +80,7 @@ export class EthMethods {
         .swap(secretAddrHex)
         .send({
           value: ethToWei(amount),
-          from: accounts[0],
+          from: callerAddress,
           gas: gasLimit.toString(),
           // maxFeePerGas: GWeiToWei(eip1559gas.maxFeePerGas),
           // maxPriorityFeePerGas: GWeiToWei(eip1559gas.maxPriorityFeePerGas),

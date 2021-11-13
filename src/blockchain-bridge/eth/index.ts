@@ -8,7 +8,7 @@ import { BscMethods } from './bsc/BscMethods';
 
 const Web3 = require('web3');
 
-const web3URL = window.web3 ? window.web3.currentProvider : process.env.ETH_NODE_URL;
+const web3URL = window.web3 ? window.ethereum : process.env.ETH_NODE_URL;
 
 export const web3 = new Web3(web3URL);
 
