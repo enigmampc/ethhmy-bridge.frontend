@@ -15,9 +15,11 @@ export const getBridgeGasPrice = async (web3: Web3) => {
   let gasPriceApi = 0;
 
   try {
-    const info = await agent.get(`https://ethgasstation.info/api/ethgasAPI.json`);
+    const info = await agent.get(`https://blocknative-api.herokuapp.com/data`);
 
-    gasPriceApi = mulDecimals(info.body.fast, 8);
+    let price = info.body.estimatedPrices[1].price;
+
+    gasPriceApi = mulDecimals(price, 9);
 
     return new BN(gasPriceApi);
   } catch (e) {
