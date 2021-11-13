@@ -46,7 +46,7 @@ export class Exchange extends StoreConstructor {
   @observable error = '';
   @observable txHash = '';
   @observable confirmations = 0;
-  @observable fetchOperationInterval = 0;
+  @observable fetchOperationInterval: any;
   @observable actionStatus: statusFetching = 'init';
   @observable stepNumber = EXCHANGE_STEPS.BASE;
   @observable isFeeLoading = false;
@@ -106,7 +106,7 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get networkFee() {
-    return this.mode === EXCHANGE_MODE.TO_SCRT ? this.ethNetworkFee : 0.0134438;
+    return this.mode === EXCHANGE_MODE.TO_SCRT ? this.ethNetworkFee : 0.025;
   }
 
   @computed

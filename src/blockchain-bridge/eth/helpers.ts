@@ -4,9 +4,10 @@ import { web3 } from './index';
 import * as agent from 'superagent';
 import { NETWORKS } from './networks';
 
+import { BigNumber } from 'bignumber.js';
 const BN = require('bn.js');
 
-export const getGasPrice = async (web3: Web3) => {
+export const getGasPrice = async (web3: Web3): Promise<BigNumber> => {
   return new BN(await web3.eth.getGasPrice()).mul(new BN(1));
 };
 
@@ -26,15 +27,15 @@ export const getBridgeGasPrice = async (web3: Web3) => {
 };
 
 export const isGasCrazy = async (): Promise<boolean> => {
-  try {
-    const info = await agent.get(`https://ethgasstation.info/api/ethgasAPI.json`);
-
-    if (info.body.fastest > info.body.average * 2) {
-      return true;
-    }
-  } catch (e) {
-    console.error(`Error getting gas price: ${e}`);
-  }
+  // try {
+  //   const info = await agent.get(`https://ethgasstation.info/api/ethgasAPI.json`);
+  //
+  //   if (info.body.fastest > info.body.average * 2) {
+  //     return true;
+  //   }
+  // } catch (e) {
+  //   console.error(`Error getting gas price: ${e}`);
+  // }
   return false;
 };
 
@@ -62,20 +63,23 @@ export const ethToWei = (amount: string | number) => mulDecimals(amount, 18);
 
 export const GWeiToWei = (amount: string | number) => mulDecimals(amount, 9);
 
-interface EIP1559Gas {
+export class EIP1559Gas {
+  constructor(fee: number | undefined, priority: number | undefined) {
+    this.maxFeePerGas = fee;
+    this.maxPriorityFeePerGas = priority;
+  }
+
   maxFeePerGas: number;
   maxPriorityFeePerGas: number;
 }
 
 export const getEIP1559Prices = async (): Promise<EIP1559Gas> => {
   try {
-    const info = await agent.get(`https://blocknative-api.herokuapp.com/data`);
-
-    return {
-      maxFeePerGas: info.body.estimatedPrices[1].maxFeePerGas,
-      maxPriorityFeePerGas: info.body.estimatedPrices[1].maxPriorityFeePerGas,
-    };
+    return new EIP1559Gas(undefined, undefined);
+    // const info = await agent.get(`https://blocknative-api.herokuapp.com/data`);
+    //
+    // return new EIP1559Gas(info.body.estimatedPrices[1].maxFeePerGas, info.body.estimatedPrices[1].maxPriorityFeePerGas);
   } catch (e) {
-    return { maxFeePerGas: undefined, maxPriorityFeePerGas: undefined };
+    return new EIP1559Gas(undefined, undefined);
   }
 };

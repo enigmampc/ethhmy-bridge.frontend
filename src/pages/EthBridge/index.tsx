@@ -41,8 +41,9 @@ export const EthBridge = observer((props: any) => {
   }, []);
 
   useEffect(() => {
-    if (exchange.step === EXCHANGE_STEPS.CHECK_TRANSACTION && exchange.operation)
+    if (exchange.step === EXCHANGE_STEPS.CHECK_TRANSACTION && exchange.operation) {
       exchange.fetchStatus(exchange.operation.id);
+    }
   }, [exchange.step]);
 
   // useEffect(() => {
@@ -58,25 +59,13 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message info>
-              <Message.Header>
-                Bridge has been disabled for the Supernova upgrade. See you all on the other side!
-              </Message.Header>
+            <Message success>
+              <Message.Header>The Secret Bridge is back!</Message.Header>
               <Message.Content>
-                Maintenance has been extended to ensure compatibility with Supernova and to add support for EIP-1559. We
-                hope to be back up by Nov 14th. Thank you for your patience
+                The bridge has been upgraded to support supernova and EIP-1559 gas prices on Ethereum. We will be
+                monitoring gas prices and estimates going forwards, which will hopefully result in cheaper and more
+                predictable bridge prices. Thank you for your patience and happy bridging!
               </Message.Content>
-              {/* <Message.Content>
-                We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}
-                <a
-                  href="https://scrt.network/blog/secret-monero-bridge-is-live-on-mainnet"
-                  style={{ textDecoration: 'underline' }}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  here
-                </a>
-              </Message.Content> */}
             </Message>
             {/*<Message info>*/}
             {/*  <Message.Header>ETH bridge maintenance has been completed, and bridge is back up!</Message.Header>*/}

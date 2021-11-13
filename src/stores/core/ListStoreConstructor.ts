@@ -71,7 +71,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
   public endpointFn: (params: any) => Promise<{ content: T[]; [name: string]: any }>;
   public debouncedFetch: any;
   public pollingInterval: number;
-  tId: number;
+  tId: any;
 
   reactionId: any;
 

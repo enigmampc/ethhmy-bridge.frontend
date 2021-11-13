@@ -1,5 +1,5 @@
-import { CosmWasmClient, ExecuteResult, SigningCosmWasmClient } from 'secretjs';
-import { divDecimals, unlockToken } from '../../utils';
+import { CosmWasmClient, ExecuteResult } from 'secretjs';
+import { unlockToken } from '../../utils';
 import { StdFee } from 'secretjs/types/types';
 import { AsyncSender } from './asyncSender';
 

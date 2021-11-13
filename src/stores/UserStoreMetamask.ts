@@ -59,7 +59,7 @@ export class UserStoreMetamask extends StoreConstructor {
   public balancesLoading: boolean = false;
   @observable public isMetaMask = false;
   private provider: any;
-
+  private setupLock: boolean = false;
   @observable public chainName: string;
   @observable public ethAddress: string;
   @observable public nativeBalance: string = '';
@@ -204,6 +204,11 @@ export class UserStoreMetamask extends StoreConstructor {
     const provider = await detectEthereumProvider();
     if (provider) {
       try {
+        // simple lock to make sure the ui doesn't call this a bazillion times
+        if (this.setupLock) {
+          return false;
+        }
+        this.setupLock = true;
         if (chainId === 56) {
           // @ts-ignore
           await provider.request({
@@ -215,6 +220,21 @@ export class UserStoreMetamask extends StoreConstructor {
                 nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
                 rpcUrls: ['https://bsc-dataseed.binance.org/'],
                 blockExplorerUrls: ['https://bscscan.com/'],
+              },
+            ],
+          });
+        }
+        if (chainId === 1) {
+          // @ts-ignore
+          await provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [
+              {
+                chainId: `0x1`,
+                // chainName: 'Ethereum Mainnet',
+                // nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                // rpcUrls: ['https://mainnet.infura.io/v3/undefined'],
+                // blockExplorerUrls: ['https://etherscan.io']
               },
             ],
           });
@@ -234,6 +254,8 @@ export class UserStoreMetamask extends StoreConstructor {
         //     ],
         //   })
         // }
+
+        this.setupLock = false;
         return true;
       } catch (error) {
         console.error(error);

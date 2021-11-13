@@ -30,7 +30,7 @@ export const createNotification = (type: 'success' | 'error', msg: string, hideA
 
 export const createViewingKey = async (user: any, callback?: Function) => {
   try {
-    console.log(user.chainId, user.snip20Address);
+    //console.log(user.chainId, user.snip20Address);
     await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
     callback(true);
   } catch (error) {
