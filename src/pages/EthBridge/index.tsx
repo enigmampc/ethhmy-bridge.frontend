@@ -59,13 +59,13 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message success>
-              <Message.Header>The Duplex Bridge has been disabled for maintenance</Message.Header>
-              <Message.Content>
-                Due to the Supernova upgrade, the Duplex bridge will be unavailable for the duration of the upgrade.
-                We expect to return to full functionality soon after the upgrade is complete. Thank you for your patience
-              </Message.Content>
-            </Message>
+            {/*<Message success>*/}
+            {/*  <Message.Header>The Duplex Bridge has been disabled for maintenance</Message.Header>*/}
+            {/*  <Message.Content>*/}
+            {/*    Due to the Supernova upgrade, the Duplex bridge will be unavailable for the duration of the upgrade.*/}
+            {/*    We expect to return to full functionality soon after the upgrade is complete. Thank you for your patience*/}
+            {/*  </Message.Content>*/}
+            {/*</Message>*/}
             {/*    We are excited to announce the launch of the Secret Monero Bridge on mainnet! Read more about it{' '}*/}
             {/*    <a*/}
             {/*      href="https://scrt.network/blog/secret-monero-bridge-is-live-on-mainnet"*/}

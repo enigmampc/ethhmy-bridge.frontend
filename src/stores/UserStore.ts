@@ -335,12 +335,12 @@ export class UserStoreEx extends StoreConstructor {
             window.getEnigmaUtils(this.chainId),
             {
               init: {
-                amount: [{ amount: '300000', denom: 'uscrt' }],
-                gas: '300000',
+                amount: [{ amount: '25000', denom: 'uscrt' }],
+                gas: '100000',
               },
               exec: {
-                amount: [{ amount: '500000', denom: 'uscrt' }],
-                gas: '500000',
+                amount: [{ amount: '25000', denom: 'uscrt' }],
+                gas: '100000',
               },
             },
             BroadcastMode.Async,
@@ -661,9 +661,9 @@ export class UserStoreEx extends StoreConstructor {
     //     }),
     // );
 
-    this.scrtRate = Number(
-      this.stores.tokens.allData.find(token => token.display_props.symbol.toUpperCase() === 'SSCRT').price,
-    );
+    // this.scrtRate = Number(
+    //   this.stores.tokens.allData.find(token => token.display_props.symbol.toUpperCase() === 'SSCRT')?.price,
+    // );
 
     // fallback to binance prices
     if (isNaN(this.scrtRate) || this.scrtRate === 0) {

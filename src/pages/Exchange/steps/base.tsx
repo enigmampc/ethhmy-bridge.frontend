@@ -624,7 +624,7 @@ export const Base = observer(() => {
                           if (maxAmount === unlockToken || maxAmount === wrongNetwork) return;
                           if (validateAmountInput(maxAmount, minAmount, maxAmount)) return;
 
-                          exchange.transaction.amount = (new BigNumber(maxAmount)).toFixed(2, BigNumber.ROUND_DOWN);
+                          exchange.transaction.amount = new BigNumber(maxAmount).toFixed(2, BigNumber.ROUND_DOWN);
                         }}
                       >
                         <Text size="xxsmall" bold color={'#E1C442'}>
@@ -737,34 +737,34 @@ export const Base = observer(() => {
           </Box>
         </Form>
         {Number(tokenAmountLocked) > MINIMUM_DISPLAY && (
-        <Box
-          style={{
-            width: 1024,
-            paddingBottom: 100,
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: -30,
-          }}
-        >
-          <Box className={styles.depositBarText}>
-            <Box fill className={styles.depositBarTextLeft}>
-              <Text>Total UST deposited</Text>
+          <Box
+            style={{
+              width: 1024,
+              paddingBottom: 100,
+              display: 'flex',
+              alignItems: 'center',
+              marginTop: -30,
+            }}
+          >
+            <Box className={styles.depositBarText}>
+              <Box fill className={styles.depositBarTextLeft}>
+                <Text>Total UST deposited</Text>
+              </Box>
+              <Box fill className={styles.depositBarTextRight}>
+                <Text>
+                  {Number(tokenAmountLocked).toFixed(0)}/{tokenLimit}
+                </Text>
+              </Box>
             </Box>
-            <Box fill className={styles.depositBarTextRight}>
-              <Text>
-                {Number(tokenAmountLocked).toFixed(0)}/{tokenLimit}
-              </Text>
-            </Box>
+            <Progress
+              percent={(Number(tokenAmountLocked) / Number(tokenLimit)) * 100}
+              style={{ width: 500 }}
+              color={'yellow'}
+              inverted
+              //progress
+            />
           </Box>
-          <Progress
-            percent={(Number(tokenAmountLocked) / Number(tokenLimit)) * 100}
-            style={{ width: 500 }}
-            color={'yellow'}
-            inverted
-            //progress
-          />
-        </Box>
-          )}
+        )}
         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
           <Box style={{ maxWidth: '50%' }}>
             {isTokenLocked && (
@@ -829,7 +829,7 @@ export const Base = observer(() => {
               )}
               {exchange.mode === EXCHANGE_MODE.FROM_SCRT && selectedToken.symbol !== '' && (
                 <Button
-                  disabled={true || !toUnlock}
+                  disabled={!toUnlock}
                   bgColor={'#E1C442'}
                   color={'#061222'}
                   style={{ minWidth: 180, height: 48, borderRadius: 15 }}
@@ -859,7 +859,7 @@ export const Base = observer(() => {
                 </Button>
               )}
               <Button
-                disabled={true || !readyToSend}
+                disabled={!readyToSend}
                 margin={{ left: 'medium' }}
                 bgColor={!toApprove ? '#E1C442' : '#E1C442'}
                 color={!toApprove ? '#061222' : '#061222'}

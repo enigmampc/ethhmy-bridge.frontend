@@ -107,7 +107,7 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get networkFee() {
-    return this.mode === EXCHANGE_MODE.TO_SCRT ? this.ethNetworkFee : 0.0134438;
+    return this.mode === EXCHANGE_MODE.TO_SCRT ? this.ethNetworkFee : 0.025;
   }
 
   @computed
@@ -142,14 +142,14 @@ export class Exchange extends StoreConstructor {
           case EXCHANGE_MODE.FROM_SCRT:
             this.transaction.scrtAddress = this.stores.user.address;
             this.isFeeLoading = true;
-            this.ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
-            let token: ITokenInfo;
-            if (this.token === TOKEN.NATIVE) {
-              token = this.tokens.find(t => t.src_address === 'native');
-            } else {
-              token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
-            }
-            this.swapFeeUsd = this.ethSwapFee * this.stores.userMetamask.getNetworkPrice();
+            // this.ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
+            // let token: ITokenInfo;
+            // if (this.token === TOKEN.NATIVE) {
+            //   token = this.tokens.find(t => t.src_address === 'native');
+            // } else {
+            //   token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
+            // }
+            this.swapFeeUsd = 50; //this.ethSwapFee * this.stores.userMetamask.getNetworkPrice()
             this.swapFeeToken = 50; //this.swapFeeUsd / Number(token.price) / 8;
             this.isFeeLoading = false;
             break;
