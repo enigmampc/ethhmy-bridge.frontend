@@ -275,7 +275,7 @@ export const SwapConfirmation = observer(() => {
                   />
 
                   <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>
-                    You will recieve
+                    You will receive
                   </Text>
                 </Box>
                 {!calculated ? (
