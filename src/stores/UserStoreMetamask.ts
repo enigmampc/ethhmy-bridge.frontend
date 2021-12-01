@@ -428,17 +428,22 @@ export class UserStoreMetamask extends StoreConstructor {
     this.stores.user.snip20Balance = '';
     this.stores.user.snip20BalanceMin = '';
 
-    this.erc20TokenDetails = await contract.fromScrtMethods[this.network][TOKEN.ERC20].tokenDetails(erc20Address);
+    try {
+      this.erc20TokenDetails = await contract.fromScrtMethods[this.network][TOKEN.ERC20].tokenDetails(erc20Address);
 
-    this.erc20Address = erc20Address;
-    this.erc20Balance = divDecimals(
-      await getErc20Balance(this.ethAddress, erc20Address),
-      this.erc20TokenDetails.decimals,
-    );
+      this.erc20Address = erc20Address;
+      this.erc20Balance = divDecimals(
+        await getErc20Balance(this.ethAddress, erc20Address),
+        this.erc20TokenDetails.decimals,
+      );
 
-    this.erc20BalanceMin = this.stores.tokens.allData.find(
-      t => t.src_address === erc20Address,
-    ).display_props.min_to_scrt;
+      this.erc20BalanceMin = this.stores.tokens.allData.find(
+        t => t.src_address === erc20Address,
+      ).display_props.min_to_scrt;
+    } catch (e) {
+      console.error("failed to get erc20 token details")
+    }
+
 
     if (tokens) {
       const token = tokens.allData.find(t => t.src_address === this.erc20Address);
@@ -446,6 +451,7 @@ export class UserStoreMetamask extends StoreConstructor {
         await this.stores.user.updateBalanceForSymbol(token.display_props.symbol);
 
         this.stores.user.snip20Address = token.dst_address;
+        console.log(`set user snip20: ${this.stores.user.snip20Address}`)
         this.stores.user.snip20Balance = this.stores.user.balanceToken[token.src_coin];
         this.stores.user.snip20BalanceMin = this.stores.user.balanceTokenMin[token.src_coin];
       }

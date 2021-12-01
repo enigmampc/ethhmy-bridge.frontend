@@ -297,7 +297,7 @@ export const SwapConfirmation = observer(() => {
               </HeadShake>
             )}
 
-            {exchange.mode === EXCHANGE_MODE.FROM_SCRT && !correctNetwork && (
+            {exchange.mode === EXCHANGE_MODE.FROM_SCRT && userMetamask?.chainId && !correctNetwork && (
               <HeadShake bottom>
                 <Box margin={{ top: 'xsmall' }}>
                   <Text color={'#a1991d'}>
@@ -347,7 +347,7 @@ export const SwapConfirmation = observer(() => {
             {exchange.mode === EXCHANGE_MODE.FROM_SCRT && (
               <Box margin={{ top: 'xsmall' }}>
                 <Text color="#748695" size="xsmall">
-                  You are about to move your secret tokens back to {userMetamask.getNetworkFullName()}. You will receive
+                  You are about to move your secret tokens back to Ethereum. You will receive
                   approximately{' '}
                   <b>
                     {formatWithSixDecimals(calculated)} {symbol}
@@ -356,7 +356,7 @@ export const SwapConfirmation = observer(() => {
                   <b>
                     {formatWithSixDecimals(Number(exchange.swapFeeToken))} {symbol}
                   </b>{' '}
-                  will be used to pay for {userMetamask.getNetworkFullName()} gas fees
+                  will be used to pay for Ethereum gas fees
                 </Text>
               </Box>
             )}

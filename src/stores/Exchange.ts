@@ -126,7 +126,7 @@ export class Exchange extends StoreConstructor {
       modal: false,
       onClickSend: async () => {
         this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
-        this.transaction.snip20Address = this.stores.user.snip20Address;
+        this.transaction.snip20Address = this.stores.user.snip20Address || "secret1mhwawf2yu7erjgmya6mqy0apl08a5f2xz568qg";
         this.transaction.loading = false;
         this.stepNumber = EXCHANGE_STEPS.CONFIRMATION;
 
@@ -570,6 +570,7 @@ export class Exchange extends StoreConstructor {
     let proxyContract: string;
     let decimals: number | string;
     let recipient = chainPropToString(chainProps.swap_contract, this.network);
+
     //let price: string;
     if (isNative) {
       const token = this.tokens.find(t => t.src_address === 'native');
@@ -577,11 +578,14 @@ export class Exchange extends StoreConstructor {
       //price = token.price;
       this.transaction.snip20Address = token.dst_address;
     } else {
+      console.log('HELLO')
       const token = this.tokens.find(t => t.dst_address === this.transaction.snip20Address);
+      console.log(`HELLO2 ${JSON.stringify(token)} ${this.transaction.snip20Address}`)
       if (token) {
         decimals = token.decimals;
         //price = token.price;
         this.transaction.snip20Address = token.dst_address;
+        console.log('HELLO3')
         // todo: fix this up - proxy token
         if (token.display_props.proxy) {
           proxyContract = ProxyTokens[token.display_props.symbol.toUpperCase()][this.network]?.proxy;

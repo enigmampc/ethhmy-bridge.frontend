@@ -104,32 +104,48 @@ const getBalance = async (
   const eth = { minAmount: '0', maxAmount: '0', maxAllowed: '0' };
   const scrt = { minAmount: '0', maxAmount: '0' };
 
-  const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
-  const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
-  const swapFeeToken = (((swapFeeUsd / Number(token.price)) * 0.9) / 8).toFixed(`${toInteger(token.price)}`.length);
-
   const src_coin = exchange.transaction.tokenSelected.src_coin;
-  console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
   const src_address = exchange.transaction.tokenSelected.src_address;
-  eth.maxAmount = userMetamask.balanceToken[src_coin]
-    ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
-    : wrongNetwork;
+  let swapFeeToken = '0';
 
-  if (maxRemaining) {
-    eth.maxAllowed = String(maxRemaining);
+  // get eth balance
+  try {
+    const ethSwapFee = await getDuplexNetworkFee(Number(process.env.SWAP_FEE));
+
+    const swapFeeUsd = ethSwapFee * userMetamask.getNetworkPrice();
+    swapFeeToken = (((swapFeeUsd / Number(token.price)) * 0.9) / 8).toFixed(`${toInteger(token.price)}`.length);
+
+    console.log(`${src_coin} ${userMetamask.balanceToken[src_coin]}`);
+    eth.maxAmount = userMetamask.balanceToken[src_coin]
+      ? divDecimals(userMetamask.balanceToken[src_coin], token.decimals)
+      : wrongNetwork;
+
+    if (maxRemaining) {
+      eth.maxAllowed = String(maxRemaining);
+    }
+
+    eth.minAmount = userMetamask.balanceTokenMin[src_coin] || '0';
+
+    if (src_address === 'native') {
+      eth.maxAmount = (await userMetamask.isCorrectNetworkSelected()) ? userMetamask.nativeBalance || '0' : wrongNetwork;
+      eth.minAmount = userMetamask.nativeBalanceMin || '0';
+    }
+  } catch (e) {
+    console.error(`failed to get eth balances: ${e}`);
   }
 
-  eth.minAmount = userMetamask.balanceTokenMin[src_coin] || '0';
-  scrt.maxAmount = user.balanceToken[src_coin] || '0';
-  scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
-  if (src_address === 'native') {
-    eth.maxAmount = (await userMetamask.isCorrectNetworkSelected()) ? userMetamask.nativeBalance || '0' : wrongNetwork;
-    eth.minAmount = userMetamask.nativeBalanceMin || '0';
+  // get scrt balance
+  try {
+    scrt.maxAmount = user.balanceToken[src_coin] || '0';
+    scrt.minAmount = `${Math.max(Number(swapFeeToken), Number(token.display_props.min_from_scrt))}` || '0';
+
+    if (isLocked) {
+      scrt.maxAmount = unlockToken;
+    }
+  } catch (e) {
+    console.error(`failed to get scrt balances: ${e}`)
   }
 
-  if (isLocked) {
-    scrt.maxAmount = unlockToken;
-  }
 
   return { eth, scrt };
 };
@@ -446,9 +462,10 @@ export const Base = observer(() => {
       if (token.src_address !== 'native') {
         await userMetamask.setToken(value, tokens);
       }
-      await user.updateBalanceForSymbol(token.display_props.symbol);
-      await update();
     } catch (e) {
+      console.error(`failed to set token: ${e}`)
+    } finally {
+      await user.updateBalanceForSymbol(token.display_props.symbol);
       await update();
     }
   };
