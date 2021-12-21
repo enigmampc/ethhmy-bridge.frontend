@@ -117,7 +117,7 @@ export const signerToString = (signer: Signer): string => {
     case Signer.citadel:
       return 'Citadel.One';
     case Signer.enigma:
-      return 'Enigma';
+      return 'SCRT Labs';
     case Signer.figment:
       return 'Figment';
     case Signer.staked:
