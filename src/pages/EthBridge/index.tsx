@@ -60,9 +60,10 @@ export const EthBridge = observer((props: any) => {
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message success>
-              <Message.Header>Ethereum Bridge Disabled for Maintenance</Message.Header>
+              <Message.Header>Ethereum Bridge is back up!</Message.Header>
               <Message.Content>
-                Just some scheduled maintenance. Expect the bridge to be back shortly. Thank you for your patience
+                RSR has been migrated to the new contract, you may now continue to use RSR via the bridge. Make sure
+                your wallet supports the new address - 0x320623b8e4ff03373931769a31fc52a4e78b5d70
               </Message.Content>
             </Message>
             {/*<Message info>*/}
