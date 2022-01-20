@@ -60,11 +60,9 @@ export const EthBridge = observer((props: any) => {
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message success>
-              <Message.Header>The Secret Bridge is back!</Message.Header>
+              <Message.Header>Ethereum Bridge Disabled for Maintenance</Message.Header>
               <Message.Content>
-                The bridge has been upgraded to support supernova and EIP-1559 gas prices on Ethereum. We will be
-                monitoring gas prices and estimates going forwards, which will hopefully result in cheaper and more
-                predictable bridge prices. Thank you for your patience and happy bridging!
+                Just some scheduled maintenance. Expect the bridge to be back shortly. Thank you for your patience
               </Message.Content>
             </Message>
             {/*<Message info>*/}
