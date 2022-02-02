@@ -94,7 +94,7 @@ export const MainFooter: typeof Box = props => (
             <Text>Secretnodes Explorer</Text>
           </a>
           <a
-            href="https://mintscan.com/secret"
+            href="https://mintscan.io/secret"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
             rel="noreferrer"
