@@ -65,7 +65,7 @@ export const MainFooter: typeof Box = props => (
             <Text>Discord</Text>
           </a>
           <a
-            href="https://github.com/enigmampc"
+            href="https://github.com/scrtlabs"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
             rel="noreferrer"
