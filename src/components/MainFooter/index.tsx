@@ -86,12 +86,20 @@ export const MainFooter: typeof Box = props => (
             Community links
           </Title>
           <a
-            href="https://puzzle.report/"
+            href="https://secretnodes.com/"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
             rel="noreferrer"
           >
-            <Text>Puzzle</Text>
+            <Text>Secretnodes Explorer</Text>
+          </a>
+          <a
+            href="https://mintscan.com/secret"
+            style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Text>Mintscan Explorer</Text>
           </a>
           <a
             href="http://www.secretanalytics.xyz/"
