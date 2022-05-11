@@ -59,12 +59,10 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message success>
-              <Message.Header>Notice to withdraw deposited ETH.RUNE</Message.Header>
+            <Message info>
+              <Message.Header>Expected Downtime</Message.Header>
               <Message.Content>
-                ETH.RUNE is being deprecated in favor of native RUNE. To avoid fund loss, we recommend
-                withdrawing all RUNE from the bridge and performing migration. For instructions and more information, see{' '}
-                <a href={"https://medium.com/thorchain/upgrading-to-native-rune-a9d48e0bf40f"} target="_blank" rel="noreferrer">this link</a>
+                The bridge will be down during the Shockwave Alpha network upgrade which is expected around 13:30 UTC. Thank you for your patience
               </Message.Content>
             </Message>
             {/*<Message info>*/}
