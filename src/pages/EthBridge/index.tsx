@@ -60,9 +60,9 @@ export const EthBridge = observer((props: any) => {
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
-              <Message.Header>Expected Downtime</Message.Header>
+              <Message.Header>Downtime for Network upgrade</Message.Header>
               <Message.Content>
-                The bridge will be down during the Shockwave Alpha network upgrade which is expected around 13:30 UTC. Thank you for your patience
+                The bridge is current down for the network upgrade. Thank you for your patience
               </Message.Content>
             </Message>
             {/*<Message info>*/}
