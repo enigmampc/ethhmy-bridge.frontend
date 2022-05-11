@@ -59,10 +59,10 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message info>
-              <Message.Header>Downtime for Network upgrade</Message.Header>
+            <Message success>
+              <Message.Header>Bridge is back up</Message.Header>
               <Message.Content>
-                The bridge is current down for the network upgrade. Thank you for your patience
+                The bridge is back up post update. Thank you for your patience
               </Message.Content>
             </Message>
             {/*<Message info>*/}
