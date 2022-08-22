@@ -123,7 +123,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(styles.itemToken, isSwap ? styles.selected : '')}
               onClick={() => {
-                const url = `https://app.secretswap.io/swap`;
+                const url = `https://app.secretswap.net/swap`;
                 const win = window.open(url, '_blank');
                 win.focus();
               }}

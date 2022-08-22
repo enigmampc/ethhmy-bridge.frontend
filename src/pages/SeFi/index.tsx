@@ -60,7 +60,7 @@ interface RewardData {
 }
 
 export const SeFiPage = observer(() => {
-  window.location.href = 'https://app.secretswap.io/earn';
+  window.location.href = 'https://app.secretswap.net/earn';
 
   const { user, tokens, rewards, userMetamask } = useStores();
 
