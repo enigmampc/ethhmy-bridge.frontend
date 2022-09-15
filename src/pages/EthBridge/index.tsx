@@ -60,9 +60,9 @@ export const EthBridge = observer((props: any) => {
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Message info>
-              <Message.Header>Downtime for Eth Merge</Message.Header>
+              <Message.Header>We back</Message.Header>
               <Message.Content>
-                We will be disabling the Ethereum bridge ahead of the Ethereum Merge for about 24 hours in order to protect user funds in case of anything crazy happening. See you on the other side!
+                Eth Bridge is back up. We'll be monitoring things to ensure stability throughout the day
               </Message.Content>
             </Message>
             {/*<Message info>*/}
