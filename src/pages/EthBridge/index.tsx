@@ -59,10 +59,12 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            <Message info>
-              <Message.Header>We back</Message.Header>
+            <Message warning>
+              <Message.Header>Ethereum and BSC bridge technical difficulties</Message.Header>
               <Message.Content>
-                Eth Bridge is back up. We'll be monitoring things to ensure stability throughout the day
+                Transfers from Ethereum and BSC during the last day have been silently failing. We have resolved the issue for the Ethereum bridge
+                and will try to resolve it on the BSC bridge as fast as possible. <i>For now, please avoid sending assets from BSC to Secret.</i>
+                Stuck txs will be resolved within the following 24 hours. Sorry for the inconvenience!
               </Message.Content>
             </Message>
             {/*<Message info>*/}
