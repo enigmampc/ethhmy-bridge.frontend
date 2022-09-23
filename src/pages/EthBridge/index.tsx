@@ -67,6 +67,8 @@ export const EthBridge = observer((props: any) => {
                 Stuck txs will be resolved within the following 24 hours. Sorry for the inconvenience!
                 <br/>
                 UPDATE 2022-09-23 07:55 UTC : BSC bridge is down for maintenance. It should be back in 2-3 hours
+                <br/>
+                UPDATE 2022-09-23 11:10 UTC : Still working on it
               </Message.Content>
             </Message>
             {/*<Message info>*/}
