@@ -62,9 +62,11 @@ export const EthBridge = observer((props: any) => {
             <Message warning>
               <Message.Header>Ethereum and BSC bridge technical difficulties</Message.Header>
               <Message.Content>
-                Transfers from Ethereum and BSC during the last day have been silently failing. We have resolved the issue for the Ethereum bridge
+                2022-09-22: Transfers from Ethereum and BSC during the last day have been silently failing. We have resolved the issue for the Ethereum bridge
                 and will try to resolve it on the BSC bridge as fast as possible. <i>For now, please avoid sending assets from BSC to Secret.</i>
                 Stuck txs will be resolved within the following 24 hours. Sorry for the inconvenience!
+                <br/>
+                UPDATE 2022-09-23 07:55 UTC : BSC bridge is down for maintenance. It should be back in 2-3 hours
               </Message.Content>
             </Message>
             {/*<Message info>*/}
