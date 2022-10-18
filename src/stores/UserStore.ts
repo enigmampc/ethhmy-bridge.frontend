@@ -336,11 +336,11 @@ export class UserStoreEx extends StoreConstructor {
             {
               init: {
                 amount: [{ amount: '25000', denom: 'uscrt' }],
-                gas: '350000',
+                gas: '700000',
               },
               exec: {
                 amount: [{ amount: '25000', denom: 'uscrt' }],
-                gas: '350000',
+                gas: '700000',
               },
             },
             BroadcastMode.Async,
