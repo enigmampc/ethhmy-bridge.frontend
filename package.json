@@ -2,6 +2,9 @@
   "name": "ethereum-bridge-frontend",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": "14.19.1"
+  },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js",
