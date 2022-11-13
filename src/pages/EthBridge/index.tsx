@@ -59,12 +59,12 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-<!--             <Message info>
+            {/* <Message info>
               <Message.Header>Ethereum and BSC bridge technical difficulties</Message.Header>
               <Message.Content>
                 2022-09-23 14:40 UTC: All bridges are back up.
               </Message.Content>
-            </Message> -->
+            </Message> */}
             {/*<Message info>*/}
             {/*  <Message.Header>ETH bridge maintenance has been completed, and bridge is back up!</Message.Header>*/}
             {/*</Message>*/}
