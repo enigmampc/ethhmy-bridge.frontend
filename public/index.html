@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
     integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ=="
     crossorigin="anonymous" />
-  <link href="/static/bridge.svg" rel="icon" sizes="120x120" />
+  <link href="/static/bridge.svg" rel="icon" sizes="120x120" type="image/svg+xml" />
 
   <!--
       Notice the use of %PUBLIC_URL% in the tags above.
@@ -32,6 +32,165 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <title>𝕊ecret Bridge</title>
+  <meta name="application-name" content="𝕊ecret Bridge">
+
+  <!-- Ethereum -->
+  <link rel="prefetch" as="image" href="/static/networks/eth.svg" data-caip-2="eip155:1" data-caip19="eip155:1/slip44:60">
+
+  <!-- Binance Smart Chain -->
+  <link rel="prefetch" as="image" href="/static/networks/binance-smart-chain.svg" data-caip-2="eip155:56" data-caip19="eip155:56/slip44:519">
+
+  <!-- sSCRT, ETH proxy, BSC proxy -->
+  <link rel="prefetch" as="image" href="/static/scrt.svg" data-caip-19="cosmos:secret-4:snip20/secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek">
+  <link rel="prefetch" as="image" href="/static/scrt.svg" data-caip-10="cosmos:secret-4:secret1zxt48uqzquvjsp2a7suzxlyd9n3jfpdw4k5zve">
+  <link rel="prefetch" as="image" href="/static/scrt.svg" data-caip-10="cosmos:secret-4:secret1t9cdexpf8pxtjlz4k9cfydd0ml2jxanl0uw5s0">
+
+  <!-- Sienna, ETH proxy, BSC proxy -->
+  <link rel="prefetch" as="image" href="/static/tokens/sienna-token.svg" data-caip-19="cosmos:secret-4:snip20/secret1rgm2m5t530tdzyd99775n6vzumxa5luxcllml4">
+  <link rel="prefetch" as="image" href="/static/tokens/sienna-token.svg" data-caip-10="cosmos:secret-4:secret1vq0gc5wdjqnalvtgra3dr4m07kaxkhq2st3hzx">
+  <link rel="prefetch" as="image" href="/static/tokens/sienna-token.svg" data-caip-10="cosmos:secret-4:secret17askz8qzhwgx5s2kumzpyneuccmmwv4drhhkgy">
+  
+  <!-- Bridge contracts: SCRT-ETH, SCRT-BSC, ETH-SCRT, BSC-SCRT -->
+  <link rel="prefetch" as="image" href="/static/bridge.svg" data-caip-10="cosmos:secret-4:secret1sferux27lpr3lm52c8sq2dd7m54xhm28thnj5y">
+  <link rel="prefetch" as="image" href="/static/bridge.svg" data-caip-10="cosmos:secret-4:secret168mwctng6s7vk9w5d7n0wsty2f7vaq3rjq8g7c">
+  <link rel="prefetch" as="image" href="/static/bridge.svg" data-caip-10="eip155:1:0xf4B00C937b4ec4Bb5AC051c3c719036c668a31EC">
+  <link rel="prefetch" as="image" href="/static/bridge.svg" data-caip-19="eip155:56:0x3E171dD33502fb993A853F420eA3cd8E9385B757">
+
+  <!-- SEFI -->
+  <link rel="prefetch" as="image" href="/static/sefi.png" data-caip-19="cosmos:secret-4:snip20/secret15l9cqgz5uezgydrglaak5ahfac69kmx2qpd6xt">
+
+  <!-- WHIP-003 declarations -->
+  <script type="application/toml" data-whip-003>
+    [chains.secret-network]
+    namespace = "cosmos"
+    reference = "secret-4"
+    label = "Secret Network"
+    bech32s = "secret"
+
+    [chains.ethereum]
+    namespace = "eip155"
+    reference = "1"
+    label = "Ethereum Mainnet"
+
+    [chains.binance-smart-chain]
+    namespace = "eip155"
+    reference = "56"
+    label = "Binance Smart Chain (BSC)"
+
+    [coins.scrt]
+    chain = "cosmos:secret-4"
+    slip44 = 529
+    symbol = "SCRT"
+    label = "Secret"    
+
+    [coins.eth]
+    chain = "eip155:1"
+    slip44 = 60
+    symbol = "ETH"
+    label = "Ether"
+
+    [coins.bsc]
+    chain = "eip155:56"
+    slip44 = 519
+    symbol = "BSC"
+    label = "Binance Smart Contract"
+
+    [contracts.SCRT_SWAP_CONTRACT]
+    chain = "cosmos:secret-4"
+    address = "secret1sferux27lpr3lm52c8sq2dd7m54xhm28thnj5y"
+    label = "SCRT-ETH Bridge v1.2"
+
+    [contracts.BSC_SCRT_SWAP_CONTRACT]
+    chain = "cosmos:secret-4"
+    address = "secret168mwctng6s7vk9w5d7n0wsty2f7vaq3rjq8g7c"
+    label = "SCRT-BSC Bridge"
+    
+    [contracts.ETH_MANAGER_CONTRACT]
+    chain = "eip155:1"
+    address = "0xf4B00C937b4ec4Bb5AC051c3c719036c668a31EC"
+    label = "Secret Network: Bridge"
+    
+    [contracts.BSC_MANAGER_CONTRACT]
+    chain = "eip155:56"
+    address = "0x3E171dD33502fb993A853F420eA3cd8E9385B757"
+    label = "Secret Network: Bridge"
+    
+    [contracts.SSCRT_CONTRACT]
+    chain = "cosmos:secret-4"
+    address = "secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek"
+    label = "Secret Secret"
+    [contracts.cosmos_secret-4_sscrt.snip20]
+    symbol = "sSCRT"
+
+    [contracts.WSCRT_PROXY_CONTRACT_ETH]
+    chain = "cosmos:secret-4"
+    address = "secret1zxt48uqzquvjsp2a7suzxlyd9n3jfpdw4k5zve"
+    label = "sSCRT Proxy Contract: ETH"
+
+    [contracts.WSCRT_PROXY_CONTRACT_BSC]
+    chain = "cosmos:secret-4"
+    address = "secret1t9cdexpf8pxtjlz4k9cfydd0ml2jxanl0uw5s0"
+    label = "sSCRT Proxy Contract: BSC"
+
+    [contracts.SIENNA_CONTRACT]
+    chain = "cosmos:secret-4"
+    address = "secret1rgm2m5t530tdzyd99775n6vzumxa5luxcllml4"
+    label = "Sienna"
+    [contracts.SIENNA_CONTRACT.snip20]
+    symbol = "SIENNA"
+
+    [contracts.SIENNA_PROXY_CONTRACT_ETH]
+    chain = "cosmos:secret-4"
+    address = "secret1vq0gc5wdjqnalvtgra3dr4m07kaxkhq2st3hzx"
+    label = "Sienna Proxy Contract: ETH"
+
+    [contracts.SIENNA_PROXY_CONTRACT_BSC]
+    chain = "cosmos:secret-4"
+    address = "secret17askz8qzhwgx5s2kumzpyneuccmmwv4drhhkgy"
+    label = "Sienna Proxy Contract: BSC"
+
+    [contracts.AMM_FACTORY_CONTRACT]
+    chain = "cosmos:secret-4"
+    address = "secret1fjqlk09wp7yflxx7y433mkeskqdtw3yqerkcgp"
+    label = "AMM Factory Contract"
+
+    [accounts.LEADER_ACCOUNT_BSC]
+    chain = "eip155:56"
+    address = "0x08E54C84d61E9dB2ED7ea53e2216276d75B5b426"
+    label = "Leader Account: BSC"
+
+    [accounts.LEADER_ACCOUNT_ETH]
+    chain = "eip155:1"
+    address = "0x9d06d59677b412c48F5f8546b45b9Ea694A99698"
+    label = "Leader Account: ETH"
+
+    [contracts.ETH_GOV_TOKEN_ADDRESS]
+    chain = "eip155:1"
+    address = "0x773258b03c730f84af10dfcb1bfaa7487558b8ac"
+    label = "Secret Network: SEFI Token"
+
+    [contracts.ETH_DIST_TOKEN_ADDRESS]
+    chain = "cosmos:secret-4"
+    address = "0x421b003b056dad54de1fe44247c1e5b8e69f6286"
+    label = "Distribution Token: ETH"
+
+    [contracts.SCRT_GOV_TOKEN_ADDRESS]
+    chain = "cosmos:secret-4"
+    address = "secret15l9cqgz5uezgydrglaak5ahfac69kmx2qpd6xt"
+    label = "SEFI"
+    [contracts.SCRT_GOV_TOKEN_ADDRESS.snip20]
+    symbol = "SEFI"
+
+    [accounts.SCRT_DIST_TOKEN_ADDRESS]
+    chain = "cosmos:secret-4"
+    address = "secret1d47hy7sjm88dpls0vu7hvmeuqkxlmtvv2dcfqv"
+    label = "Distribution Token: SCRT"
+
+    [contracts.AMM_ROUTER_CONTRACT]
+    chain = "cosmos:secret-4"
+    address = "secret1xy5r5j4zp0v5fzza5r9yhmv7nux06rfp2yfuuv"
+    label = "AMM Router Contract"
+  </script>
 </head>
 
 <body>
