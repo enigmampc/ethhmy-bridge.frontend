@@ -8,7 +8,7 @@ export const enum NETWORKS {
 export const EXTERNAL_NETWORKS = ['XMR'];
 
 export const EXTERNAL_LINKS = {
-  XMR: 'https://ipfs.io/ipns/k51qzi5uqu5dhovcugri8aul3itkct8lvnodtnv2y3o1saotkjsa7ao1aq0dqa/',
+  XMR: 'https://ipfs.trivium.network/ipns/k51qzi5uqu5dhovcugri8aul3itkct8lvnodtnv2y3o1saotkjsa7ao1aq0dqa/',
 };
 
 export const networkFromToken = (token: { src_network: string; dst_network?: string }): NETWORKS => {
