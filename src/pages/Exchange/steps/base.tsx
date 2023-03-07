@@ -72,8 +72,8 @@ const disableBridge = {
     [NETWORKS.BSC]: false,
   },
   [EXCHANGE_MODE.TO_SCRT]: {
-    [NETWORKS.ETH]: true,
-    [NETWORKS.BSC]: true,
+    [NETWORKS.ETH]: false,
+    [NETWORKS.BSC]: false,
   },
 };
 
