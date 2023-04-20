@@ -59,12 +59,13 @@ export const EthBridge = observer((props: any) => {
       <PageContainer>
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
-            {/* <Message info>
-              <Message.Header>Ethereum and BSC bridge technical difficulties</Message.Header>
+            <Message info>
+              <Message.Header>Deprecation Notice</Message.Header>
               <Message.Content>
-                2022-09-23 14:40 UTC: All bridges are back up.
+                <p>The Secret Bridge is reaching it's final days, and will be winding down over the coming months. A new bridging service is available from the <a href="https://tunnel.scrt.network" target="_blank">Secret Tunnel</a>. </p>
+                <p>We recommend users migrate their assets, and take advantage of the new user experience and DeFi applications! </p>
               </Message.Content>
-            </Message> */}
+            </Message>
             {/*<Message info>*/}
             {/*  <Message.Header>ETH bridge maintenance has been completed, and bridge is back up!</Message.Header>*/}
             {/*</Message>*/}
