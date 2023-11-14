@@ -47,7 +47,7 @@ export const NetworkSelect = observer(
         });
       });
 
-      const external_ids = [NETWORKS.XMR];
+      const external_ids = [];
       external_ids.forEach(id => {
         networks.push({
           value: id,
