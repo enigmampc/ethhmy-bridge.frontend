@@ -62,7 +62,7 @@ export const EthBridge = observer((props: any) => {
             <Message negative>
               <Message.Header>Deprecation Notice</Message.Header>
               <Message.Content>
-                <p>The Secret Bridge will be entering it's first step of deprecation on December 5th. A new bridging service is available from the <a href="https://tunnel.scrt.network" target="_blank">Secret Tunnel</a>. </p>
+                <p>Due to last minute requests deprecation will begin on December 19th. A new bridging service is available from the <a href="https://tunnel.scrt.network" target="_blank">Secret Tunnel</a>. </p>
                 <p>We recommend users migrate their assets, and take advantage of the new user experience and DeFi applications! </p>
               </Message.Content>
             </Message>
