@@ -62,8 +62,8 @@ export const EthBridge = observer((props: any) => {
             <Message negative>
               <Message.Header>Deprecation Notice</Message.Header>
               <Message.Content>
-                <p>Due to last minute requests deprecation will begin on December 19th. A new bridging service is available from the <a href="https://tunnel.scrt.network" target="_blank">Secret Tunnel</a>. </p>
-                <p>We recommend users migrate their assets, and take advantage of the new user experience and DeFi applications! </p>
+                <p>The Ethereum bridge migration is currently underway. At this stage bridging new tokens to Secret is disabled, but exiting the bridge is still enabled.</p>
+                <p>A new bridging service is available from the <a href="https://tunnel.scrt.network" target="_blank">Secret Tunnel</a>. </p>
               </Message.Content>
             </Message>
             {/*<Message info>*/}
