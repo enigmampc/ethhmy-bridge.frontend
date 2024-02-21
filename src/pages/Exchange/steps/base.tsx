@@ -68,8 +68,8 @@ export const notify = (type: 'success' | 'error', msg: string, hideAfterSec: num
 
 const disableBridge = {
   [EXCHANGE_MODE.FROM_SCRT]: {
-    [NETWORKS.ETH]: false,
-    [NETWORKS.BSC]: false,
+    [NETWORKS.ETH]: true,
+    [NETWORKS.BSC]: true,
   },
   [EXCHANGE_MODE.TO_SCRT]: {
     [NETWORKS.ETH]: true,
