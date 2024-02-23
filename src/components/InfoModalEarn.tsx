@@ -10,23 +10,23 @@ export const InfoModalEarn = observer(() => {
   const history = useHistory();
 
   useEffect(() => {
-    if (history.location.pathname !== '/earn') {
-      return;
-    }
-
-    if (!user.isInfoEarnReading) {
-      actionModals.open(() => <InfoEarn title="Improve privacy guarantees and earn SCRT rewards" />, {
-        title: '',
-        applyText: 'Got it',
-        closeText: '',
-        noValidation: true,
-        showOther: true,
-        onApply: () => {
-          user.setInfoEarnReading();
-          return Promise.resolve();
-        },
-      });
-    }
+    // if (history.location.pathname !== '/earn') {
+    //   return;
+    // }
+    //
+    // if (!user.isInfoEarnReading) {
+    //   actionModals.open(() => <InfoEarn title="Improve privacy guarantees and earn SCRT rewards" />, {
+    //     title: '',
+    //     applyText: 'Got it',
+    //     closeText: '',
+    //     noValidation: true,
+    //     showOther: true,
+    //     onApply: () => {
+    //       user.setInfoEarnReading();
+    //       return Promise.resolve();
+    //     },
+    //   });
+    // }
   }, [user.isInfoEarnReading]);
 
   return <></>;

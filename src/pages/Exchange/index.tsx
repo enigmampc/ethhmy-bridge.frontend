@@ -23,12 +23,12 @@ export const Exchange = observer(() => {
   return (
     <Box fill direction="column" style={{ position: 'relative' }}>
       <Base />
-      {exchange.step.id === EXCHANGE_STEPS.APPROVE_CONFIRMATION && <ERC20ApprovalModal />}
-      {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION && <SwapConfirmation />}
-      {exchange.step.id === EXCHANGE_STEPS.CHECK_TRANSACTION && <CheckTransaction />}
-      <div style={{zIndex: 2}}>
-        <OperationsPanel />
-      </div>
+      {/*{exchange.step.id === EXCHANGE_STEPS.APPROVE_CONFIRMATION && <ERC20ApprovalModal />}*/}
+      {/*{exchange.step.id === EXCHANGE_STEPS.CONFIRMATION && <SwapConfirmation />}*/}
+      {/*{exchange.step.id === EXCHANGE_STEPS.CHECK_TRANSACTION && <CheckTransaction />}*/}
+      {/*<div style={{zIndex: 2}}>*/}
+      {/*  <OperationsPanel />*/}
+      {/*</div>*/}
     </Box>
   );
 });
