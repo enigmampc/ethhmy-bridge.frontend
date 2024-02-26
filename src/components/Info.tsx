@@ -2,6 +2,7 @@ import React from 'react';
 import { Box } from 'grommet';
 import { Title } from './Base/components/Title';
 import * as styles from './info-styles.styl';
+import { Text } from './Base';
 
 export const Info = ({ title }: { title: string }) => (
   <Box className={styles.infoContainer} pad={{ horizontal: 'large', top: 'large' }}>
@@ -39,7 +40,7 @@ export const Info = ({ title }: { title: string }) => (
         <ul>
           <li>
             If you have assets that do not support migration, please reach out to the Secret Bridge team. We will assist
-            in the manual claim process. Your funds will be kept in cold storage until you claim them.
+            in the manual claim process. Your funds will be kept in cold storage until you claim them. Contact us at bridge.claims@scrtlabs.com if you wish to migrate legacy tokens.
           </li>
           <li>
             If you have any questions, please reach out to the Secret Network team
@@ -67,10 +68,18 @@ export const Info = ({ title }: { title: string }) => (
       <p>
         <b>DISCLAIMER</b>
         <p>
-          IN NO EVENT SHALL WE, OUR AFFILIATES, OR OUR RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES, AGENTS,
-          OR CONTRACTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, EXEMPLARY,
-          OR PUNITIVE DAMAGES, INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF PROFITS, LOSS OF TOKENS,
-          OR INTERRUPTION OF SERVICE, ARISING OUT OF OR IN CONNECTION WITH THE USE OR INABILITY TO USE THE SERVICE
+          <Text size={"xxsmall"}>
+          SCRT LABS IS NOT UNDER ANY LEGAL, CONTRACTUAL OR OTHER OBLIGATION TO
+          HOLD, TRANSFER, KEEP SAFE, REIMBURSE OR COMPENSATE FOR ANY DIGITAL ASSET
+          REMAINING ON THE BRIDGE. ANY DIGITAL ASSET OWNERS WHO HAVE NOT YET REMOVED THEIR ASSETS
+          FROM THE BRIDGE DESPITE THE REPEATED NOTIFICATIONS, ARE SOLELY LIABLE TO ANY DAMAGE OR
+          LOSS THAT MAY BE INCURRED. IN NO EVENT SHALL WE, OUR AFFILIATES, OR OUR RESPECTIVE DIRECTORS,
+          OFFICERS, EMPLOYEES, AGENTS, OR CONTRACTORS, BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+          CONSEQUENTIAL, SPECIAL, EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING, WITHOUT LIMITATION,
+          DAMAGES FOR LOSS OF PROFITS, LOSS OF TOKENS, OR INTERRUPTION OF SERVICE,
+          ARISING OUT OF OR IN CONNECTION WITH THE USE OR INABILITY TO USE THE WEBSITE,
+          BRIDGE, OR ANY OTHER RELATED SERVICE.
+          </Text>
         </p>
       </p>
     </div>
