@@ -17,7 +17,7 @@ export const Info = ({ title }: { title: string }) => (
         <ul>
           <li>1. The contracts have been disabled, and the bridge is offline.</li>
           <li>2. All funds are safe. Tokens that support migration can be redeemed at the new {' '}
-            <a href="https://tunnel.scrt.network" target="_blank" rel="noreferrer">scrt.tunnel</a>.
+            <a href="https://tunnel.scrt.network" target="_blank" rel="noreferrer">Secret Tunnel</a>.
           </li>
           <ul>
             These tokens are:
@@ -27,7 +27,7 @@ export const Info = ({ title }: { title: string }) => (
             BSC: BNB
           </ul>
           <li>
-            3. Tokens that are not supported in the new scrt.tunnel are available via a manual claim process. Any unclaimed
+            3. Tokens that are not supported in the Secret Tunnel are available via a manual claim process. Any unclaimed
             funds are kept in cold storage and can be claimed at any time.
           </li>
           <li>
@@ -60,7 +60,7 @@ export const Info = ({ title }: { title: string }) => (
       <p>
         <b>Support</b>
         <br />
-        If you have any questions, reach out to our <strong>#🌉bridge-support</strong> channel on the{' '}
+        If you have any questions, reach out to our <strong>#open-a-ticket</strong> channel on the{' '}
         <a href="https://chat.scrt.network/" target="_blank" rel="noreferrer">
           Secret Network Discord server
         </a>{' '}
