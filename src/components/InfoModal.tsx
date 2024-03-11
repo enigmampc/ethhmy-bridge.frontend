@@ -10,26 +10,22 @@ export const InfoModal = observer(() => {
   const history = useHistory();
 
   useEffect(() => {
-    if (history.location.pathname === '/swap') {
-      return;
+    if (!user.isInfoReading) {
+      actionModals.open(
+        () => <Info title="No more bridge for you" />,
+        {
+          title: '',
+          applyText: 'Got it',
+          closeText: '',
+          noValidation: true,
+          showOther: true,
+          onApply: () => {
+            user.setInfoReading();
+            return Promise.resolve();
+          },
+        },
+      );
     }
-
-    // if (!user.isInfoReading) {
-    //   actionModals.open(
-    //     () => <Info title="Welcome to Ethereum <> 𝕊ecret Bridge" />,
-    //     {
-    //       title: '',
-    //       applyText: 'Got it',
-    //       closeText: '',
-    //       noValidation: true,
-    //       showOther: true,
-    //       onApply: () => {
-    //         user.setInfoReading();
-    //         return Promise.resolve();
-    //       },
-    //     },
-    //   );
-    // }
   }, [user.isInfoReading]);
 
   return <></>;

@@ -706,71 +706,71 @@ export const Base = observer(() => {
               <WrongNetwork networkSelected={metamaskNetwork} />
             )}
           </Box>
-          <Box direction="column">
-            {progress > 0 && (
-              <Box direction="row" align="center" margin={{ left: '75', bottom: 'small' }} fill>
-                <Text
-                  className={styles.progressNumber}
-                  style={{ background: progress === 2 ? '#00ADE888' : '#00ADE8' }}
-                >
-                  1
-                </Text>
-                <ProgressBar
-                  height="4"
-                  width="220"
-                  bgColor={'#00BFFF'}
-                  completed={progress * 50}
-                  isLabelVisible={false}
-                />
-                <Text className={styles.progressNumber} style={{ background: progress === 1 ? '#E4E4E4' : '#00ADE8' }}>
-                  2
-                </Text>
-              </Box>
-            )}
+          {/*<Box direction="column">*/}
+          {/*  {progress > 0 && (*/}
+          {/*    <Box direction="row" align="center" margin={{ left: '75', bottom: 'small' }} fill>*/}
+          {/*      <Text*/}
+          {/*        className={styles.progressNumber}*/}
+          {/*        style={{ background: progress === 2 ? '#00ADE888' : '#00ADE8' }}*/}
+          {/*      >*/}
+          {/*        1*/}
+          {/*      </Text>*/}
+          {/*      <ProgressBar*/}
+          {/*        height="4"*/}
+          {/*        width="220"*/}
+          {/*        bgColor={'#00BFFF'}*/}
+          {/*        completed={progress * 50}*/}
+          {/*        isLabelVisible={false}*/}
+          {/*      />*/}
+          {/*      <Text className={styles.progressNumber} style={{ background: progress === 1 ? '#E4E4E4' : '#00ADE8' }}>*/}
+          {/*        2*/}
+          {/*      </Text>*/}
+          {/*    </Box>*/}
+          {/*  )}*/}
 
-            <Box direction="row">
-              {exchange.mode === EXCHANGE_MODE.TO_SCRT && selectedToken.symbol !== '' && !isNativeToken(selectedToken) && (
-                <Button
-                  disabled={exchange.tokenApprovedLoading || !toApprove}
-                  bgColor={'#00ADE8'}
-                  color={'white'}
-                  style={{ minWidth: 180, height: 48 }}
-                  onClick={() => {
-                    const tokenError = validateTokenInput(selectedToken);
-                    setErrors({ ...errors, token: '' });
-                    if (tokenError) return setErrors({ ...errors, token: tokenError });
+          {/*  <Box direction="row">*/}
+          {/*    {exchange.mode === EXCHANGE_MODE.TO_SCRT && selectedToken.symbol !== '' && !isNativeToken(selectedToken) && (*/}
+          {/*      <Button*/}
+          {/*        disabled={exchange.tokenApprovedLoading || !toApprove}*/}
+          {/*        bgColor={'#00ADE8'}*/}
+          {/*        color={'white'}*/}
+          {/*        style={{ minWidth: 180, height: 48 }}*/}
+          {/*        onClick={() => {*/}
+          {/*          const tokenError = validateTokenInput(selectedToken);*/}
+          {/*          setErrors({ ...errors, token: '' });*/}
+          {/*          if (tokenError) return setErrors({ ...errors, token: tokenError });*/}
 
-                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
-                  }}
-                >
-                  {exchange.tokenApprovedLoading ? (
-                    <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />
-                  ) : exchange.isTokenApproved ? (
-                    'Approved!'
-                  ) : (
-                    'Approve'
-                  )}
-                </Button>
-              )}
+          {/*          if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);*/}
+          {/*        }}*/}
+          {/*      >*/}
+          {/*        {exchange.tokenApprovedLoading ? (*/}
+          {/*          <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" />*/}
+          {/*        ) : exchange.isTokenApproved ? (*/}
+          {/*          'Approved!'*/}
+          {/*        ) : (*/}
+          {/*          'Approve'*/}
+          {/*        )}*/}
+          {/*      </Button>*/}
+          {/*    )}*/}
 
-              <Button
-                disabled={!readyToSend || disableBridge[exchange.mode][userMetamask.network]}
-                margin={{ left: 'medium' }}
-                bgColor={!toApprove ? '#00ADE8' : '#E4E4E4'}
-                color={!toApprove ? 'white' : '#748695'}
-                style={{ minWidth: 300, height: 48 }}
-                onClick={() => {
-                  if (exchange.step.id === EXCHANGE_STEPS.BASE) {
-                    onClickHandler(exchange.step.onClickSend);
-                  }
-                }}
-              >
-                {exchange.mode === EXCHANGE_MODE.TO_SCRT
-                  ? 'Bridge to Secret Network'
-                  : `Bridge to ${userMetamask.getNetworkFullName()}`}
-              </Button>
-            </Box>
-          </Box>
+          {/*    <Button*/}
+          {/*      disabled={!readyToSend || disableBridge[exchange.mode][userMetamask.network]}*/}
+          {/*      margin={{ left: 'medium' }}*/}
+          {/*      bgColor={!toApprove ? '#00ADE8' : '#E4E4E4'}*/}
+          {/*      color={!toApprove ? 'white' : '#748695'}*/}
+          {/*      style={{ minWidth: 300, height: 48 }}*/}
+          {/*      onClick={() => {*/}
+          {/*        if (exchange.step.id === EXCHANGE_STEPS.BASE) {*/}
+          {/*          onClickHandler(exchange.step.onClickSend);*/}
+          {/*        }*/}
+          {/*      }}*/}
+          {/*    >*/}
+          {/*      {exchange.mode === EXCHANGE_MODE.TO_SCRT*/}
+          {/*        ? 'Bridge to Secret Network'*/}
+          {/*        : `Bridge to ${userMetamask.getNetworkFullName()}`}*/}
+          {/*    </Button>*/}
+          {/*  </Box>*/}
+          {/*</Box>*/}
         </Box>
       </Box>
       <Modal

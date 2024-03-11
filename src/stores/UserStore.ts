@@ -244,7 +244,7 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public setInfoReading() {
-    this.isInfoReading = true;
+    this.isInfoReading = false;
     this.syncLocalStorage();
   }
 
